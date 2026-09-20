@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#F4F1EA" />
+<title>Maktoub — Private Matchmaking + Social Club / UI Revision</title>
+<meta name="description" content="Private matchmaking and a curated social world. Meet people you could spend the rest of your life with — romantically or socially." />
+<style>
+:root{
+  --paper:#F4F1EA;
+  --paper2:#EAE6DE;
+  --ink:#0B0B0A;
+  --night:#0B0B0B;
+  --charcoal:#272725;
+  --smoke:#77736C;
+  --hair:#C7C2B8;
+  --ember:#C1583D;
+  --white:#FAFAF7;
+  --pad:clamp(20px,3.6vw,56px);
+  --sy:clamp(88px,10vw,160px);
+  --sans:"Helvetica Neue","Neue Haas Grotesk Text Pro","Arial Nova",Arial,sans-serif;
+  --arabic:"Geeza Pro","Noto Sans Arabic","Tahoma",sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;background:var(--paper)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-weight:400;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+::selection{background:var(--ember);color:var(--white)}
+
+/* quiet paper grain — no gradients */
+.paper-noise:before,.night-noise:before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.045;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.72' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E")}
+.night-noise:before{opacity:.06;mix-blend-mode:screen}
+
+.header{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:18px var(--pad);mix-blend-mode:difference;color:#fff;pointer-events:none}
+.header>*{pointer-events:auto}
+.wordmark{font-size:14px;letter-spacing:.03em;text-transform:uppercase}
+.nav{display:flex;align-items:center;gap:24px;font-size:11px;text-transform:uppercase;letter-spacing:.055em}
+.nav a{opacity:.86}
+.pill{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:42px;padding:10px 17px;border:1px solid currentColor;border-radius:999px;background:transparent;font-size:11px;letter-spacing:.06em;text-transform:uppercase;transition:background .2s,color .2s,border-color .2s}
+.pill-dark{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.pill-dark:hover{background:var(--ember);border-color:var(--ember)}
+.pill-ghost{color:var(--white);border-color:rgba(255,255,255,.65)}
+.pill-ghost:hover{background:var(--white);color:var(--ink)}
+.menu-button{display:none;color:white;background:transparent}
+.mobile-menu{display:none;position:fixed;inset:0;z-index:45;background:var(--night);color:var(--white);padding:110px var(--pad) var(--pad);flex-direction:column;justify-content:center;gap:18px}
+.mobile-menu a{font-size:clamp(42px,10vw,72px);font-weight:300;letter-spacing:-.05em;line-height:.96}
+.mobile-menu.open{display:flex}
+
+.section{position:relative;overflow:hidden;padding:var(--sy) var(--pad)}
+.paper{background:var(--paper);color:var(--ink)}
+.night{background:var(--night);color:var(--white)}
+.eyebrow{font-size:10px;line-height:1.1;text-transform:uppercase;letter-spacing:.12em}
+.display{font-weight:300;line-height:.9;letter-spacing:-.058em;margin:0}
+.lead{font-size:clamp(20px,2vw,29px);line-height:1.15;letter-spacing:-.03em;margin:0}
+.body{font-size:16px;line-height:1.48;margin:0}
+.muted{color:var(--smoke)}
+
+.hero{min-height:100svh;padding-top:118px;padding-bottom:0;display:flex;flex-direction:column;justify-content:space-between}
+.hero-top{display:grid;grid-template-columns:1fr auto;gap:30px;align-items:start}
+.hero-kicker{margin-top:5px}
+.hero-written{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--smoke)}
+.hero-main{padding-top:clamp(50px,8vh,100px)}
+.hero-brand{font-size:clamp(92px,17vw,290px);max-width:100%;white-space:nowrap;line-height:.72;letter-spacing:-.076em;font-weight:300;margin:0 0 44px}
+.hero-copy{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(250px,.7fr);gap:8vw;align-items:end;border-top:1px solid var(--hair);padding-top:28px}
+.hero-copy h1{font-size:clamp(44px,5.5vw,82px);max-width:13ch}
+.hero-copy-right{display:grid;gap:24px;justify-items:start}
+.hero-copy-right p{max-width:25ch}
+.marquee{margin:clamp(56px,9vh,110px) calc(var(--pad)*-1) 0;overflow:hidden;white-space:nowrap;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
+.marquee-track{width:max-content;display:flex;align-items:center;gap:5vw;padding:14px 0 20px;animation:marquee 32s linear infinite;will-change:transform}
+.marquee span{font-family:var(--arabic);font-size:clamp(92px,15vw,230px);font-weight:300;line-height:.84;direction:rtl}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.match-intro{padding-bottom:70px}
+.section-grid{display:grid;grid-template-columns:minmax(120px,.65fr) minmax(0,1.9fr) minmax(260px,.8fr);gap:34px;align-items:start}
+.section-grid h2{grid-column:2;font-size:clamp(54px,7vw,112px);max-width:11ch}
+.section-grid .side-copy{grid-column:3;color:#C9C4BC;display:grid;gap:22px;max-width:28ch}
+
+.segmented{display:flex;width:100%;height:min(74vh,760px);border-top:1px solid rgba(255,255,255,.28);border-bottom:1px solid rgba(255,255,255,.28)}
+.segment{position:relative;flex:1 1 0;min-width:0;overflow:hidden;border-right:1px solid rgba(255,255,255,.25);cursor:pointer;transition:flex .82s cubic-bezier(.2,.72,.2,1),background .4s ease;background:#111}
+.segment:last-child{border-right:0}.segment.active{flex:2.35 1 0;background:#151514}
+.segment-num{position:absolute;top:20px;left:20px;font-size:10px;letter-spacing:.1em;color:#A9A49D}
+.segment-title{position:absolute;left:20px;bottom:24px;font-size:clamp(26px,3.1vw,52px);font-weight:300;line-height:.95;letter-spacing:-.045em;max-width:8ch}
+.segment-title:after{content:"";display:block;width:0;height:1px;background:var(--ember);margin-top:14px;transition:width .55s ease}.segment.active .segment-title:after{width:64px}
+.segment-sub{position:absolute;left:20px;right:20px;bottom:120px;max-width:30ch;font-size:14px;line-height:1.42;color:#D6D2CB;opacity:0;transform:translateY(10px);transition:opacity .45s ease .14s,transform .45s ease .14s}.segment.active .segment-sub{opacity:1;transform:none}
+.segment-word{position:absolute;inset:auto -2vw 4vh auto;font-family:var(--arabic);font-size:clamp(130px,23vw,350px);line-height:.7;color:white;opacity:.035;transform:rotate(-8deg);pointer-events:none;direction:rtl}
+.segment-accent{position:absolute;top:0;right:0;width:1px;height:0;background:var(--ember);transition:height .7s ease}.segment.active .segment-accent{height:100%}
+.match-close{padding:72px 0 0;display:grid;grid-template-columns:1.6fr 1fr;gap:44px;align-items:start}.match-close .statement{font-size:clamp(40px,4.8vw,76px);font-weight:300;letter-spacing:-.05em;line-height:.98;max-width:14ch;margin:0}.choice-list{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}.choice-list span{border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:9px 12px;font-size:10px;letter-spacing:.07em;text-transform:uppercase}
+
+.interruption{min-height:85svh;display:grid;align-content:center;gap:26px}
+.interruption-small{justify-self:end;margin-right:8vw;font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.interruption-big{font-size:clamp(96px,17vw,280px);line-height:.78;letter-spacing:-.075em;font-weight:300}
+.interruption-ar{font-family:var(--arabic);font-size:clamp(80px,13vw,200px);line-height:.8;color:var(--ember);direction:rtl;justify-self:start;transform:translateX(-3vw)}
+
+.social-intro{padding-bottom:70px}.social-intro .section-grid .side-copy{color:var(--ink)}
+.social-panels{display:flex;height:min(66vh,680px);border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
+.social-panel{position:relative;flex:1 1 0;min-width:0;border-right:1px solid var(--hair);overflow:hidden;cursor:pointer;transition:flex .8s cubic-bezier(.2,.72,.2,1),background .35s ease;background:var(--paper)}.social-panel:last-child{border-right:0}.social-panel.active{flex:2.1 1 0;background:var(--paper2)}
+.social-num{position:absolute;top:20px;left:20px;font-size:10px;letter-spacing:.1em;color:var(--smoke)}
+.social-title{position:absolute;left:20px;bottom:24px;font-size:clamp(24px,2.7vw,44px);font-weight:300;line-height:.95;letter-spacing:-.045em;max-width:9ch}
+.social-copy{position:absolute;left:20px;right:24px;bottom:116px;font-size:14px;line-height:1.4;max-width:28ch;opacity:0;transform:translateY(10px);transition:opacity .45s ease .12s,transform .45s ease .12s}.social-panel.active .social-copy{opacity:1;transform:none}
+.social-visual{position:absolute;inset:0;pointer-events:none;opacity:.18}
+.social-visual:before,.social-visual:after{content:"";position:absolute;background:var(--ink)}
+.social-panel:nth-child(1) .social-visual:before{width:1px;height:70%;left:50%;top:10%}.social-panel:nth-child(1) .social-visual:after{height:1px;width:70%;left:15%;top:45%}
+.social-panel:nth-child(2) .social-visual:before{width:46%;aspect-ratio:1;border:1px solid var(--ink);background:transparent;border-radius:50%;left:28%;top:18%}.social-panel:nth-child(2) .social-visual:after{width:1px;height:100%;left:50%;top:0}
+.social-panel:nth-child(3) .social-visual:before{width:64%;height:1px;left:18%;top:30%;box-shadow:0 70px 0 var(--ink),0 140px 0 var(--ink)}.social-panel:nth-child(3) .social-visual:after{width:1px;height:70%;left:32%;top:12%;box-shadow:90px 0 0 var(--ink)}
+.social-panel:nth-child(4) .social-visual:before{width:54%;height:54%;left:23%;top:12%;border:1px solid var(--ink);background:transparent}.social-panel:nth-child(4) .social-visual:after{width:44%;height:1px;left:28%;top:39%}
+
+.bridge{min-height:100svh;display:flex;flex-direction:column;justify-content:center;gap:11vh}.bridge-line{font-size:clamp(52px,7.8vw,128px);font-weight:300;letter-spacing:-.06em;line-height:.9;max-width:14ch}.bridge-line:nth-child(2){margin-left:11vw}.bridge-line.final{margin-left:34vw;color:var(--ember)}.bridge-small{margin-left:auto;max-width:470px;color:#AAA69F;font-size:14px;line-height:1.45}
+
+.product{padding-bottom:120px}.product-head{display:flex;justify-content:space-between;gap:30px;align-items:end;margin-bottom:48px}.product-head h2{font-size:clamp(52px,6.5vw,102px);max-width:10ch}.product-head p{max-width:28ch}
+.product-grid{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--hair);border-left:1px solid var(--hair)}
+.product-card{min-height:620px;padding:0;border-right:1px solid var(--hair);border-bottom:1px solid var(--hair);display:flex;flex-direction:column;background:var(--paper);color:var(--ink);overflow:hidden}.product-card.dark{background:var(--night);color:var(--white);border-color:rgba(255,255,255,.28)}
+.product-caption{padding:20px 22px 24px;border-top:1px solid currentColor;display:flex;justify-content:space-between;gap:24px;align-items:flex-end;opacity:.96}.product-card.dark .product-caption{border-color:rgba(255,255,255,.28)}.product-caption h3{font-size:clamp(30px,3vw,48px);font-weight:300;letter-spacing:-.05em;line-height:.95;margin:0;max-width:8ch}.product-caption p{font-size:12px;line-height:1.4;max-width:25ch;margin:0;opacity:.65}
+.ui-shell{flex:1;min-height:470px;display:flex;flex-direction:column;padding:20px 22px 24px;position:relative;overflow:hidden}.ui-shell:after{content:"";position:absolute;right:-14%;bottom:-18%;width:48%;aspect-ratio:1;border:1px solid currentColor;border-radius:50%;opacity:.08}.ui-shell.red-mark:before{content:"";position:absolute;right:8%;top:19%;width:70px;height:1px;background:var(--ember);transform:rotate(-8deg);transform-origin:right center}
+.ui-top{display:flex;justify-content:space-between;align-items:center;padding-bottom:16px;border-bottom:1px solid currentColor;font-size:9px;text-transform:uppercase;letter-spacing:.09em}.product-card.dark .ui-top,.product-card.dark .ui-rule,.product-card.dark .ui-row{border-color:rgba(255,255,255,.28)}
+.ui-kicker{margin-top:24px;font-size:9px;text-transform:uppercase;letter-spacing:.1em;opacity:.55}.ui-title{font-size:clamp(42px,4.6vw,74px);font-weight:300;letter-spacing:-.058em;line-height:.88;margin:12px 0 28px;max-width:8ch}.ui-title.wide{max-width:11ch}.ui-rule{border-top:1px solid currentColor;opacity:.34}.ui-row{display:grid;grid-template-columns:88px 1fr auto;gap:18px;align-items:start;padding:15px 0;border-bottom:1px solid currentColor}.ui-row:last-of-type{border-bottom:0}.ui-label{font-size:9px;text-transform:uppercase;letter-spacing:.09em;opacity:.55}.ui-row strong{font-size:13px;font-weight:400;letter-spacing:-.01em}.ui-row small{display:block;margin-top:4px;font-size:11px;line-height:1.35;opacity:.58;max-width:32ch}.ui-arrow{font-size:18px;font-weight:300;line-height:1;opacity:.6}
+.ui-tags{display:flex;flex-wrap:wrap;gap:7px;margin:18px 0 0}.ui-tags span,.ui-mini{border:1px solid currentColor;border-radius:999px;padding:7px 10px;font-size:9px;text-transform:uppercase;letter-spacing:.08em}.ui-actions{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:24px}.ui-action{display:inline-flex;align-items:center;justify-content:center;min-height:39px;padding:9px 13px;border:1px solid currentColor;border-radius:999px;font-size:9px;text-transform:uppercase;letter-spacing:.08em;background:transparent}.ui-action.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}.product-card.dark .ui-action.primary{background:var(--white);color:var(--night);border-color:var(--white)}
+.ui-event-block{margin-top:auto;display:grid;grid-template-columns:92px 1fr;border-top:1px solid currentColor;border-bottom:1px solid currentColor}.ui-date{padding:18px 16px 18px 0;font-size:46px;font-weight:300;line-height:.84;letter-spacing:-.06em}.ui-date span{display:block;font-size:9px;letter-spacing:.09em;text-transform:uppercase;margin-top:8px}.ui-event-copy{padding:18px 0 18px 18px;border-left:1px solid currentColor}.ui-event-copy strong{font-weight:400;font-size:16px;letter-spacing:-.02em}.ui-event-copy small{display:block;margin-top:7px;font-size:11px;line-height:1.4;opacity:.6}
+.ui-person{margin-top:auto;display:grid;grid-template-columns:1fr auto;align-items:end;padding-top:22px;border-top:1px solid currentColor}.ui-person-name{font-size:clamp(54px,6vw,92px);font-weight:300;line-height:.82;letter-spacing:-.07em}.ui-person-meta{text-align:right;font-size:9px;line-height:1.5;text-transform:uppercase;letter-spacing:.08em;opacity:.58}
+.ui-calendar{margin-top:10px;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid currentColor;border-bottom:1px solid currentColor}.ui-day{padding:14px 6px;text-align:center;border-right:1px solid currentColor;font-size:9px;text-transform:uppercase;letter-spacing:.06em}.ui-day:last-child{border-right:0}.ui-day b{display:block;font-size:28px;font-weight:300;letter-spacing:-.05em;margin-top:5px}.ui-day.active{background:var(--ink);color:var(--paper)}.product-card.dark .ui-day.active{background:var(--white);color:var(--night)}
+.ui-times{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.ui-time{border:1px solid currentColor;border-radius:999px;padding:8px 11px;font-size:9px;letter-spacing:.07em;text-transform:uppercase}.ui-time.active{background:var(--ember);color:var(--white);border-color:var(--ember)}
+.product-note{position:absolute;right:24px;bottom:108px;color:var(--ember);font-size:11px;letter-spacing:.08em;text-transform:uppercase;transform:rotate(-5deg)}
+
+.intake{display:grid;grid-template-columns:1.15fr 1fr;gap:10vw;border-top:1px solid var(--hair)}.intake h2{font-size:clamp(58px,7.5vw,116px);max-width:7ch}.intake-right{display:grid;gap:20px;align-content:start}.intake-facts{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);margin:10px 0}.intake-facts span{padding:16px 0;font-size:10px;letter-spacing:.09em;text-transform:uppercase}.intake-facts span+span{border-left:1px solid var(--hair);padding-left:16px}
+
+.founder{display:grid;grid-template-columns:.7fr 1.3fr;gap:10vw;border-top:1px solid var(--hair)}.founder-mark{font-size:clamp(66px,10vw,160px);font-weight:300;letter-spacing:-.065em;line-height:.8;color:var(--ember);writing-mode:vertical-rl;transform:rotate(180deg)}.founder-content h2{font-size:clamp(40px,4.8vw,72px);font-weight:300;letter-spacing:-.05em;line-height:.98;margin:28px 0;max-width:14ch}.founder-content p{max-width:52ch;font-size:16px;line-height:1.5}.founder-name{margin-top:44px;font-size:10px;text-transform:uppercase;letter-spacing:.09em}.founder-name span{color:var(--smoke)}
+
+.apply{min-height:100svh;display:flex;flex-direction:column;justify-content:center}.apply h2{font-size:clamp(72px,10vw,160px);max-width:8ch;margin:18px 0 28px}.apply-grid{display:grid;grid-template-columns:1fr 1fr;margin-top:58px;border-top:1px solid rgba(255,255,255,.3);border-bottom:1px solid rgba(255,255,255,.3)}.apply-card{padding:28px 28px 32px 0;min-height:330px;display:flex;flex-direction:column;align-items:flex-start}.apply-card+.apply-card{border-left:1px solid rgba(255,255,255,.3);padding-left:28px}.apply-card h3{margin:auto 0 12px;font-size:clamp(36px,4vw,62px);font-weight:300;letter-spacing:-.05em;line-height:.95}.apply-card p{color:#C9C5BE;max-width:30ch}.apply-note{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#89857F;margin-top:18px}
+
+.outro{min-height:90svh;padding-bottom:26px;display:flex;flex-direction:column}.outro-brand{margin-top:auto;font-size:clamp(100px,18vw,290px);font-weight:300;letter-spacing:-.075em;line-height:.72}.outro-written{font-size:clamp(42px,6vw,90px);font-weight:300;letter-spacing:-.055em;color:var(--ember);align-self:flex-end;margin-top:34px}.footer-marquee{margin-top:44px;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);overflow:hidden;white-space:nowrap}.footer-marquee .marquee-track{margin:0;padding:12px 0 16px}.footer-marquee span{font-family:var(--arabic);font-size:clamp(62px,10vw,140px)}.footer{display:flex;justify-content:space-between;gap:30px;padding-top:22px;font-size:10px;text-transform:uppercase;letter-spacing:.08em}.footer-links{display:flex;gap:20px;flex-wrap:wrap}
+
+.modal{position:fixed;inset:0;z-index:100;background:rgba(11,11,11,.78);display:none;align-items:center;justify-content:center;padding:20px}.modal.open{display:flex}.modal-card{width:min(720px,100%);background:var(--paper);color:var(--ink);border:1px solid var(--ink);padding:28px;position:relative}.modal-close{position:absolute;top:18px;right:18px;border:1px solid var(--ink);background:transparent;width:38px;height:38px;border-radius:50%}.modal-card h3{font-size:clamp(44px,6vw,80px);font-weight:300;letter-spacing:-.055em;line-height:.9;margin:40px 0 24px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.field{display:grid;gap:7px}.field.full{grid-column:1/-1}.field label{font-size:10px;text-transform:uppercase;letter-spacing:.08em}.field input,.field select,.field textarea{width:100%;border:0;border-bottom:1px solid var(--ink);background:transparent;padding:12px 0;border-radius:0;outline:none}.field textarea{min-height:90px;resize:vertical}.submit-row{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:28px}.form-note{font-size:11px;color:var(--smoke);max-width:36ch}
+
+@media(max-width:920px){
+  .nav{display:none}.menu-button{display:inline-flex}.section-grid{grid-template-columns:1fr}.section-grid h2,.section-grid .side-copy{grid-column:1}.section-grid .side-copy{max-width:40ch}.hero-copy{grid-template-columns:1fr}.hero-copy-right{justify-items:start}.segmented,.social-panels{height:auto;flex-direction:column}.segment,.social-panel{min-height:170px;border-right:0;border-bottom:1px solid rgba(255,255,255,.25)}.social-panel{border-color:var(--hair)}.segment:last-child,.social-panel:last-child{border-bottom:0}.segment.active,.social-panel.active{min-height:470px;flex:1}.match-close{grid-template-columns:1fr}.choice-list{justify-content:flex-start}.bridge-line:nth-child(2),.bridge-line.final{margin-left:0}.product-grid{grid-template-columns:1fr}.product-card{border-right:0;border-bottom:1px solid var(--hair)}.product-card:last-child{border-bottom:0}.intake,.founder,.apply-grid{grid-template-columns:1fr}.founder-mark{writing-mode:initial;transform:none}.apply-card+.apply-card{border-left:0;border-top:1px solid rgba(255,255,255,.3);padding-left:0}.product-head{display:grid}.product-head p{max-width:40ch}.form-grid{grid-template-columns:1fr}
+}
+@media(max-width:620px){.hero{padding-top:92px}.hero-brand{font-size:21vw}.hero-top{grid-template-columns:1fr}.hero-written{justify-self:end}.interruption-big{font-size:21vw}.bridge{gap:10vh}.bridge-line{font-size:13vw}.intake-facts{grid-template-columns:1fr}.intake-facts span+span{border-left:0;border-top:1px solid var(--hair);padding-left:0}.footer{flex-direction:column}.submit-row{align-items:flex-start;flex-direction:column}.ui-row{grid-template-columns:70px 1fr auto;gap:10px}.ui-shell{min-height:520px}.ui-calendar{grid-template-columns:repeat(5,minmax(52px,1fr));overflow-x:auto}.ui-day{min-width:52px}.product-caption{align-items:flex-start;flex-direction:column}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}
+</style>
+</head>
+<body>
+<header class="header">
+  <a class="wordmark" href="#top">MAKTOUB</a>
+  <nav class="nav" aria-label="Primary">
+    <a href="#matchmaking">Matchmaking</a><a href="#social">Social world</a><a href="#about">About</a><a class="pill pill-dark" href="#apply">Apply</a>
+  </nav>
+  <button class="menu-button pill" aria-expanded="false" aria-controls="mobileMenu">Menu</button>
+</header>
+<nav id="mobileMenu" class="mobile-menu" aria-label="Mobile">
+  <a href="#matchmaking">Matchmaking</a><a href="#social">Social world</a><a href="#about">About</a><a href="#apply">Apply</a>
+</nav>
+
+<main id="top">
+<section class="section paper paper-noise hero">
+  <div class="hero-top"><div class="eyebrow hero-kicker">PRIVATE MATCHMAKING + SOCIAL CLUB / RIYADH</div><div class="hero-written">IT'S WRITTEN.</div></div>
+  <div class="hero-main">
+    <div class="hero-brand">MAKTOUB</div>
+    <div class="hero-copy">
+      <h1 class="display">Meet people you could spend the rest of your life with.</h1>
+      <div class="hero-copy-right"><p class="lead">Romantically or socially.</p><p class="body muted">Private matchmaking and a curated social world for people who want less randomness and more meaningful ways to meet.</p><a class="pill pill-dark" href="#apply">Apply to Maktoub →</a></div>
+    </div>
+  </div>
+  <div class="marquee" aria-hidden="true"><div class="marquee-track"><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span></div></div>
+</section>
+
+<section id="matchmaking" class="section night night-noise match-intro">
+  <div class="section-grid">
+    <div class="eyebrow">PRIVATE MATCHMAKING</div>
+    <h2 class="display">A more thoughtful way to meet someone.</h2>
+    <div class="side-copy"><p class="lead">We start with a private conversation.</p><p class="body">Then we build a deeper picture of who you are, what matters to you and the life you actually want to build.</p></div>
+  </div>
+</section>
+<section class="night" style="padding:0 var(--pad) var(--sy)">
+  <div class="segmented" data-group>
+    <article class="segment active" tabindex="0" data-item><div class="segment-num">01</div><div class="segment-accent"></div><div class="segment-word">نفس</div><div class="segment-sub">Mindset. Personality. Communication. Emotional patterns. Individuality. Cognitive style. Relationship readiness.</div><div class="segment-title">PERSONALITY</div></article>
+    <article class="segment" tabindex="0" data-item><div class="segment-num">02</div><div class="segment-accent"></div><div class="segment-word">قيم</div><div class="segment-sub">Principles. Faith. Ethics. Family. Beliefs. Non-negotiables. What matters beyond money or status.</div><div class="segment-title">VALUES</div></article>
+    <article class="segment" tabindex="0" data-item><div class="segment-num">03</div><div class="segment-accent"></div><div class="segment-word">حياة</div><div class="segment-sub">Career. Ambition. Health. Exercise. Finances. Family plans. Social life. The shape of your everyday life.</div><div class="segment-title">LIFESTYLE</div></article>
+  </div>
+  <div class="match-close"><p class="statement">Compatibility gets you into the room. Chemistry decides what happens there.</p><div class="choice-list"><span>Shared event</span><span>Small group</span><span>Private introduction</span><span>Learn more first</span></div></div>
+</section>
+
+<section class="section paper paper-noise interruption">
+  <div class="interruption-small">MAKTOUB</div>
+  <div class="interruption-big">IT'S WRITTEN.</div>
+  <div class="interruption-ar">مكتوب</div>
+</section>
+
+<section id="social" class="section paper social-intro">
+  <div class="section-grid">
+    <div class="eyebrow">YOUR SOCIAL WORLD</div>
+    <h2 class="display">A more interesting life introduces you to more interesting people.</h2>
+    <div class="side-copy"><p class="lead">Not looking for love? You don't need to be.</p><p class="body">We learn what you enjoy and bring you experiences, places and people we think are worth knowing.</p><p class="body"><strong style="font-weight:400">You don't search the network.</strong> The network brings the right parts of itself to you.</p></div>
+  </div>
+</section>
+<section class="paper" style="padding:0 var(--pad) var(--sy)">
+  <div class="social-panels" data-group>
+    <article class="social-panel active" tabindex="0" data-item><div class="social-visual"></div><div class="social-num">01</div><div class="social-copy">Exhibitions. Private views. Design. Culture. Places worth talking about afterwards.</div><div class="social-title">MUSEUMS + GALLERIES</div></article>
+    <article class="social-panel" tabindex="0" data-item><div class="social-visual"></div><div class="social-num">02</div><div class="social-copy">Padel. Pilates. Movement. Outdoors. Experiences that are better shared.</div><div class="social-title">WELLNESS + SPORTS</div></article>
+    <article class="social-panel" tabindex="0" data-item><div class="social-visual"></div><div class="social-num">03</div><div class="social-copy">Founders. Ideas. Investing. Building things. People curious about what comes next.</div><div class="social-title">VENTURES + BUSINESS</div></article>
+    <article class="social-panel" tabindex="0" data-item><div class="social-visual"></div><div class="social-num">04</div><div class="social-copy">Long tables. Good food. Smaller groups. Conversations worth staying for.</div><div class="social-title">FINE DINING + CONVERSATION</div></article>
+  </div>
+</section>
+
+<section class="section night night-noise bridge">
+  <div class="bridge-line">Sometimes you meet someone because we matched you.</div>
+  <div class="bridge-line">Sometimes you meet them because you happened to be in the right room.</div>
+  <div class="bridge-line final">Maktoub does both.</div>
+  <p class="bridge-small">We get to know you. We curate where you go. And if you're looking for love, we look more closely at who might make sense beside you.</p>
+</section>
+
+<section class="section paper product">
+  <div class="product-head"><div><div class="eyebrow">THE PRODUCT</div><h2 class="display">Less browsing. More context.</h2></div><p class="lead">The interface should feel like Maktoub too — quiet, selective, and constantly shifting between social life and serious intent.</p></div>
+  <div class="product-grid">
+    <article class="product-card">
+      <div class="ui-shell red-mark" aria-label="Event recommendation preview">
+        <div class="ui-top"><span>MAKTOUB</span><span>01 / YOUR WEEK</span></div>
+        <div class="ui-kicker">A room for you / Riyadh</div>
+        <div class="ui-title">Dinner for ten.</div>
+        <div class="ui-event-block"><div class="ui-date">24<span>Thursday / 7PM</span></div><div class="ui-event-copy"><strong>The Majlis Table</strong><small>Diriyah. Food, design, conversation and a smaller room selected around what you actually enjoy.</small></div></div>
+        <div class="ui-row"><div class="ui-label">Why you</div><div><strong>Good people. Better context.</strong><small>Several guests share your interests, but the room is intentionally not identical.</small></div><div class="ui-arrow">→</div></div>
+        <div class="ui-actions"><span class="ui-mini">12 guests</span><button class="ui-action primary" type="button">See invitation →</button></div>
+      </div>
+      <div class="product-caption"><h3>A room for you.</h3><p>Something worth going to, selected with context.</p></div>
+    </article>
+
+    <article class="product-card dark">
+      <div class="ui-shell" aria-label="Social connection preview">
+        <div class="ui-top"><span>MAKTOUB</span><span>02 / SOMEONE WORTH KNOWING</span></div>
+        <div class="ui-kicker">Community / not matchmaking</div>
+        <div class="ui-person"><div class="ui-person-name">Noura<br>A.</div><div class="ui-person-meta">Architecture<br>Riyadh<br>Art · Food · Travel</div></div>
+        <div class="ui-row"><div class="ui-label">Context</div><div><strong>You’ll both be at Thursday’s dinner.</strong><small>You share several interests. No swipe. No pressure. Just useful context before you walk into the room.</small></div><div class="ui-arrow">→</div></div>
+        <div class="ui-actions"><span class="ui-mini">Someone worth knowing</span><button class="ui-action primary" type="button">View context →</button></div>
+      </div>
+      <div class="product-caption"><h3>Someone worth knowing.</h3><p>Social discovery without turning the community into a catalogue.</p></div>
+    </article>
+
+    <article class="product-card dark">
+      <div class="ui-shell red-mark" aria-label="Matchmaking introduction preview">
+        <div class="ui-top"><span>MAKTOUB</span><span>03 / MATCHMAKING</span></div>
+        <div class="ui-kicker">A thoughtful introduction</div>
+        <div class="ui-title wide">Someone we thought of.</div>
+        <div class="ui-row"><div class="ui-label">Mind</div><div><strong>Different enough to be interesting.</strong><small>Similar intellectual pace, compatible communication patterns.</small></div><div class="ui-arrow">01</div></div>
+        <div class="ui-row"><div class="ui-label">Values</div><div><strong>Aligned where it matters.</strong><small>Family, faith, principles and relationship intent.</small></div><div class="ui-arrow">02</div></div>
+        <div class="ui-row"><div class="ui-label">Life</div><div><strong>A future that could fit.</strong><small>Lifestyle, ambition, routines and family plans are compatible.</small></div><div class="ui-arrow">03</div></div>
+        <div class="ui-tags"><span>Meet at an event</span><span>Private introduction</span><span>Tell me more</span></div>
+        <div class="ui-actions"><span class="ui-mini">No compatibility score</span><button class="ui-action primary" type="button">See why →</button></div>
+      </div>
+      <div class="product-caption"><h3>Someone we thought of.</h3><p>No fake percentage. Just the reasons we think meeting could be worth it.</p></div>
+    </article>
+
+    <article class="product-card">
+      <div class="ui-shell" aria-label="Private intake booking preview">
+        <div class="ui-top"><span>MAKTOUB</span><span>04 / PRIVATE INTAKE</span></div>
+        <div class="ui-kicker">Start with a conversation</div>
+        <div class="ui-title wide">Book your private intake.</div>
+        <div class="ui-calendar">
+          <div class="ui-day">Wed<b>23</b></div><div class="ui-day active">Thu<b>24</b></div><div class="ui-day">Fri<b>25</b></div><div class="ui-day">Sat<b>26</b></div><div class="ui-day">Sun<b>27</b></div>
+        </div>
+        <div class="ui-times"><span class="ui-time">10:00</span><span class="ui-time active">14:00</span><span class="ui-time">16:30</span></div>
+        <div class="ui-row"><div class="ui-label">Call</div><div><strong>45 minutes. Private.</strong><small>We use the conversation to understand how you think, what matters to you and how you want to live.</small></div><div class="ui-arrow">→</div></div>
+        <div class="ui-actions"><span class="ui-mini">Riyadh / AST</span><button class="ui-action primary" type="button">Confirm call →</button></div>
+        <div class="product-note">it starts here.</div>
+      </div>
+      <div class="product-caption"><h3>Your private intake.</h3><p>Human first. The assessment begins with a real conversation.</p></div>
+    </article>
+  </div>
+</section>
+
+<section class="section paper intake">
+  <div><div class="eyebrow">START WITH A CONVERSATION</div><h2 class="display">Your private intake.</h2></div>
+  <div class="intake-right"><p class="lead">If you opt into matchmaking, we begin with a private phone conversation.</p><p class="body">Not an endless form. Not an algorithm deciding who you should love. A real conversation designed to understand how you think, what matters to you and the life you want to build.</p><div class="intake-facts"><span>45 minutes</span><span>Private phone intake</span></div><a class="pill pill-dark" href="#apply">Apply for matchmaking →</a></div>
+</section>
+
+<section id="about" class="section paper founder">
+  <div class="founder-mark">IT'S WRITTEN.</div>
+  <div class="founder-content"><div class="eyebrow">WHY I'M BUILDING THIS</div><h2>My background sits across psychology, human behaviour, analytics, strategy and mental-health technology.</h2><p>I've always been fascinated by why people connect, why they choose who they choose — and I've always loved bringing people together.</p><p>Maktoub is built on a simple idea: technology should not replace the human part. It should help the human part work better.</p><div class="founder-name">Deena Al Jassasi<br><span>Founder</span></div></div>
+</section>
+
+<section id="apply" class="section night night-noise apply">
+  <div class="eyebrow">RIYADH / FOUNDING COMMUNITY</div><h2 class="display">Be here at the beginning.</h2><p class="lead" style="color:#D3CFC8;max-width:28ch">We're opening Maktoub to its first founding members in Riyadh.</p>
+  <div class="apply-grid">
+    <article class="apply-card"><div class="eyebrow">01 / PRIVATE MATCHMAKING</div><h3>I'm seriously looking for someone.</h3><p>Apply first. If accepted, your matchmaking journey begins with a private intake call.</p><button class="pill pill-ghost" data-open-apply="matchmaking">Apply for matchmaking →</button></article>
+    <article class="apply-card"><div class="eyebrow">02 / SOCIAL WORLD</div><h3>I want to meet better people.</h3><p>Join for curated rooms, experiences and connections — romance optional.</p><button class="pill pill-ghost" data-open-apply="social">Apply to join →</button></article>
+  </div>
+  <p class="apply-note">Accepted founding members may later be invited to reserve their place with a founding deposit.</p>
+</section>
+
+<section class="section paper paper-noise outro">
+  <div class="outro-brand">MAKTOUB</div><div class="outro-written">IT'S WRITTEN.</div>
+  <div class="footer-marquee" aria-hidden="true"><div class="marquee-track"><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span></div></div>
+  <footer class="footer"><span>MAKTOUB / RIYADH</span><div class="footer-links"><a href="#matchmaking">Matchmaking</a><a href="#social">Social world</a><a href="#about">About</a><a href="#apply">Apply</a></div></footer>
+</section>
+</main>
+
+<div class="modal" id="applyModal" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <button class="modal-close" data-close-modal aria-label="Close">×</button>
+    <div class="eyebrow" id="modalEyebrow">FOUNDING APPLICATION</div>
+    <h3 id="modalTitle">Apply to Maktoub.</h3>
+    <form id="demoForm">
+      <input type="hidden" id="pathField" name="path" value="social" />
+      <div class="form-grid">
+        <div class="field"><label for="name">Name</label><input id="name" name="name" autocomplete="name" required></div>
+        <div class="field"><label for="phone">Phone</label><input id="phone" name="phone" autocomplete="tel" required></div>
+        <div class="field"><label for="email">Email</label><input id="email" type="email" name="email" autocomplete="email" required></div>
+        <div class="field"><label for="city">City</label><input id="city" name="city" value="Riyadh"></div>
+        <div class="field full"><label for="why">What are you looking for more of?</label><textarea id="why" name="why" placeholder="A few words is enough."></textarea></div>
+      </div>
+      <div class="submit-row"><div class="form-note">Prototype only — this form is here to show the intended flow and is not connected to a database yet.</div><button class="pill pill-dark" type="submit">Continue →</button></div>
+    </form>
+  </div>
+</div>
+
+<script>
+(function(){
+  document.querySelectorAll('[data-group]').forEach(function(group){
+    var items=[].slice.call(group.querySelectorAll('[data-item]'));
+    function activate(item){items.forEach(function(x){x.classList.toggle('active',x===item)});}
+    items.forEach(function(item){
+      item.addEventListener('mouseenter',function(){if(window.matchMedia('(hover:hover)').matches)activate(item)});
+      item.addEventListener('click',function(){activate(item)});
+      item.addEventListener('focus',function(){activate(item)});
+      item.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();activate(item)}});
+    });
+  });
+  var menuBtn=document.querySelector('.menu-button'), menu=document.querySelector('.mobile-menu');
+  if(menuBtn&&menu){
+    menuBtn.addEventListener('click',function(){var open=menu.classList.toggle('open');menuBtn.setAttribute('aria-expanded',String(open));document.body.style.overflow=open?'hidden':''});
+    menu.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){menu.classList.remove('open');menuBtn.setAttribute('aria-expanded','false');document.body.style.overflow=''})});
+  }
+  var modal=document.getElementById('applyModal'), pathField=document.getElementById('pathField'), title=document.getElementById('modalTitle'), eyebrow=document.getElementById('modalEyebrow');
+  function openModal(path){pathField.value=path; title.textContent=path==='matchmaking'?'Apply for private matchmaking.':'Apply to the social world.'; eyebrow.textContent=path==='matchmaking'?'PRIVATE MATCHMAKING / FOUNDING APPLICATION':'SOCIAL WORLD / FOUNDING APPLICATION';modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';setTimeout(function(){document.getElementById('name').focus()},50)}
+  function closeModal(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');document.body.style.overflow=''}
+  document.querySelectorAll('[data-open-apply]').forEach(function(btn){btn.addEventListener('click',function(){openModal(btn.getAttribute('data-open-apply'))})});
+  document.querySelector('[data-close-modal]').addEventListener('click',closeModal);
+  modal.addEventListener('click',function(e){if(e.target===modal)closeModal()});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&modal.classList.contains('open'))closeModal()});
+  document.getElementById('demoForm').addEventListener('submit',function(e){e.preventDefault();var b=e.currentTarget.querySelector('button[type=submit]');b.textContent='Application captured ✓';b.disabled=true;setTimeout(function(){closeModal();b.textContent='Continue →';b.disabled=false;e.currentTarget.reset()},900)});
+})();
+</script>
+</body>
+</html>
