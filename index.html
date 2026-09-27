@@ -956,9 +956,9 @@ button{cursor:pointer}
   var modal=$('applyModal'), pathField=$('pathField'), title=$('modalTitle'), eyebrow=$('modalEyebrow');
   var applyForm=$('applyForm'), applyError=$('applyError'), applicationSuccess=$('applicationSuccess'), successEyebrow=$('successEyebrow'), successTitle=$('successTitle'), successCopy=$('successCopy'), successLogin=$('successLogin');
   function lockScroll(on){document.body.style.overflow=on?'hidden':''}
-  function resetApplyState(){applyForm.reset();$('city').value='Riyadh';$('preferred_language').value='en';applyForm.style.display='';applicationSuccess.classList.remove('visible');applyError.classList.remove('visible');applyError.textContent='';successLogin.hidden=true}
+  function resetApplyState(){applyForm.reset();$('city').value='Riyadh';$('country_iso2').value='SA';$('preferred_language').value='en';applyForm.style.display='';applicationSuccess.classList.remove('visible');applyError.classList.remove('visible');applyError.textContent='';successLogin.hidden=true}
   function openModal(path){
-    resetApplyState();pathField.value=path;var whyLabel=$('whyLabel');if(whyLabel){whyLabel.textContent=path==='event'?'What interests you about this event?':'What are you looking for more of?';}
+    resetApplyState();pathField.value=path;var whyLabel=$('whyLabel');if(whyLabel){whyLabel.textContent=path==='event'?'What interests you about this event?':'What are you looking for more of?';}document.querySelector('#consent + span').textContent=path==='event'?'I agree to be contacted privately about this event and my Maktoub registration.':'I agree to be contacted privately about Maktoub matchmaking, the social club and onboarding.';applyForm.querySelector('button[type=submit]').textContent=path==='event'?'Register interest →':'Continue →';
     if(path==='matchmaking'){title.textContent='Join Maktoub matchmaking.';eyebrow.textContent='Private matchmaking / founding application'}
     else if(path==='event'){title.textContent='Register your interest.';eyebrow.textContent=[MAKTOUB_EVENT.date,MAKTOUB_EVENT.city,MAKTOUB_EVENT.title].filter(Boolean).join(' / ')}
     else{title.textContent='Join the social club.';eyebrow.textContent='Social club / founding application'}
@@ -1005,7 +1005,7 @@ button{cursor:pointer}
     }catch(error){
       applyError.textContent='Your request could not be completed. Please try again.';applyError.classList.add('visible');
     }finally{
-      b.disabled=false;b.textContent='Continue →';
+      b.disabled=false;b.textContent=path==='event'?'Register interest →':'Continue →';
     }
   });
 
