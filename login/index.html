@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Maktoub · Team</title>
+<title>Maktoub · Sign in</title>
 <style>
 :root{--paper:#f4f1ea;--ink:#171717;--red:#9d1c1f;--line:#cfc8bd}*{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.45 "Helvetica Neue",Arial,sans-serif}
@@ -32,7 +32,7 @@ table{width:100%;border-collapse:collapse;background:#fff}td,th{text-align:left;
 <div class="tabs"><button data-tab="event" class="active">10 October event</button><button data-tab="people" id="peopleTab">All people</button><button data-tab="bookings" id="bookingTab">Intake requests</button></div>
 <section id="event"><h2>Event outreach</h2><p class="muted">New → Contacted → Invited → Confirmed. Changes save immediately.</p>
 <div class="card"><p class="label">Add someone you met</p><div class="grid"><input id="newName" placeholder="Full name"><input id="newPhone" type="tel" placeholder="+966…"><input id="newEmail" type="email" placeholder="Email (optional)"><button id="addPerson">Add to event</button></div></div>
-<div class="tablewrap"><table><thead><tr><th>Person</th><th>Source</th><th>Status</th><th>Notes</th></tr></thead><tbody id="eventRows"></tbody></table></div></section>
+<label class="label">Find a person<input id="eventSearch" type="search" placeholder="Name, phone, source, or status" style="max-width:460px;margin:10px 0 18px"></label><div class="tablewrap"><table><thead><tr><th>Person</th><th>Source</th><th>Status</th><th>Notes</th></tr></thead><tbody id="eventRows"></tbody></table></div></section>
 <section id="people" hidden><h2>All Maktoub people</h2><div class="tablewrap"><table><thead><tr><th>Person</th><th>Interests</th><th>Source</th><th>Next action</th></tr></thead><tbody id="peopleRows"></tbody></table></div></section>
 <section id="bookings" hidden><h2>Intake requests</h2><div class="tablewrap"><table><thead><tr><th>Person</th><th>When</th><th>Status</th><th>Payment</th></tr></thead><tbody id="bookingRows"></tbody></table></div></section>
 </section><div id="message" role="status" aria-live="polite"></div>
@@ -94,6 +94,7 @@ $('link').onclick=async()=>{try{const email=$('email').value.trim();if(!email)th
 $('passwordLogin').onclick=async()=>{try{const s=await authFetch('token?grant_type=password',{email:$('email').value.trim(),password:$('password').value});await signedIn(s)}catch(e){msg(e.message)}}
 $('logout').onclick=()=>{sessionStorage.removeItem('maktoub_session');session=null;showAuth();msg('Signed out')}
 $('addPerson').onclick=async()=>{try{const b=$('addPerson');b.disabled=true;await api('POST',{full_name:$('newName').value,phone:$('newPhone').value,email:$('newEmail').value});$('newName').value='';$('newPhone').value='';$('newEmail').value='';await load();msg('Person added to the event queue')}catch(e){msg(e.message)}finally{$('addPerson').disabled=false}}
+$('eventSearch').addEventListener('input',()=>{const q=$('eventSearch').value.toLowerCase();$('eventRows').querySelectorAll('tr').forEach(tr=>tr.hidden=!tr.textContent.toLowerCase().includes(q))});
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));['event','people','bookings'].forEach(id=>$(id).hidden=id!==b.dataset.tab)})
 ;(async()=>{try{const hash=new URLSearchParams(location.hash.slice(1));if(hash.get('access_token')){history.replaceState(null,'',location.pathname);await signedIn({access_token:hash.get('access_token'),refresh_token:hash.get('refresh_token')});return}
  const saved=JSON.parse(sessionStorage.getItem('maktoub_session')||'null');if(saved?.access_token){await signedIn(saved)}}catch(e){msg(e.message)}})()
