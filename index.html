@@ -818,7 +818,7 @@ button{cursor:pointer}
         <div class="field"><label for="city">City</label><input id="city" name="city" value="Riyadh"></div>
         <div class="field"><label for="country_iso2">Country / region</label><select id="country_iso2" name="country_iso2"><option value="">Other / international</option><option value="SA">Saudi Arabia</option><option value="AE">United Arab Emirates</option><option value="KW">Kuwait</option><option value="QA">Qatar</option><option value="BH">Bahrain</option><option value="OM">Oman</option><option value="GB">United Kingdom</option><option value="US">United States</option><option value="CA">Canada</option><option value="FR">France</option></select></div>
         <div class="field"><label for="preferred_language">Preferred language</label><select id="preferred_language" name="preferred_language" required><option value="en">English</option><option value="ar">العربية</option><option value="other">Other</option></select></div>
-        <div class="field full"><label for="why" id="whyLabel">What are you looking for more of?</label><textarea id="why" name="why" placeholder="A few words is enough."></textarea></div>
+        <div class="field full"><label for="why" id="whyLabel">How do you want your ideal partner to make you feel?</label><textarea id="why" name="why" placeholder="A few words is enough."></textarea></div>
         <div class="field full"><label class="consent-line"><input id="consent" name="consent" type="checkbox" required><span>I agree to be contacted privately about Maktoub matchmaking, the social club and onboarding.</span></label></div>
       </div>
       <div class="form-error" id="applyError" role="alert"></div>
@@ -958,7 +958,7 @@ button{cursor:pointer}
   function lockScroll(on){document.body.style.overflow=on?'hidden':''}
   function resetApplyState(){applyForm.reset();$('city').value='Riyadh';$('country_iso2').value='SA';$('preferred_language').value='en';applyForm.style.display='';applicationSuccess.classList.remove('visible');applyError.classList.remove('visible');applyError.textContent='';successLogin.hidden=true}
   function openModal(path){
-    resetApplyState();pathField.value=path;var whyLabel=$('whyLabel');if(whyLabel){whyLabel.textContent=path==='event'?'What interests you about this event?':'What are you looking for more of?';}document.querySelector('#consent + span').textContent=path==='event'?'I agree to be contacted privately about this event and my Maktoub registration.':'I agree to be contacted privately about Maktoub matchmaking, the social club and onboarding.';applyForm.querySelector('button[type=submit]').textContent=path==='event'?'Register interest →':'Continue →';
+    resetApplyState();pathField.value=path;var whyLabel=$('whyLabel');if(whyLabel){whyLabel.textContent=path==='matchmaking'?'How do you want your ideal partner to make you feel?':path==='event'?'What interests you about this event?':'What are you looking for more of?';}var whyInput=$('why');whyInput.required=path==='matchmaking';whyInput.placeholder=path==='matchmaking'?'In your own words — a few words are enough.':'A few words are enough.';document.querySelector('#consent + span').textContent=path==='event'?'I agree to be contacted privately about this event and my Maktoub registration.':'I agree to be contacted privately about Maktoub matchmaking, the social club and onboarding.';applyForm.querySelector('button[type=submit]').textContent=path==='event'?'Register interest →':'Continue →';
     if(path==='matchmaking'){title.textContent='Join Maktoub matchmaking.';eyebrow.textContent='Private matchmaking / founding application'}
     else if(path==='event'){title.textContent='Register your interest.';eyebrow.textContent=[MAKTOUB_EVENT.date,MAKTOUB_EVENT.city,MAKTOUB_EVENT.title].filter(Boolean).join(' / ')}
     else{title.textContent='Join the social club.';eyebrow.textContent='Social club / founding application'}
@@ -998,8 +998,8 @@ button{cursor:pointer}
       if(!response.ok)throw new Error('Submission failed');
       applyForm.style.display='none';
       successEyebrow.textContent=path==='matchmaking'?'Private matchmaking':isEvent?MAKTOUB_EVENT.title:'Social club';
-      successTitle.textContent=isEvent?'Interest registered.':'You’re in.';
-      successCopy.textContent=path==='matchmaking'?'Your next step is to sign in and request a preferred intake time. We will confirm availability and send the appointment details.':isEvent?'We’ve registered your interest for '+MAKTOUB_EVENT.title+'. We’ll contact you privately with the next step.':'You’re now in the founding social club. We’ll be in touch privately when there is something relevant for you.';
+      successTitle.textContent=path==='matchmaking'?'Welcome to your next step.':isEvent?'Interest registered.':'Thank you for your interest.';
+      successCopy.textContent=path==='matchmaking'?'We’ve received your details. Your private profile is being built. Sign in with your email to choose a preferred intake time; we’ll confirm availability and send the appointment details.':isEvent?'We’ve registered your interest for '+MAKTOUB_EVENT.title+'. We’ll contact you privately with the next step.':'We’ve received your social club interest. We’ll be in touch privately when there is something relevant for you.';
       successLogin.hidden=path!=='matchmaking';successLogin.textContent='Sign in to request a time →';
       applicationSuccess.classList.add('visible');
     }catch(error){
