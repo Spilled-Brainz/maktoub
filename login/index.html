@@ -75,7 +75,20 @@ if(!j.linked){box.append(el('h2','No application linked yet'),el('p','Use the sa
 else{box.append(el('h2','Hello, '+j.person.full_name),el('p','Application: '+(j.person.stage||'Received')));
 box.append(el('p','Event registrations: '+(j.events||[]).map(x=>x.event_id+' — '+x.status).join(', ') || 'None'));
 box.append(el('p','Intake requests: '+(j.bookings||[]).map(x=>x.status+' · '+(x.starts_at||'')).join(', ') || 'None'));
-box.append(el('p','We will contact you about your next step. An intake request is confirmed only after approval and payment verification.'))}
+box.append(el('p','An intake request is confirmed only after approval and payment verification.'));
+if(j.person.interest_matchmaking){
+ const wrap=el('div');wrap.className='stack';wrap.style.marginTop='25px';wrap.append(el('h2','Request your intake'));
+ const date=document.createElement('input');date.type='date';date.id='intakeDate';date.setAttribute('aria-label','Intake date');
+ const time=document.createElement('select');time.id='intakeTime';time.setAttribute('aria-label','Intake time in Riyadh');
+ for(let hour=13;hour<=21;hour++){const t=String(hour).padStart(2,'0')+':00';const o=el('option',t+' Riyadh');o.value=t;time.append(o)}
+ const btn=el('button','Request this time');btn.onclick=async()=>{try{if(!date.value)throw Error('Choose a date');btn.disabled=true;
+ const starts_at=date.value+'T'+time.value+':00+03:00';
+ const response=await fetch(MEMBER,{method:'POST',headers:{Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({starts_at})});
+ const value=await response.json();if(!response.ok)throw Error(value.error||'Request failed');
+ msg('Intake request received. It is pending approval and payment verification.');await signedIn(session)
+ }catch(e){msg(e.message)}finally{btn.disabled=false}};
+ wrap.append(el('p','30 minutes. At least 48 hours ahead. Riyadh time. Select a preferred slot; it is not confirmed yet.'),date,time,btn);box.append(wrap)
+}}
 msg('')}catch(e){msg(e.message);showAuth()}}
 $('link').onclick=async()=>{try{const email=$('email').value.trim();if(!email)throw Error('Enter your email first');await authFetch('otp?redirect_to='+encodeURIComponent(location.origin+'/login/'),{email,create_user:true});msg('Check your email for your sign-in link.')}catch(e){msg(e.message)}}
 $('passwordLogin').onclick=async()=>{try{const s=await authFetch('token?grant_type=password',{email:$('email').value.trim(),password:$('password').value});await signedIn(s)}catch(e){msg(e.message)}}
