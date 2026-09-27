@@ -71,14 +71,14 @@ button{cursor:pointer}
 .cta-row{display:flex;flex-wrap:wrap;align-items:center;gap:14px 16px}
 
 /* header */
-.header{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:14px var(--pad);mix-blend-mode:difference;color:#fff;pointer-events:none}
+.header{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:14px var(--pad);background:rgba(244,241,234,.97);color:var(--ink);border-bottom:1px solid var(--hair);pointer-events:none}
 .header>*{pointer-events:auto}
 .wordmark{font-size:15px;font-weight:500;letter-spacing:.1em}
 .nav{display:flex;align-items:center;gap:24px;font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase}
 .nav a:not(.btn){opacity:.84;transition:opacity .2s}.nav a:not(.btn):hover{opacity:1}
-.nav .nav-login{padding-left:24px;border-left:1px solid rgba(255,255,255,.5)}
+.nav .nav-login{padding-left:24px;border-left:1px solid var(--hair)}
 .nav .btn{min-height:40px;padding:9px 14px;font-size:12px}
-.menu-button{display:none;min-height:40px;padding:9px 14px;border:1px solid currentColor;border-radius:0;background:transparent;color:#fff;font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase}
+.menu-button{display:none;min-height:40px;padding:9px 14px;border:1px solid currentColor;border-radius:0;background:transparent;color:var(--ink);font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase}
 .mobile-menu{display:none;position:fixed;inset:0;z-index:45;background:var(--night);color:var(--white);padding:100px var(--pad) var(--pad);flex-direction:column;justify-content:center;gap:12px}
 .mobile-menu a{font-size:clamp(36px,9vw,60px);font-weight:500;line-height:1.05;letter-spacing:-.025em}
 .mobile-menu .mm-actions{display:grid;gap:10px;margin-top:26px}
@@ -130,9 +130,9 @@ button{cursor:pointer}
 /* UPCOMING EVENT (serif kept here) */
 .event-sec{padding-top:clamp(64px,7vw,110px);padding-bottom:clamp(64px,7vw,110px)}
 .events-head{display:flex;justify-content:space-between;align-items:end;gap:30px;margin-bottom:24px}
-.event{display:grid;grid-template-columns:minmax(170px,.5fr) minmax(0,1fr) minmax(0,1.05fr);border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
+.event{display:grid;grid-template-columns:minmax(180px,.5fr) minmax(0,1fr) minmax(0,1.05fr);border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
 .event-date{padding:26px 24px 26px 0;border-right:1px solid var(--hair);display:flex;flex-direction:column;justify-content:space-between;gap:20px}
-.event-day{font-size:clamp(54px,5.4vw,90px);font-weight:500;line-height:.85;letter-spacing:-.04em;font-variant-numeric:tabular-nums;margin:0}
+.event-day{font-size:clamp(40px,4vw,66px);font-weight:500;line-height:.95;letter-spacing:-.04em;font-variant-numeric:tabular-nums;margin:0;white-space:nowrap}.event-year{font-size:16px;letter-spacing:.1em;margin-top:10px}
 .event-copy{padding:26px 28px;display:flex;flex-direction:column;gap:18px;justify-content:space-between}
 .event-copy h3{font-family:var(--serif);font-weight:400;font-size:clamp(38px,3.8vw,62px);line-height:1;letter-spacing:-.02em;margin:10px 0 0}
 .event-copy p.desc{margin:0;max-width:38ch;font-family:var(--serif);font-size:clamp(19px,1.5vw,22px);line-height:1.4}
@@ -309,7 +309,7 @@ button{cursor:pointer}
 
 /* FOUNDER */
 .founder{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(36px,8vw,140px);align-items:start;border-top:1px solid var(--hair)}
-.founder .img-slot{--ratio:4/5;margin-top:calc(-1 * clamp(40px,6vw,110px))}
+.founder-portrait-placeholder{aspect-ratio:4/5;margin-top:calc(-1 * clamp(40px,6vw,110px));background:var(--night);color:var(--paper);padding:28px;display:flex;flex-direction:column;justify-content:space-between}.founder-portrait-placeholder span{font-family:var(--serif);font-size:clamp(90px,12vw,200px);line-height:.8;letter-spacing:-.09em}.founder-portrait-placeholder small{font-size:12px;letter-spacing:.12em;text-transform:uppercase}
 .founder-content h2{margin:22px 0 26px;max-width:24ch}
 .founder-content p{max-width:52ch;margin:0 0 16px}
 .founder-name{margin-top:30px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
@@ -411,7 +411,7 @@ button{cursor:pointer}
   .event .img-slot{border-left:0;border-top:1px solid var(--hair)}
   .event-copy{padding:24px 0}
   .events-head{display:grid}
-  .founder{grid-template-columns:minmax(0,1fr)}.founder .img-slot{margin-top:0;max-width:460px}
+  .founder{grid-template-columns:minmax(0,1fr)}.founder-portrait-placeholder{margin-top:0;max-width:460px}
   .routes{grid-template-columns:minmax(0,1fr)}.route{min-height:0;padding:26px 0 30px}.route+.route{padding-left:0;border-left:0;border-top:1px solid var(--hair-night)}
   .form-grid{grid-template-columns:minmax(0,1fr)}
 }
@@ -482,7 +482,7 @@ button{cursor:pointer}
       </div>
     </div>
     <figure class="img-slot hero-img" data-need="Image needed · 4:5 vertical · candid dinner or small group in conversation · black &amp; white">
-      <img alt="Guests in conversation at a Maktoub gathering">
+      <img src="/images/hero-reception.webp" alt="Guests in conversation at a Maktoub gathering" fetchpriority="high">
     </figure>
   </div>
   <div class="marquee" aria-hidden="true"><div class="marquee-track"><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span></div></div>
@@ -492,7 +492,7 @@ button{cursor:pointer}
 <section id="events" class="section paper event-sec" data-event-module>
   <div class="events-head"><p class="label">Our upcoming event</p><a class="btn-text" href="#social">The social club →</a></div>
   <article class="event">
-    <div class="event-date"><p class="event-day" data-event="date">10/10/2026</p><p class="label" data-event="city"></p></div>
+    <div class="event-date"><div><p class="event-day" data-event="date_display">10 OCT</p><p class="event-year">2026</p></div><p class="label" data-event="city"></p></div>
     <div class="event-copy">
       <div><p class="label muted" data-event="kicker">World Mental Health Day</p><h3 data-event="title">Wellness and Connection</h3></div>
       <p class="desc" data-event="description">In celebration of World Mental Health Day, we’re in partnership with Stella Stays and Raw Spaces for a yoga session and fun intermingling.</p>
@@ -666,19 +666,19 @@ button{cursor:pointer}
 <section class="band paper">
   <div class="social-panels" data-group>
     <article class="social-panel active" tabindex="0" data-item>
-      <figure class="img-slot" data-need="Image needed · vertical 3:4 · gallery or museum, people looking and talking · black &amp; white"><img alt="People at a gallery opening"></figure>
+      <figure class="img-slot" data-need="Image needed · vertical 3:4 · gallery or museum, people looking and talking · black &amp; white"><img src="/images/gallery-gathering.webp" alt="Guests conversing in a gallery" loading="lazy"></figure>
       <div class="social-cap"><p class="label social-num">01</p><p class="social-copy">Museums, galleries, exhibitions, design and places worth talking about afterwards.</p><h3 class="social-title">Art + Culture</h3></div>
     </article>
     <article class="social-panel" tabindex="0" data-item>
-      <figure class="img-slot" data-need="Image needed · vertical 3:4 · padel, pilates or outdoor movement, candid · black &amp; white"><img alt="A padel game in Riyadh"></figure>
+      <figure class="img-slot" data-need="Image needed · vertical 3:4 · padel, pilates or outdoor movement, candid · black &amp; white"><img src="/images/event-wellness.webp" alt="Guests gathering after a wellness session" loading="lazy"></figure>
       <div class="social-cap"><p class="label social-num">02</p><p class="social-copy">Movement, padel, pilates, wellness, outdoors and shared experiences.</p><h3 class="social-title">Wellness + Sport</h3></div>
     </article>
     <article class="social-panel" tabindex="0" data-item>
-      <figure class="img-slot" data-need="Image needed · vertical 3:4 · founders or a small business gathering, natural conversation · black &amp; white"><img alt="Founders in conversation"></figure>
+      <figure class="img-slot" data-need="Image needed · vertical 3:4 · founders or a small business gathering, natural conversation · black &amp; white"><img src="/images/social-gathering.webp" alt="Guests connecting at a social gathering" loading="lazy"></figure>
       <div class="social-cap"><p class="label social-num">03</p><p class="social-copy">Founders, ideas, investing, business, ambition and interesting people building things.</p><h3 class="social-title">Ventures + Business</h3></div>
     </article>
     <article class="social-panel" tabindex="0" data-item>
-      <figure class="img-slot" data-need="Image needed · vertical 3:4 · long table, hands, plates, conversation · black &amp; white"><img alt="A long table dinner"></figure>
+      <figure class="img-slot" data-need="Image needed · vertical 3:4 · long table, hands, plates, conversation · black &amp; white"><img src="/images/hero-reception.webp" alt="Guests in conversation at an evening gathering" loading="lazy"></figure>
       <div class="social-cap"><p class="label social-num">04</p><p class="social-copy">Long tables, good food, smaller groups and conversations worth staying for.</p><h3 class="social-title">Food + Conversation</h3></div>
     </article>
   </div>
@@ -772,9 +772,7 @@ button{cursor:pointer}
 
 <!-- FOUNDER -->
 <section id="about" class="section paper founder">
-  <figure class="img-slot" data-need="Founder portrait · 4:5 vertical · editorial, natural light, not a headshot · black &amp; white">
-    <img alt="Deena Al Jassasi, founder of Maktoub">
-  </figure>
+  <div class="founder-portrait-placeholder" aria-label="Deena Al Jassasi, founder of Maktoub"><span>DAJ</span><small>Deena Al Jassasi / Founder</small></div>
   <div class="founder-content">
     <p class="label">Why I’m building this</p>
     <h2 class="display h-md">My background sits across psychology, human behaviour, strategy, analytics, human performance and mental health technology.</h2>
@@ -882,11 +880,12 @@ button{cursor:pointer}
     enabled: true,
     id: 'wellness-connection-1010-2026',
     date: '10/10/2026',
+    date_display: '10 OCT',
     city: 'Riyadh',
     kicker: 'World Mental Health Day',
     title: 'Wellness and Connection',
     description: 'In celebration of World Mental Health Day, we’re in partnership with Stella Stays and Raw Spaces for a yoga session and fun intermingling.',
-    image: ''                                   // e.g. '/images/wellness-1010.jpg'
+    image: '/images/event-wellness.webp'
   };
 
   // Intake preview (the real booking happens inside the portal after login). Riyadh time.
