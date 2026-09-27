@@ -554,11 +554,11 @@ button{cursor:pointer}
   <div class="how">
     <div>
       <p class="label">How it works</p>
-      <h2 class="display">Join.<br>Book.<br>Meet.</h2>
+      <h2 class="display">Join.<br>Request.<br>Meet.</h2>
       <ol class="steps">
         <li class="step"><p class="label">01</p><div><h3>Sign up</h3><p>Join Maktoub matchmaking or the social club.</p></div></li>
-        <li class="step"><p class="label">02</p><div><h3>Choose your intake time</h3><p>Choose a 30-minute intake time in Riyadh time, with at least 48 hours’ notice.</p></div></li>
-        <li class="step key"><p class="label">03</p><div><h3>Book your intake with Deena</h3><p>30 minutes, requested directly through Maktoub with at least 48 hours’ notice.</p></div></li>
+        <li class="step"><p class="label">02</p><div><h3>Request an intake time</h3><p>After joining, sign in and choose a preferred 30-minute time in Riyadh, at least 48 hours ahead.</p></div></li>
+        <li class="step key"><p class="label">03</p><div><h3>We confirm the appointment</h3><p>We check availability and contact you with the confirmed time and meeting details. Your request alone is not a booking.</p></div></li>
         <li class="step"><p class="label">04</p><div><h3>Meet Deena</h3><p>Your 30-minute intake covers what matters before we consider introductions.</p></div></li>
         <li class="step"><p class="label">05</p><div><h3>Build your private file</h3><p>Your intake, voice layer and profile become the foundation for approval, matches and events.</p></div></li>
       </ol>
@@ -582,8 +582,8 @@ button{cursor:pointer}
         </div>
         <div class="lock" role="note">
           <p class="label">Your intake</p>
-          <h3 class="display h-md">Booked inside your portal.</h3>
-          <p>Once you join matchmaking, your next step is to choose your 30 minutes with Deena and secure the request with the refundable intake deposit.</p>
+          <h3 class="display h-md">Request inside your portal.</h3>
+          <p>Join matchmaking, then sign in to request a preferred time. We confirm the appointment and share the meeting details after checking availability.</p>
           <div class="cta-row">
             <button class="btn btn-solid" type="button" data-open-apply="matchmaking">Sign up →</button>
             <a class="btn-text" href="/login" data-portal-link>Log in →</a>
@@ -795,7 +795,7 @@ button{cursor:pointer}
     <article class="route"><h3 class="display h-md">I want to meet better people.</h3><button class="btn btn-line" type="button" data-open-apply="social">Join the social club →</button></article>
     <article class="route"><h3 class="display h-md">I know someone.</h3><button class="btn btn-line" type="button" data-open-refer>Refer someone →</button></article>
   </div>
-  <p class="join-note">Private matchmaking intake requests are secured with a refundable AED 104.10 intake deposit.</p>
+  <p class="join-note">Joining and requesting an intake time are free. We will explain any payment before it is required.</p>
 </section>
 <section class="section paper grain outro">
   <div class="outro-brand" aria-hidden="true">MAKTOUB</div>
@@ -831,7 +831,7 @@ button{cursor:pointer}
       <h3 id="successTitle">Thank you.</h3>
       <p id="successCopy"></p>
       <div class="success-actions">
-        <a class="btn btn-solid" href="/login" data-portal-link id="successLogin" hidden>Log in to book your intake →</a>
+        <a class="btn btn-solid" href="/login" data-portal-link id="successLogin" hidden>Sign in to request a time →</a>
         <button class="btn btn-line" type="button" data-close-success>Close →</button>
       </div>
     </div>
@@ -1000,8 +1000,8 @@ button{cursor:pointer}
       applyForm.style.display='none';
       successEyebrow.textContent=path==='matchmaking'?'Private matchmaking':isEvent?MAKTOUB_EVENT.title:'Social club';
       successTitle.textContent=isEvent?'Interest registered.':'You’re in.';
-      successCopy.textContent=path==='matchmaking'?'Your next step is your private intake. We’ll take you through booking and the refundable AED 104.10 intake deposit.':isEvent?'We’ve registered your interest for '+MAKTOUB_EVENT.title+'. We’ll contact you privately with the next step.':'You’re now in the founding social club. We’ll be in touch privately when there is something relevant for you.';
-      successLogin.hidden=path!=='matchmaking';successLogin.textContent='Choose an intake time →';
+      successCopy.textContent=path==='matchmaking'?'Your next step is to sign in and request a preferred intake time. We will confirm availability and send the appointment details.':isEvent?'We’ve registered your interest for '+MAKTOUB_EVENT.title+'. We’ll contact you privately with the next step.':'You’re now in the founding social club. We’ll be in touch privately when there is something relevant for you.';
+      successLogin.hidden=path!=='matchmaking';successLogin.textContent='Sign in to request a time →';
       applicationSuccess.classList.add('visible');
     }catch(error){
       applyError.textContent='Your request could not be completed. Please try again.';applyError.classList.add('visible');
