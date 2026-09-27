@@ -55,7 +55,7 @@ function render(){
  const event=record.event_contacts||[],people=record.people||[],bookings=record.bookings||[];
  $('stats').replaceChildren();[['Event interest',event.length],['To contact',event.filter(x=>x.status==='new').length],['Confirmed',event.filter(x=>x.status==='confirmed').length],...(record.role==='founder'?[['All people',people.length],['Intake requests',bookings.length]]:[])].forEach(([label,count])=>{const box=el('div');box.className='stat';box.append(el('span',label),el('strong',count));$('stats').append(box)});
  $('eventRows').replaceChildren();event.forEach(c=>{
-  const tr=document.createElement('tr'),p=c.person||{};const who=document.createElement('div');who.append(el('strong',personName(p)),el('br'),el('span',p.normalized_phone||''),el('br'),el('small',p.email||''));addCell(tr,who);
+  const tr=document.createElement('tr'),p=c.person||{};tr.dataset.search=[p.full_name,p.normalized_phone,p.email,p.latest_source_detail,c.status].join(' ').toLowerCase();const who=document.createElement('div');who.append(el('strong',personName(p)),el('br'),el('span',p.normalized_phone||''),el('br'),el('small',p.email||''));addCell(tr,who);
   addCell(tr,(p.latest_source_detail||p.latest_source||'')+' · '+(p.consent_status||''));
   const select=document.createElement('select');['new','contacted','invited','confirmed','declined','attended'].forEach(v=>{const o=el('option',v);o.value=v;select.append(o)});select.value=c.status;addCell(tr,select);
   const note=document.createElement('textarea');note.rows=2;note.value=c.notes||'';note.placeholder='Team notes';addCell(tr,note);
@@ -94,7 +94,7 @@ $('link').onclick=async()=>{try{const email=$('email').value.trim();if(!email)th
 $('passwordLogin').onclick=async()=>{try{const s=await authFetch('token?grant_type=password',{email:$('email').value.trim(),password:$('password').value});await signedIn(s)}catch(e){msg(e.message)}}
 $('logout').onclick=()=>{sessionStorage.removeItem('maktoub_session');session=null;showAuth();msg('Signed out')}
 $('addPerson').onclick=async()=>{try{const b=$('addPerson');b.disabled=true;await api('POST',{full_name:$('newName').value,phone:$('newPhone').value,email:$('newEmail').value});$('newName').value='';$('newPhone').value='';$('newEmail').value='';await load();msg('Person added to the event queue')}catch(e){msg(e.message)}finally{$('addPerson').disabled=false}}
-$('eventSearch').addEventListener('input',()=>{const q=$('eventSearch').value.toLowerCase();$('eventRows').querySelectorAll('tr').forEach(tr=>tr.hidden=!tr.textContent.toLowerCase().includes(q))});
+$('eventSearch').addEventListener('input',()=>{const q=$('eventSearch').value.toLowerCase();$('eventRows').querySelectorAll('tr').forEach(tr=>tr.hidden=!tr.dataset.search.includes(q))});
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));['event','people','bookings'].forEach(id=>$(id).hidden=id!==b.dataset.tab)})
 ;(async()=>{try{const hash=new URLSearchParams(location.hash.slice(1));if(hash.get('access_token')){history.replaceState(null,'',location.pathname);await signedIn({access_token:hash.get('access_token'),refresh_token:hash.get('refresh_token')});return}
  const saved=JSON.parse(sessionStorage.getItem('maktoub_session')||'null');if(saved?.access_token){await signedIn(saved)}}catch(e){msg(e.message)}})()
