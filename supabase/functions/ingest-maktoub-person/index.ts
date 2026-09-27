@@ -164,9 +164,9 @@ Deno.serve(async (req: Request) => {
 
     const botToken = Deno.env.get('MAKTOUB_TELEGRAM_BOT_TOKEN')
     const chatId = Deno.env.get('MAKTOUB_TELEGRAM_CHAT_ID')
-    if (botToken && chatId && upserted[0].is_new) {
+    if (botToken && chatId && (upserted[0].is_new || eventId)) {
       try {
-        const message = ['New Maktoub signup', fullName, normalizedPhone,
+        const message = [eventId ? 'Maktoub event interest' : 'New Maktoub signup', fullName,
           eventId ? 'Event: ' + eventId : 'Interest: ' + [interestMatchmaking && 'matchmaking', interestSocial && 'social', interestEvents && 'events'].filter(Boolean).join(', '),
           'Source: ' + source].join('\\n')
         const response = await fetch('https://api.telegram.org/bot' + botToken + '/sendMessage', {
