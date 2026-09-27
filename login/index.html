@@ -22,11 +22,10 @@ table{width:100%;border-collapse:collapse;background:#fff}td,th{text-align:left;
 </style>
 <header><a class="brand" href="/">MAKTOUB</a><button id="logout" class="secondary" hidden>Sign out</button></header>
 <main>
-<section id="auth"><p class="label">Private access</p><h1>Welcome back.</h1><p class="muted">Sign in with the email used for your Maktoub account.</p>
+<section id="auth"><p class="label">Private access</p><h1>Welcome to your next step.</h1><p class="muted">Your private Maktoub profile is being built. Sign in with the email you used to apply and choose a preferred intake time.</p>
 <div class="card stack"><label>Email<input id="email" type="email" autocomplete="email" placeholder="you@example.com"></label>
-<button id="link">Email me a sign-in link</button><p class="muted">Team members with a password can sign in below.</p>
-<label>Password<input id="password" type="password" autocomplete="current-password"></label><button id="passwordLogin" class="secondary">Sign in with password</button></div></section>
-<section id="member" hidden><p class="label">Your Maktoub</p><h1>Your account.</h1><div class="card" id="memberDetails"></div></section>
+<button id="link">Email me a sign-in link</button><details><summary>Use a password instead</summary><div class="stack" style="margin-top:14px"><label>Password<input id="password" type="password" autocomplete="current-password"></label><button id="passwordLogin" class="secondary">Sign in with password</button></div></details></div></section>
+<section id="member" hidden><p class="label">Your Maktoub</p><h1>Your profile is being built.</h1><div class="card" id="memberDetails"></div></section>
 <section id="board" hidden><p class="label">Maktoub / team</p><h1>People & events.</h1><p id="role" class="muted"></p>
 <div class="stats" id="stats"></div>
 <div class="tabs"><button data-tab="event" class="active">10 October event</button><button data-tab="people" id="peopleTab">All people</button><button data-tab="bookings" id="bookingTab">Intake requests</button></div>
@@ -86,7 +85,7 @@ try{const r=await fetch(MEMBER,{headers:{Authorization:'Bearer '+session.access_
 if(!r.ok)throw Error(j.error||'Unable to load account');$('auth').hidden=true;$('board').hidden=true;$('member').hidden=false;$('logout').hidden=false;
 const box=$('memberDetails');box.replaceChildren();
 if(!j.linked){box.append(el('h2','No application linked yet'),el('p','Use the same email on your Maktoub application, or apply first.'));const a=el('a','Join Maktoub →');a.href='/#join';box.append(a)}
-else{box.append(el('h2','Hello, '+j.person.full_name),el('p','Application: '+(j.person.stage||'Received')));
+else{box.append(el('h2','Hello, '+j.person.full_name),el('p','We’ve received your details and are building your private profile.'));
 box.append(el('p','Event registrations: '+(j.events||[]).map(x=>x.event_id+' — '+x.status).join(', ') || 'None'));
 box.append(el('p','Intake requests: '+((j.bookings||[]).map(x=>(x.status==='pending'?'awaiting confirmation':x.status)+' · '+new Date(x.starts_at).toLocaleString('en-GB',{timeZone:'Asia/Riyadh',dateStyle:'medium',timeStyle:'short'})+' Riyadh').join(', ') || 'None')));
 box.append(el('p','A preferred-time request is not an appointment. We will contact you to confirm availability and next steps.'));
@@ -101,7 +100,7 @@ if(j.person.interest_matchmaking){
  const value=await response.json();if(!response.ok)throw Error(value.error||'Request failed');
  msg('Preferred time received. We will confirm availability and contact you. This is not yet a booked appointment.');await signedIn(session)
  }catch(e){msg(e.message)}finally{btn.disabled=false}};
- wrap.append(el('p','Choose a preferred 30-minute intake time in Riyadh. Dates are 2–30 days ahead. This is a request; we will confirm availability and send the appointment details. No payment is taken here.'),date,time,btn);box.append(wrap)
+ wrap.append(el('p','Choose a date on the calendar, then a preferred 30-minute intake time in Riyadh. Dates are 2–30 days ahead. This is a request; we will confirm availability and send the appointment details. No payment is taken here.'),date,time,btn);box.append(wrap)
 }}
 msg('')}catch(e){msg(e.message);showAuth()}}
 $('link').onclick=async()=>{try{const email=$('email').value.trim();if(!email)throw Error('Enter your email first');await authFetch('otp?redirect_to='+encodeURIComponent(location.origin+'/login/'),{email,create_user:true});msg('Check your email for your sign-in link.')}catch(e){msg(e.message)}}
