@@ -30,13 +30,26 @@ Deno.serve(async(req)=>{
    const byId=new Map((eventPeople||[]).map(p=>[p.id,p]))
    const eventContacts=(contacts||[]).map(x=>({...x,person:byId.get(x.person_id)||null}))
    if(!founder)return json({role:admin.role,events,event_contacts:eventContacts},200,origin)
-   const {data:people,error:pErr}=await db.from('maktoub_people').select('id,full_name,normalized_phone,email,city,gender,interest_matchmaking,interest_social,interest_events,stage,intake_status,next_action,next_action_at,latest_source,latest_source_detail,created_at').order('created_at',{ascending:false}).limit(1000)
+   const {data:people,error:pErr}=await db.from('maktoub_people').select('id,full_name,normalized_phone,email,city,gender,interest_matchmaking,interest_social,interest_events,stage,intake_status,next_action,next_action_at,internal_notes,latest_source,latest_source_detail,created_at').order('created_at',{ascending:false}).limit(1000)
    const {data:bookings,error:bErr}=await db.from('maktoub_intake_bookings').select('id,person_id,starts_at,ends_at,status,booking_email,created_at,requested_at,decision_at,payment_status').order('created_at',{ascending:false}).limit(500)
    if(pErr||bErr)throw pErr||bErr
    return json({role:admin.role,events,event_contacts:eventContacts,people,bookings},200,origin)
   }
   const body=await req.json()
   if(!body||typeof body!=='object')return json({error:'Invalid request'},400,origin)
+  if(req.method==='PATCH'&&body.mode==='person'){
+   if(!founder)return json({error:'Founder access required'},403,origin)
+   if(typeof body.id!=='string')return json({error:'Person required'},400,origin)
+   const stages=new Set(['new','contacted','waiting_to_book','intake_booked','intake_completed','active','hold','archived'])
+   const changes:Record<string,unknown>={}
+   if(typeof body.stage==='string'&&stages.has(body.stage))changes.stage=body.stage
+   if(typeof body.next_action==='string')changes.next_action=body.next_action.trim().slice(0,300)||null
+   if(typeof body.internal_notes==='string')changes.internal_notes=body.internal_notes.trim().slice(0,3000)||null
+   if(!Object.keys(changes).length)return json({error:'No changes'},400,origin)
+   const {error}=await db.from('maktoub_people').update(changes).eq('id',body.id)
+   if(error)throw error
+   return json({success:true},200,origin)
+  }
   if(req.method==='PATCH'){
    if(typeof body.id!=='string'||!statuses.has(body.status))return json({error:'Invalid status'},400,origin)
    const notes=typeof body.notes==='string'?body.notes.trim().slice(0,1500):null
@@ -44,21 +57,32 @@ Deno.serve(async(req)=>{
    if(error)throw error
    return json({success:true,contact:data},200,origin)
   }
+  const general=body.mode==='person'
+  if(general&&!founder)return json({error:'Founder access required'},403,origin)
   const name=String(body.full_name||'').trim().slice(0,150)
   const rawPhone=String(body.phone||'').trim()
   const phone=parsePhoneNumberFromString(rawPhone, String(body.country_iso2||'SA').toUpperCase())
   if(!name||!phone?.isValid())return json({error:'Name and valid phone required'},400,origin)
   const email=typeof body.email==='string'?body.email.trim().slice(0,254):null
   const {data:upserted,error:upErr}=await db.rpc('upsert_maktoub_person',{
-   p_full_name:name,p_normalized_phone:phone.number,p_email:email||null,p_source:'event',
-   p_source_detail:'conference_outreach | '+eventId,
-   p_interest_events:true,p_interest_social:true,p_consent_status:'unknown',
-   p_internal_note:null
+   p_full_name:name,p_normalized_phone:phone.number,p_email:email||null,
+   p_source:general?'founder_manual':'event',
+   p_source_detail:general?String(body.source_detail||'manual entry').slice(0,200):'conference_outreach | '+eventId,
+   p_interest_matchmaking:general&&body.interest_matchmaking===true,
+   p_interest_events:general?body.interest_events===true:true,
+   p_interest_social:general?body.interest_social===true:true,
+   p_interest_referral:general&&body.interest_referral===true,
+   p_city:general?String(body.city||'').slice(0,120):null,
+   p_referred_by:general?String(body.referred_by||'').slice(0,150):null,
+   p_consent_status:'unknown',
+   p_internal_note:general?String(body.note||'').slice(0,2000):null
   })
   if(upErr||!upserted?.[0]?.person_id)throw upErr||new Error('Person save failed')
   const personId=upserted[0].person_id
-  const {error:contactErr}=await db.from('maktoub_event_contacts').upsert({event_id:eventId,person_id:personId},{onConflict:'event_id,person_id',ignoreDuplicates:true})
-  if(contactErr)throw contactErr
+  if(!general||body.interest_events===true){
+   const {error:contactErr}=await db.from('maktoub_event_contacts').upsert({event_id:eventId,person_id:personId},{onConflict:'event_id,person_id',ignoreDuplicates:true})
+   if(contactErr)throw contactErr
+  }
   return json({success:true,is_new:upserted[0].is_new},200,origin)
  }catch(error){console.error('maktoub-ops failed',error);return json({error:'Unable to complete request'},500,origin)}
 })
