@@ -33,7 +33,19 @@ table{width:100%;border-collapse:collapse;background:#fff}td,th{text-align:left;
 <section id="event"><h2>Event outreach</h2><p class="muted">New → Contacted → Invited → Confirmed. Changes save immediately.</p>
 <div class="card"><p class="label">Add someone you met</p><div class="grid"><input id="newName" placeholder="Full name"><input id="newPhone" type="tel" placeholder="+966…"><input id="newEmail" type="email" placeholder="Email (optional)"><button id="addPerson">Add to event</button></div></div>
 <label class="label">Find a person<input id="eventSearch" type="search" placeholder="Name, phone, source, or status" style="max-width:460px;margin:10px 0 18px"></label><div class="tablewrap"><table><thead><tr><th>Person</th><th>Source</th><th>Status</th><th>Notes</th></tr></thead><tbody id="eventRows"></tbody></table></div></section>
-<section id="people" hidden><h2>All Maktoub people</h2><div class="tablewrap"><table><thead><tr><th>Person</th><th>Interests</th><th>Source</th><th>Next action</th></tr></thead><tbody id="peopleRows"></tbody></table></div></section>
+<section id="people" hidden><h2>All Maktoub people</h2>
+<div class="card"><p class="label">Add a person</p><div class="grid">
+<input id="personName" placeholder="Full name"><input id="personPhone" type="tel" placeholder="+966…"><input id="personEmail" type="email" placeholder="Email (optional)">
+<input id="personCity" placeholder="City"><input id="personSource" placeholder="Where you met / referral"><input id="personReferrer" placeholder="Referred by (optional)">
+</div><div class="grid" style="margin:16px 0">
+<label><input type="checkbox" id="personMatch" style="width:auto"> Matchmaking</label>
+<label><input type="checkbox" id="personSocial" style="width:auto"> Social club</label>
+<label><input type="checkbox" id="personEvent" style="width:auto"> 10 October event</label>
+<label><input type="checkbox" id="personReferral" style="width:auto"> Referral</label></div>
+<textarea id="personNote" placeholder="What matters / next step" rows="2"></textarea>
+<button id="addGeneral" style="margin-top:12px">Save person</button>
+<p class="muted" style="margin-top:12px">Duplicate phone numbers update the same person. Consent remains unknown until they submit the public form.</p></div>
+<div class="tablewrap"><table><thead><tr><th>Person</th><th>Interests</th><th>Source</th><th>Stage</th><th>Next action / notes</th></tr></thead><tbody id="peopleRows"></tbody></table></div></section>
 <section id="bookings" hidden><h2>Intake requests</h2><div class="tablewrap"><table><thead><tr><th>Person</th><th>When</th><th>Status</th><th>Payment</th></tr></thead><tbody id="bookingRows"></tbody></table></div></section>
 </section><div id="message" role="status" aria-live="polite"></div>
 </main>
@@ -62,7 +74,9 @@ function render(){
   async function save(){try{select.disabled=true;await api('PATCH',{id:c.id,status:select.value,notes:note.value});msg('Saved '+personName(p));await load()}catch(e){msg(e.message)}finally{select.disabled=false}}
   select.addEventListener('change',save);note.addEventListener('change',save);$('eventRows').append(tr)
  });if(!event.length){const tr=el('tr');addCell(tr,'No event contacts yet. Add a conference contact above or share the event signup link.');$('eventRows').append(tr)}
- $('peopleRows').replaceChildren();people.forEach(p=>{const tr=el('tr');addCell(tr,personName(p)+' · '+p.normalized_phone+(p.email?' · '+p.email:''));addCell(tr,[p.interest_matchmaking&&'Matchmaking',p.interest_social&&'Social',p.interest_events&&'Events'].filter(Boolean).join(', '));addCell(tr,p.latest_source_detail||p.latest_source);addCell(tr,p.next_action||'');$('peopleRows').append(tr)});
+ $('peopleRows').replaceChildren();people.forEach(p=>{const tr=el('tr');addCell(tr,personName(p)+' · '+p.normalized_phone+(p.email?' · '+p.email:''));addCell(tr,[p.interest_matchmaking&&'Matchmaking',p.interest_social&&'Social',p.interest_events&&'Events'].filter(Boolean).join(', '));addCell(tr,p.latest_source_detail||p.latest_source);const stage=document.createElement('select');['new','contacted','waiting_to_book','intake_booked','intake_completed','active','hold','archived'].forEach(v=>{const o=el('option',v);o.value=v;stage.append(o)});stage.value=p.stage||'new';addCell(tr,stage);
+const details=document.createElement('div');const action=document.createElement('input');action.placeholder='Next action';action.value=p.next_action||'';const note=document.createElement('textarea');note.placeholder='Private notes';note.rows=2;note.value=p.internal_notes||'';details.append(action,note);addCell(tr,details);
+async function savePerson(){try{await api('PATCH',{mode:'person',id:p.id,stage:stage.value,next_action:action.value,internal_notes:note.value});msg('Saved '+p.full_name)}catch(e){msg(e.message)}}stage.addEventListener('change',savePerson);action.addEventListener('change',savePerson);note.addEventListener('change',savePerson);$('peopleRows').append(tr)});
  $('bookingRows').replaceChildren();bookings.forEach(b=>{const tr=el('tr');const p=people.find(x=>x.id===b.person_id);addCell(tr,personName(p));addCell(tr,b.starts_at?new Date(b.starts_at).toLocaleString('en-GB',{timeZone:'Asia/Riyadh',dateStyle:'medium',timeStyle:'short'})+' Riyadh':'—');addCell(tr,b.status);addCell(tr,b.payment_status||'—');$('bookingRows').append(tr)});
 }
 async function load(){record=await api('GET');showBoard();render()}
@@ -94,6 +108,11 @@ $('link').onclick=async()=>{try{const email=$('email').value.trim();if(!email)th
 $('passwordLogin').onclick=async()=>{try{const s=await authFetch('token?grant_type=password',{email:$('email').value.trim(),password:$('password').value});await signedIn(s)}catch(e){msg(e.message)}}
 $('logout').onclick=()=>{sessionStorage.removeItem('maktoub_session');session=null;showAuth();msg('Signed out')}
 $('addPerson').onclick=async()=>{try{const b=$('addPerson');b.disabled=true;await api('POST',{full_name:$('newName').value,phone:$('newPhone').value,email:$('newEmail').value});$('newName').value='';$('newPhone').value='';$('newEmail').value='';await load();msg('Person added to the event queue')}catch(e){msg(e.message)}finally{$('addPerson').disabled=false}}
+$('addGeneral').onclick=async()=>{try{const b=$('addGeneral');b.disabled=true;
+await api('POST',{mode:'person',full_name:$('personName').value,phone:$('personPhone').value,email:$('personEmail').value,city:$('personCity').value,source_detail:$('personSource').value,referred_by:$('personReferrer').value,interest_matchmaking:$('personMatch').checked,interest_social:$('personSocial').checked,interest_events:$('personEvent').checked,interest_referral:$('personReferral').checked,note:$('personNote').value});
+['personName','personPhone','personEmail','personCity','personSource','personReferrer','personNote'].forEach(id=>$(id).value='');['personMatch','personSocial','personEvent','personReferral'].forEach(id=>$(id).checked=false);
+await load();msg('Person saved and categorized')
+}catch(e){msg(e.message)}finally{$('addGeneral').disabled=false}};
 $('eventSearch').addEventListener('input',()=>{const q=$('eventSearch').value.toLowerCase();$('eventRows').querySelectorAll('tr').forEach(tr=>tr.hidden=!tr.dataset.search.includes(q))});
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));['event','people','bookings'].forEach(id=>$(id).hidden=id!==b.dataset.tab)})
 ;(async()=>{try{const hash=new URLSearchParams(location.hash.slice(1));if(hash.get('access_token')){history.replaceState(null,'',location.pathname);await signedIn({access_token:hash.get('access_token'),refresh_token:hash.get('refresh_token')});return}
