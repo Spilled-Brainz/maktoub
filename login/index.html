@@ -26,6 +26,7 @@ table{width:100%;border-collapse:collapse;background:#fff}td,th{text-align:left;
 <div class="card stack"><label>Email<input id="email" type="email" autocomplete="email" placeholder="you@example.com"></label>
 <button id="link">Email me a sign-in link</button><p class="muted">Team members with a password can sign in below.</p>
 <label>Password<input id="password" type="password" autocomplete="current-password"></label><button id="passwordLogin" class="secondary">Sign in with password</button></div></section>
+<section id="member" hidden><p class="label">Your Maktoub</p><h1>Your account.</h1><div class="card" id="memberDetails"></div></section>
 <section id="board" hidden><p class="label">Maktoub / team</p><h1>People & events.</h1><p id="role" class="muted"></p>
 <div class="stats" id="stats"></div>
 <div class="tabs"><button data-tab="event" class="active">10 October event</button><button data-tab="people" id="peopleTab">All people</button><button data-tab="bookings" id="bookingTab">Intake requests</button></div>
@@ -38,14 +39,14 @@ table{width:100%;border-collapse:collapse;background:#fff}td,th{text-align:left;
 </main>
 <script>
 const BASE='https://pmjvpnqmklxxpswwvbmv.supabase.co',KEY='sb_publishable_1prLuRU6balRnnMUWkMTtA_KITZXKQe';
-const OPS=BASE+'/functions/v1/maktoub-ops';let session=null,record=null;
+const OPS=BASE+'/functions/v1/maktoub-ops',MEMBER=BASE+'/functions/v1/maktoub-member';let session=null,record=null;
 const $=id=>document.getElementById(id);
 function msg(s){$('message').textContent=s;$('message').className=s?'notice':''}
 function el(tag,text){const x=document.createElement(tag);x.textContent=text==null?'':String(text);return x}
 async function authFetch(path,body){const r=await fetch(BASE+'/auth/v1/'+path,{method:'POST',headers:{'Content-Type':'application/json','apikey':KEY},body:JSON.stringify(body)});const j=await r.json();if(!r.ok)throw Error(j.msg||j.error_description||j.message||'Sign in failed');return j}
 async function api(method,body){let r=await fetch(OPS,{method,headers:{'Authorization':'Bearer '+session.access_token,...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined});let j=await r.json();if(!r.ok)throw Error(j.error||'Request failed');return j}
 function showBoard(){ $('auth').hidden=true;$('board').hidden=false;$('logout').hidden=false }
-function showAuth(){ $('auth').hidden=false;$('board').hidden=true;$('logout').hidden=true }
+function showAuth(){ $('auth').hidden=false;$('board').hidden=true;$('member').hidden=true;$('logout').hidden=true }
 function addCell(tr,content){const td=document.createElement('td');if(content instanceof Node)td.append(content);else td.textContent=content==null?'':String(content);tr.append(td);return td}
 function personName(p){return p?.full_name||'Unknown'}
 function render(){
@@ -65,8 +66,18 @@ function render(){
  $('bookingRows').replaceChildren();bookings.forEach(b=>{const tr=el('tr');const p=people.find(x=>x.id===b.person_id);addCell(tr,personName(p));addCell(tr,b.starts_at?new Date(b.starts_at).toLocaleString('en-GB',{timeZone:'Asia/Riyadh',dateStyle:'medium',timeStyle:'short'})+' Riyadh':'—');addCell(tr,b.status);addCell(tr,b.payment_status||'—');$('bookingRows').append(tr)});
 }
 async function load(){record=await api('GET');showBoard();render()}
-async function signedIn(s){session=s;sessionStorage.setItem('maktoub_session',JSON.stringify(s));try{await load();msg('')}catch(e){msg(e.message);showAuth()}}
-$('link').onclick=async()=>{try{const email=$('email').value.trim();if(!email)throw Error('Enter your email first');await authFetch('otp',{email,create_user:false,options:{email_redirect_to:location.origin+'/login/'}});msg('Check your email for your sign-in link.')}catch(e){msg(e.message)}}
+async function signedIn(s){session=s;sessionStorage.setItem('maktoub_session',JSON.stringify(s));
+try{await load();msg('');return}catch(e){if(e.message!=='No team access'){msg(e.message);showAuth();return}}
+try{const r=await fetch(MEMBER,{headers:{Authorization:'Bearer '+session.access_token}}),j=await r.json();
+if(!r.ok)throw Error(j.error||'Unable to load account');$('auth').hidden=true;$('board').hidden=true;$('member').hidden=false;$('logout').hidden=false;
+const box=$('memberDetails');box.replaceChildren();
+if(!j.linked){box.append(el('h2','No application linked yet'),el('p','Use the same email on your Maktoub application, or apply first.'));const a=el('a','Join Maktoub →');a.href='/#join';box.append(a)}
+else{box.append(el('h2','Hello, '+j.person.full_name),el('p','Application: '+(j.person.stage||'Received')));
+box.append(el('p','Event registrations: '+(j.events||[]).map(x=>x.event_id+' — '+x.status).join(', ') || 'None'));
+box.append(el('p','Intake requests: '+(j.bookings||[]).map(x=>x.status+' · '+(x.starts_at||'')).join(', ') || 'None'));
+box.append(el('p','We will contact you about your next step. An intake request is confirmed only after approval and payment verification.'))}
+msg('')}catch(e){msg(e.message);showAuth()}}
+$('link').onclick=async()=>{try{const email=$('email').value.trim();if(!email)throw Error('Enter your email first');await authFetch('otp?redirect_to='+encodeURIComponent(location.origin+'/login/'),{email,create_user:true});msg('Check your email for your sign-in link.')}catch(e){msg(e.message)}}
 $('passwordLogin').onclick=async()=>{try{const s=await authFetch('token?grant_type=password',{email:$('email').value.trim(),password:$('password').value});await signedIn(s)}catch(e){msg(e.message)}}
 $('logout').onclick=()=>{sessionStorage.removeItem('maktoub_session');session=null;showAuth();msg('Signed out')}
 $('addPerson').onclick=async()=>{try{const b=$('addPerson');b.disabled=true;await api('POST',{full_name:$('newName').value,phone:$('newPhone').value,email:$('newEmail').value});$('newName').value='';$('newPhone').value='';$('newEmail').value='';await load();msg('Person added to the event queue')}catch(e){msg(e.message)}finally{$('addPerson').disabled=false}}
