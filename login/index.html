@@ -88,20 +88,20 @@ const box=$('memberDetails');box.replaceChildren();
 if(!j.linked){box.append(el('h2','No application linked yet'),el('p','Use the same email on your Maktoub application, or apply first.'));const a=el('a','Join Maktoub →');a.href='/#join';box.append(a)}
 else{box.append(el('h2','Hello, '+j.person.full_name),el('p','Application: '+(j.person.stage||'Received')));
 box.append(el('p','Event registrations: '+(j.events||[]).map(x=>x.event_id+' — '+x.status).join(', ') || 'None'));
-box.append(el('p','Intake requests: '+(j.bookings||[]).map(x=>x.status+' · '+(x.starts_at||'')).join(', ') || 'None'));
-box.append(el('p','An intake request is confirmed only after approval and payment verification.'));
+box.append(el('p','Intake requests: '+((j.bookings||[]).map(x=>(x.status==='pending'?'awaiting confirmation':x.status)+' · '+new Date(x.starts_at).toLocaleString('en-GB',{timeZone:'Asia/Riyadh',dateStyle:'medium',timeStyle:'short'})+' Riyadh').join(', ') || 'None')));
+box.append(el('p','A preferred-time request is not an appointment. We will contact you to confirm availability and next steps.'));
 if(j.person.interest_matchmaking){
  const wrap=el('div');wrap.className='stack';wrap.style.marginTop='25px';wrap.append(el('h2','Request your intake'));
- const date=document.createElement('input');date.type='date';date.id='intakeDate';date.setAttribute('aria-label','Intake date');
+ const date=document.createElement('input');date.type='date';date.id='intakeDate';date.setAttribute('aria-label','Preferred intake date');const riyadhToday=new Date(Date.now()+3*3600000);const isoDay=d=>d.toISOString().slice(0,10);date.min=isoDay(new Date(riyadhToday.getTime()+48*3600000));date.max=isoDay(new Date(riyadhToday.getTime()+30*86400000));
  const time=document.createElement('select');time.id='intakeTime';time.setAttribute('aria-label','Intake time in Riyadh');
  for(let hour=13;hour<=21;hour++){const t=String(hour).padStart(2,'0')+':00';const o=el('option',t+' Riyadh');o.value=t;time.append(o)}
- const btn=el('button','Request this time');btn.onclick=async()=>{try{if(!date.value)throw Error('Choose a date');btn.disabled=true;
+ const active=(j.bookings||[]).find(x=>['pending','accepted','awaiting_payment','rescheduled'].includes(x.status));if(active){wrap.append(el('p','You already have an intake request for '+new Date(active.starts_at).toLocaleString('en-GB',{timeZone:'Asia/Riyadh',dateStyle:'full',timeStyle:'short'})+' Riyadh. Status: '+(active.status==='pending'?'awaiting confirmation':active.status)+'. We will contact you with the next step.'));box.append(wrap);return}const btn=el('button','Send preferred time');btn.onclick=async()=>{try{if(!date.value)throw Error('Choose a date');btn.disabled=true;
  const starts_at=date.value+'T'+time.value+':00+03:00';
  const response=await fetch(MEMBER,{method:'POST',headers:{Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({starts_at})});
  const value=await response.json();if(!response.ok)throw Error(value.error||'Request failed');
- msg('Intake request received. It is pending approval and payment verification.');await signedIn(session)
+ msg('Preferred time received. We will confirm availability and contact you. This is not yet a booked appointment.');await signedIn(session)
  }catch(e){msg(e.message)}finally{btn.disabled=false}};
- wrap.append(el('p','30 minutes. At least 48 hours ahead. Riyadh time. Select a preferred slot; it is not confirmed yet.'),date,time,btn);box.append(wrap)
+ wrap.append(el('p','Choose a preferred 30-minute intake time in Riyadh. Dates are 2–30 days ahead. This is a request; we will confirm availability and send the appointment details. No payment is taken here.'),date,time,btn);box.append(wrap)
 }}
 msg('')}catch(e){msg(e.message);showAuth()}}
 $('link').onclick=async()=>{try{const email=$('email').value.trim();if(!email)throw Error('Enter your email first');await authFetch('otp?redirect_to='+encodeURIComponent(location.origin+'/login/'),{email,create_user:true});msg('Check your email for your sign-in link.')}catch(e){msg(e.message)}}
