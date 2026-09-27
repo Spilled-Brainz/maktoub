@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Maktoub · Team</title>
+<style>
+:root{--paper:#f4f1ea;--ink:#171717;--red:#9d1c1f;--line:#cfc8bd}*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.45 "Helvetica Neue",Arial,sans-serif}
+header{display:flex;justify-content:space-between;align-items:center;padding:22px clamp(20px,4vw,60px);border-bottom:1px solid var(--line)}
+.brand{font-size:22px;letter-spacing:.08em;font-weight:600}main{max-width:1350px;margin:auto;padding:45px clamp(20px,4vw,60px) 100px}
+h1{font-size:clamp(42px,6vw,86px);line-height:.95;letter-spacing:-.04em;margin:0 0 18px}h2{font-size:30px;letter-spacing:-.03em;margin:0 0 18px}
+p{margin:0 0 16px}.muted{color:#625e57}.label{font-size:12px;text-transform:uppercase;letter-spacing:.1em}
+button,input,select,textarea{font:inherit;border-radius:0}input,select,textarea{padding:12px;border:1px solid var(--line);background:#fff;min-width:0;width:100%}
+button{background:var(--ink);color:#fff;border:1px solid var(--ink);padding:12px 18px;cursor:pointer}
+button.secondary{background:none;color:var(--ink)}button:hover{border-color:var(--red);background:var(--red);color:#fff}
+button:disabled{opacity:.5;cursor:wait}.card{background:#fff;border:1px solid var(--line);padding:24px;margin:20px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}.stack{display:grid;gap:12px;max-width:460px}
+.tabs{display:flex;gap:9px;flex-wrap:wrap;margin:30px 0 15px}.tabs button.active{background:var(--red);border-color:var(--red)}
+table{width:100%;border-collapse:collapse;background:#fff}td,th{text-align:left;border-bottom:1px solid var(--line);padding:14px;vertical-align:top}th{font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+.tablewrap{overflow-x:auto;border:1px solid var(--line)}td small{color:#625e57}td select,td textarea{min-width:145px}
+.stats{display:flex;gap:12px;flex-wrap:wrap;margin:25px 0}.stat{border:1px solid var(--line);padding:16px;min-width:130px}.stat strong{display:block;font-size:34px}
+.notice{padding:12px 16px;border-left:3px solid var(--red);background:#fff;margin:15px 0}a{color:inherit}
+@media(max-width:650px){td,th{padding:10px} .hide-mobile{display:none}}
+</style>
+<header><a class="brand" href="/">MAKTOUB</a><button id="logout" class="secondary" hidden>Sign out</button></header>
+<main>
+<section id="auth"><p class="label">Private access</p><h1>Welcome back.</h1><p class="muted">Sign in with the email used for your Maktoub account.</p>
+<div class="card stack"><label>Email<input id="email" type="email" autocomplete="email" placeholder="you@example.com"></label>
+<button id="link">Email me a sign-in link</button><p class="muted">Team members with a password can sign in below.</p>
+<label>Password<input id="password" type="password" autocomplete="current-password"></label><button id="passwordLogin" class="secondary">Sign in with password</button></div></section>
+<section id="board" hidden><p class="label">Maktoub / team</p><h1>People & events.</h1><p id="role" class="muted"></p>
+<div class="stats" id="stats"></div>
+<div class="tabs"><button data-tab="event" class="active">10 October event</button><button data-tab="people" id="peopleTab">All people</button><button data-tab="bookings" id="bookingTab">Intake requests</button></div>
+<section id="event"><h2>Event outreach</h2><p class="muted">New → Contacted → Invited → Confirmed. Changes save immediately.</p>
+<div class="card"><p class="label">Add someone you met</p><div class="grid"><input id="newName" placeholder="Full name"><input id="newPhone" type="tel" placeholder="+966…"><input id="newEmail" type="email" placeholder="Email (optional)"><button id="addPerson">Add to event</button></div></div>
+<div class="tablewrap"><table><thead><tr><th>Person</th><th>Source</th><th>Status</th><th>Notes</th></tr></thead><tbody id="eventRows"></tbody></table></div></section>
+<section id="people" hidden><h2>All Maktoub people</h2><div class="tablewrap"><table><thead><tr><th>Person</th><th>Interests</th><th>Source</th><th>Next action</th></tr></thead><tbody id="peopleRows"></tbody></table></div></section>
+<section id="bookings" hidden><h2>Intake requests</h2><div class="tablewrap"><table><thead><tr><th>Person</th><th>When</th><th>Status</th><th>Payment</th></tr></thead><tbody id="bookingRows"></tbody></table></div></section>
+</section><div id="message" role="status" aria-live="polite"></div>
+</main>
+<script>
+const BASE='https://pmjvpnqmklxxpswwvbmv.supabase.co',KEY='sb_publishable_1prLuRU6balRnnMUWkMTtA_KITZXKQe';
+const OPS=BASE+'/functions/v1/maktoub-ops';let session=null,record=null;
+const $=id=>document.getElementById(id);
+function msg(s){$('message').textContent=s;$('message').className=s?'notice':''}
+function el(tag,text){const x=document.createElement(tag);x.textContent=text==null?'':String(text);return x}
+async function authFetch(path,body){const r=await fetch(BASE+'/auth/v1/'+path,{method:'POST',headers:{'Content-Type':'application/json','apikey':KEY},body:JSON.stringify(body)});const j=await r.json();if(!r.ok)throw Error(j.msg||j.error_description||j.message||'Sign in failed');return j}
+async function api(method,body){let r=await fetch(OPS,{method,headers:{'Authorization':'Bearer '+session.access_token,...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined});let j=await r.json();if(!r.ok)throw Error(j.error||'Request failed');return j}
+function showBoard(){ $('auth').hidden=true;$('board').hidden=false;$('logout').hidden=false }
+function showAuth(){ $('auth').hidden=false;$('board').hidden=true;$('logout').hidden=true }
+function addCell(tr,content){const td=document.createElement('td');if(content instanceof Node)td.append(content);else td.textContent=content==null?'':String(content);tr.append(td);return td}
+function personName(p){return p?.full_name||'Unknown'}
+function render(){
+ $('role').textContent=record.role==='founder'?'Founder view — people, event outreach and bookings':'Event team view — event contacts only';
+ $('peopleTab').hidden=record.role!=='founder';$('bookingTab').hidden=record.role!=='founder';
+ const event=record.event_contacts||[],people=record.people||[],bookings=record.bookings||[];
+ $('stats').replaceChildren();[['Event interest',event.length],['To contact',event.filter(x=>x.status==='new').length],['Confirmed',event.filter(x=>x.status==='confirmed').length],...(record.role==='founder'?[['All people',people.length],['Intake requests',bookings.length]]:[])].forEach(([label,count])=>{const box=el('div');box.className='stat';box.append(el('span',label),el('strong',count));$('stats').append(box)});
+ $('eventRows').replaceChildren();event.forEach(c=>{
+  const tr=document.createElement('tr'),p=c.person||{};const who=document.createElement('div');who.append(el('strong',personName(p)),el('br'),el('span',p.normalized_phone||''),el('br'),el('small',p.email||''));addCell(tr,who);
+  addCell(tr,(p.latest_source_detail||p.latest_source||'')+' · '+(p.consent_status||''));
+  const select=document.createElement('select');['new','contacted','invited','confirmed','declined','attended'].forEach(v=>{const o=el('option',v);o.value=v;select.append(o)});select.value=c.status;addCell(tr,select);
+  const note=document.createElement('textarea');note.rows=2;note.value=c.notes||'';note.placeholder='Team notes';addCell(tr,note);
+  async function save(){try{select.disabled=true;await api('PATCH',{id:c.id,status:select.value,notes:note.value});msg('Saved '+personName(p));await load()}catch(e){msg(e.message)}finally{select.disabled=false}}
+  select.addEventListener('change',save);note.addEventListener('change',save);$('eventRows').append(tr)
+ });if(!event.length){const tr=el('tr');addCell(tr,'No event contacts yet. Add a conference contact above or share the event signup link.');$('eventRows').append(tr)}
+ $('peopleRows').replaceChildren();people.forEach(p=>{const tr=el('tr');addCell(tr,personName(p)+' · '+p.normalized_phone+(p.email?' · '+p.email:''));addCell(tr,[p.interest_matchmaking&&'Matchmaking',p.interest_social&&'Social',p.interest_events&&'Events'].filter(Boolean).join(', '));addCell(tr,p.latest_source_detail||p.latest_source);addCell(tr,p.next_action||'');$('peopleRows').append(tr)});
+ $('bookingRows').replaceChildren();bookings.forEach(b=>{const tr=el('tr');const p=people.find(x=>x.id===b.person_id);addCell(tr,personName(p));addCell(tr,b.starts_at?new Date(b.starts_at).toLocaleString('en-GB',{timeZone:'Asia/Riyadh',dateStyle:'medium',timeStyle:'short'})+' Riyadh':'—');addCell(tr,b.status);addCell(tr,b.payment_status||'—');$('bookingRows').append(tr)});
+}
+async function load(){record=await api('GET');showBoard();render()}
+async function signedIn(s){session=s;sessionStorage.setItem('maktoub_session',JSON.stringify(s));try{await load();msg('')}catch(e){msg(e.message);showAuth()}}
+$('link').onclick=async()=>{try{const email=$('email').value.trim();if(!email)throw Error('Enter your email first');await authFetch('otp',{email,create_user:false,options:{email_redirect_to:location.origin+'/login/'}});msg('Check your email for your sign-in link.')}catch(e){msg(e.message)}}
+$('passwordLogin').onclick=async()=>{try{const s=await authFetch('token?grant_type=password',{email:$('email').value.trim(),password:$('password').value});await signedIn(s)}catch(e){msg(e.message)}}
+$('logout').onclick=()=>{sessionStorage.removeItem('maktoub_session');session=null;showAuth();msg('Signed out')}
+$('addPerson').onclick=async()=>{try{const b=$('addPerson');b.disabled=true;await api('POST',{full_name:$('newName').value,phone:$('newPhone').value,email:$('newEmail').value});$('newName').value='';$('newPhone').value='';$('newEmail').value='';await load();msg('Person added to the event queue')}catch(e){msg(e.message)}finally{$('addPerson').disabled=false}}
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));['event','people','bookings'].forEach(id=>$(id).hidden=id!==b.dataset.tab)})
+;(async()=>{try{const hash=new URLSearchParams(location.hash.slice(1));if(hash.get('access_token')){history.replaceState(null,'',location.pathname);await signedIn({access_token:hash.get('access_token'),refresh_token:hash.get('refresh_token')});return}
+ const saved=JSON.parse(sessionStorage.getItem('maktoub_session')||'null');if(saved?.access_token){await signedIn(saved)}}catch(e){msg(e.message)}})()
+</script></html>
