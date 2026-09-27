@@ -1001,7 +1001,7 @@ button{cursor:pointer}
       successEyebrow.textContent=path==='matchmaking'?'Private matchmaking':isEvent?MAKTOUB_EVENT.title:'Social club';
       successTitle.textContent=isEvent?'Interest registered.':'You’re in.';
       successCopy.textContent=path==='matchmaking'?'Your next step is your private intake. We’ll take you through booking and the refundable AED 104.10 intake deposit.':isEvent?'We’ve registered your interest for '+MAKTOUB_EVENT.title+'. We’ll contact you privately with the next step.':'You’re now in the founding social club. We’ll be in touch privately when there is something relevant for you.';
-      successLogin.hidden=true;
+      successLogin.hidden=path!=='matchmaking';successLogin.textContent='Choose an intake time →';
       applicationSuccess.classList.add('visible');
     }catch(error){
       applyError.textContent='Your request could not be completed. Please try again.';applyError.classList.add('visible');
