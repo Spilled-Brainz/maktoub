@@ -447,6 +447,7 @@ button{cursor:pointer}
   html{scroll-behavior:auto}
   *,*:before,*:after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;transition-delay:0s!important}
 }
+.event-ticket-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin-top:32px}.event-ticket{border:1px solid var(--line,#d3cdc3);padding:clamp(20px,3vw,36px)}.event-ticket h3{margin:20px 0 12px}.event-ticket h3 small{font-size:16px}.event-ticket p+p{margin-top:14px}@media(max-width:640px){.event-ticket-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -496,11 +497,25 @@ button{cursor:pointer}
     <div class="event-date"><div><p class="event-day" data-event="date_display">10 OCT</p><p class="event-year">2026</p></div><p class="label" data-event="city"></p></div>
     <div class="event-copy">
       <div><p class="label muted" data-event="kicker">World Mental Health Day</p><h3 data-event="title">Wellness and Connection</h3></div>
-      <p class="desc" data-event="description">In celebration of World Mental Health Day, we’re in partnership with Stella Stays and Raw Spaces for a yoga session and fun intermingling.</p>
-      <div><button class="btn btn-solid" type="button" data-open-apply="event">Register interest →</button></div>
+      <p class="desc" data-event="description">An afternoon into evening of wellness, music and meaningful connection on the Stella Stays rooftop in Riyadh. Hosted by Maktoub, Stella Stays and RawEscapes for World Mental Health Day.</p>
+      <p class="desc"><strong>Saturday 10 October 2026</strong><br>3:30–9:30 PM · Stella Stays rooftop, Riyadh</p>
+      <div><a class="btn btn-solid" href="#event-tickets">Explore tickets →</a></div>
     </div>
     <figure class="img-slot" data-need="Image needed · 3:2 horizontal · yoga or wellness session, people together, candid · black &amp; white"><img alt="Wellness and Connection" data-event="image"></figure>
   </article>
+</section>
+
+
+<section id="event-tickets" class="section paper" aria-labelledby="tickets-title">
+  <p class="label">Wellness and Connection · 10 October</p>
+  <h2 id="tickets-title" class="display h-lg" style="margin:22px 0">An evening to reconnect.</h2>
+  <p class="desc" style="max-width:720px">Come for a change of pace, shared experiences and good conversation. Our rooftop programme brings together wellness, music and a curated pop-up market. The final programme and session details will be announced here.</p>
+  <div class="event-ticket-grid">
+    <article class="event-ticket"><p class="label">General admission</p><h3 class="display h-md">450 SAR <small>+ VAT</small></h3><p>517.50 SAR including 15% VAT.</p><p>Join the rooftop gathering from 3:30 to 9:30 PM.</p></article>
+    <article class="event-ticket"><p class="label">VIP · limited to 30 places</p><h3 class="display h-md">850 SAR <small>+ VAT</small></h3><p>977.50 SAR including 15% VAT.</p><p>Our elevated event experience. Full inclusions will be confirmed before ticket sales open.</p></article>
+  </div>
+  <p class="desc" style="margin:24px 0">Online ticket sales are not open yet. Register your interest below; this does not reserve a place or confirm a booking.</p>
+  <button class="btn btn-solid" type="button" data-open-apply="event">Register event interest →</button>
 </section>
 
 <!-- WHY MAKTOUB (the pitch's promise) -->
@@ -706,7 +721,7 @@ button{cursor:pointer}
           <div class="ui-top"><span>Maktoub</span><span>Your events</span></div>
           <p class="ui-kicker">A room for you</p>
           <p class="ui-title">Wellness and Connection.</p>
-          <div class="ui-event"><div class="ui-date">10/10<span>World Mental Health Day</span></div><div class="ui-event-copy"><strong>Yoga and fun intermingling</strong><small>With Stella Stays and Raw Spaces.</small></div></div>
+          <div class="ui-event"><div class="ui-date">10/10<span>World Mental Health Day</span></div><div class="ui-event-copy"><strong>Rooftop wellness, music and connection</strong><small>With Stella Stays and RawEscapes.</small></div></div>
           <div class="ui-row"><div class="ui-label">Why you</div><div><strong>Good people. Better context.</strong><small>Several guests share your interests, but the room is intentionally not identical.</small></div><span class="ui-status">→</span></div>
           <div class="ui-actions"><span class="ui-mini">Invitation</span><span class="ui-action primary">See invitation →</span></div>
         </div>
@@ -885,7 +900,7 @@ button{cursor:pointer}
     city: 'Riyadh',
     kicker: 'World Mental Health Day',
     title: 'Wellness and Connection',
-    description: 'In celebration of World Mental Health Day, we’re in partnership with Stella Stays and Raw Spaces for a yoga session and fun intermingling.',
+    description: 'An afternoon into evening of wellness, music and meaningful connection on the Stella Stays rooftop in Riyadh. Hosted by Maktoub, Stella Stays and RawEscapes for World Mental Health Day.',
     image: '/images/event-wellness.webp'
   };
 
