@@ -12,8 +12,8 @@
 <style>
 :root{
   --paper:#F4F1EA; --paper-2:#EAE5DC; --ink:#111111; --night:#171717; --night-2:#1D1D1C;
-  --red:#9D1C1F; --grey:#C9C1B7; --hair:#CFC8BD; --smoke:#6B665F; --white:#FFFFFF;
-  --hair-night:rgba(255,255,255,.22); --wave:#E9E4DC; --red-wave:#C0393B;
+  --red:#142C4B; --grey:#C9C1B7; --hair:#CFC8BD; --smoke:#6B665F; --white:#FFFFFF;
+  --hair-night:rgba(255,255,255,.22); --wave:#E9E4DC; --red-wave:#284C72;
   --pad:clamp(20px,3.6vw,56px); --sy:clamp(88px,10vw,160px);
   --sans:"Instrument Sans","Helvetica Neue",Arial,sans-serif;
   --serif:"Newsreader","Iowan Old Style","Times New Roman",serif;
@@ -210,7 +210,7 @@ button{cursor:pointer}
 .voice-stage{position:relative;padding-top:64px}
 .voice-q{position:absolute;top:0;max-width:24ch;font-size:13px;line-height:1.35;color:#D8D2C9;padding-left:12px;border-left:1px solid var(--hair-night);margin:0}
 .voice-q b{display:block;font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#9E978E;margin-bottom:4px}
-.voice-q.shift b{color:#E06A62}
+.voice-q.shift b{color:#7797BA}
 .wave{display:block;width:100%;height:auto}
 .voice-signals{display:flex;flex-wrap:wrap;gap:8px 0;margin:22px 0 0;padding:0;list-style:none}
 .voice-signals li{font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#CFC9C0;padding-right:16px;margin-right:16px;border-right:1px solid var(--hair-night)}
@@ -222,7 +222,7 @@ button{cursor:pointer}
 .stage.next{border-top:1px dashed #8E8880}
 .stage h3{margin:14px 0 14px}
 .stage p{margin:0;color:#D8D2C9;max-width:36ch;font-size:16px}
-.stage .label.now{color:#E06A62}
+.stage .label.now{color:#7797BA}
 .layers{list-style:none;margin:20px 0 0;padding:0;border-top:1px solid var(--hair-night)}
 .layers li{display:grid;grid-template-columns:128px 1fr;gap:12px;padding:11px 0;border-bottom:1px solid var(--hair-night);font-size:14px;color:#D8D2C9}
 .layers b{font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--white);padding-top:2px}
@@ -283,7 +283,7 @@ button{cursor:pointer}
 .ui-row small{display:block;margin-top:3px;font-size:13px;line-height:1.4;opacity:.68;max-width:36ch}
 .ui-status{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
 .ui-status.done{color:var(--red)}
-.inside-panel.dark .ui-status.done{color:#E06A62}
+.inside-panel.dark .ui-status.done{color:#7797BA}
 .ui-event{display:grid;grid-template-columns:128px 1fr;border-top:1px solid currentColor;border-bottom:1px solid currentColor;margin-bottom:6px}
 .ui-date{padding:16px 16px 16px 0;font-size:48px;font-weight:500;line-height:.86;letter-spacing:-.04em}
 .ui-date span{display:block;font-size:11px;line-height:1.35;letter-spacing:.08em;text-transform:uppercase;margin-top:10px;font-weight:500}
@@ -397,7 +397,7 @@ button{cursor:pointer}
   .voice-q-list{display:grid;gap:12px;list-style:none;margin:22px 0 0;padding:0}
   .voice-q-list li{font-size:14px;color:#D8D2C9;padding-left:12px;border-left:1px solid var(--hair-night)}
   .voice-q-list b{display:block;font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#9E978E}
-  .voice-q-list li.shift b{color:#E06A62}
+  .voice-q-list li.shift b{color:#7797BA}
   .portal-head{display:grid}
   .inside-panel{border-right:0;border-bottom:1px solid var(--hair);min-height:88px}
   .inside-panel.dark{border-bottom-color:#000}
@@ -469,7 +469,7 @@ button{cursor:pointer}
 <section class="section paper grain hero">
   <div class="hero-top">
     <p class="label">Private matchmaking + social club / Riyadh</p>
-    <a class="hero-event" href="/events/wellness-and-connection/" data-event-teaser><span class="label">Our upcoming event</span><span class="he-title"><span data-event="date">10/10/2026</span> <span data-event="title">Wellness and Connection</span></span><span class="label he-go">See the event →</span></a>
+    <a class="hero-event" href="/events/wellness-and-connection/" data-event-teaser><span class="label">Our upcoming event</span><span class="he-title"><span data-event="date">17/10/2026</span> <span data-event="title">Wellness and Connection</span></span><span class="label he-go">See the event →</span></a>
     <p class="label hero-written">It’s written. <span class="ar" lang="ar">مكتوب</span></p>
   </div>
   <div class="hero-brand" aria-hidden="true">MAKTOUB</div>
@@ -494,11 +494,11 @@ button{cursor:pointer}
 <section id="events" class="section paper event-sec" data-event-module>
   <div class="events-head"><p class="label">Our upcoming event</p><a class="btn-text" href="#social">The social club →</a></div>
   <article class="event">
-    <div class="event-date"><div><p class="event-day" data-event="date_display">10 OCT</p><p class="event-year">2026</p></div><p class="label" data-event="city"></p></div>
+    <div class="event-date"><div><p class="event-day" data-event="date_display">17 OCT</p><p class="event-year">2026</p></div><p class="label" data-event="city"></p></div>
     <div class="event-copy">
-      <div><p class="label muted" data-event="kicker">World Mental Health Day</p><h3 data-event="title">Wellness and Connection</h3></div>
-      <p class="desc" data-event="description">An afternoon into evening of wellness, music and meaningful connection on the Stella Stays rooftop in Riyadh. Hosted by Maktoub, Stella Stays and RawEscapes for World Mental Health Day.</p>
-      <p class="desc"><strong>Saturday 10 October 2026</strong><br>3:00–9:30 PM · Stella Stays rooftop, Riyadh</p>
+      <div><p class="label muted" data-event="kicker">Rooftop Wellness & Connection</p><h3 data-event="title">Wellness and Connection</h3></div>
+      <p class="desc" data-event="description">An afternoon into evening of wellness, music and meaningful connection on the Stella Stays rooftop in Riyadh. Hosted by Maktoub, Stella Stays and RawEscapes for Rooftop Wellness & Connection.</p>
+      <p class="desc"><strong>Saturday 17 October 2026</strong><br>3:00–9:30 PM · Stella Stays rooftop, Riyadh</p>
       <div><a class="btn btn-solid" href="/events/wellness-and-connection/#tickets">Explore tickets →</a></div>
     </div>
     <figure class="img-slot" data-need="Image needed · 3:2 horizontal · yoga or wellness session, people together, candid · black &amp; white"><img alt="Wellness and Connection" data-event="image"></figure>
@@ -731,12 +731,12 @@ button{cursor:pointer}
   var MAKTOUB_EVENT = {
     enabled: true,
     id: 'wellness-connection-1010-2026',
-    date: '10/10/2026',
-    date_display: '10 OCT',
+    date: '17/10/2026',
+    date_display: '17 OCT',
     city: 'Riyadh',
-    kicker: 'World Mental Health Day',
+    kicker: 'Rooftop Wellness & Connection',
     title: 'Above the City',
-    description: 'An afternoon into evening of wellness, music and meaningful connection on the Stella Stays rooftop in Riyadh. Hosted by Maktoub, Stella Stays and RawEscapes for World Mental Health Day.',
+    description: 'An afternoon into evening of wellness, music and meaningful connection on the Stella Stays rooftop in Riyadh. Hosted by Maktoub, Stella Stays and RawEscapes for Rooftop Wellness & Connection.',
     image: '/images/event-wellness.webp'
   };
 
