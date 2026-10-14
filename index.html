@@ -309,6 +309,8 @@ button{cursor:pointer}
 .refer-right .lead{color:#D8D2C9;max-width:26ch}
 
 /* FOUNDER */
+.founder-portrait{margin:calc(-1 * clamp(40px,6vw,110px)) 0 0;position:relative}.founder-portrait img{width:100%;height:auto;display:block}.founder-portrait figcaption{padding:14px 0;border-bottom:1px solid var(--hair);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--navy,#142C4B)}
+@media(max-width:920px){.founder-portrait{margin:0;max-width:460px}}
 .founder{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(36px,8vw,140px);align-items:start;border-top:1px solid var(--hair)}
 .founder-portrait-placeholder{aspect-ratio:4/5;margin-top:calc(-1 * clamp(40px,6vw,110px));background:var(--night);color:var(--paper);padding:28px;display:flex;flex-direction:column;justify-content:space-between}.founder-portrait-placeholder span{font-family:var(--serif);font-size:clamp(90px,12vw,200px);line-height:.8;letter-spacing:-.09em}.founder-portrait-placeholder small{font-size:12px;letter-spacing:.12em;text-transform:uppercase}
 .founder-content h2{margin:22px 0 26px;max-width:24ch}
@@ -633,7 +635,7 @@ button{cursor:pointer}
 
 <!-- FOUNDER -->
 <section id="about" class="section paper founder">
-  <div class="founder-portrait-placeholder" aria-label="Deena Al Jassasi, founder of Maktoub"><span>DAJ</span><small>Deena Al Jassasi / Founder</small></div>
+  <figure class="founder-portrait"><img src="/images/deena-al-jassasi.jpg" alt="Deena Al Jassasi, founder of Maktoub" width="500" height="500" loading="lazy"><figcaption>Deena Al Jassasi / Founder</figcaption></figure>
   <div class="founder-content">
     <p class="label">Why I’m building this</p>
     <h2 class="display h-md">My background sits across psychology, human behaviour, strategy, analytics, human performance and mental health technology.</h2>
