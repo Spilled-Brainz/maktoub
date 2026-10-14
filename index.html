@@ -448,6 +448,16 @@ button{cursor:pointer}
   *,*:before,*:after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;transition-delay:0s!important}
 }
 .event-ticket-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin-top:32px}.event-ticket{border:1px solid var(--line,#d3cdc3);padding:clamp(20px,3vw,36px)}.event-ticket h3{margin:20px 0 12px}.event-ticket h3 small{font-size:16px}.event-ticket p+p{margin-top:14px}@media(max-width:640px){.event-ticket-grid{grid-template-columns:1fr}}
+/* Restrained event palette accents. */
+:root{--navy:#142C4B;--butter:#F5E3A0;--pink:#F4D4D2}
+.wordmark,.hero-brand{color:var(--navy)}
+.hero-event{background:var(--butter);border-color:var(--navy)}
+.hero-event:hover{background:var(--navy)}
+.hero-copy .btn-solid,.nav .btn{background:var(--navy);border-color:var(--navy);color:var(--paper)}
+.hero-copy .btn-solid:hover,.nav .btn:hover{background:var(--butter);border-color:var(--navy);color:var(--navy)}
+.event-date{background:var(--pink);padding-left:24px}
+.event-copy .btn-solid{background:var(--navy);border-color:var(--navy)}
+.social-num{color:var(--pink)}
 </style>
 </head>
 <body>
