@@ -12,7 +12,7 @@ Deno.serve(async(req)=>{
  if(!token)return result({error:'Sign in required'},401,origin)
  const {data,error}=await db.auth.getUser(token)
  if(error||!data.user?.email||!data.user.email_confirmed_at)return result({error:'Verified email required'},401,origin)
- const {data:person,error:personError}=await db.from('maktoub_people').select('id,full_name,email,stage,intake_status,interest_matchmaking,interest_social,interest_events').ilike('email',data.user.email).maybeSingle()
+ const {data:person,error:personError}=await db.from('maktoub_people').select('id,full_name,email,stage,intake_status,interest_matchmaking,interest_social,interest_events').ilike('email',data.user.email.replace(/[\\%_]/g, char => '\\'+char)).maybeSingle()
  if(personError)return result({error:'Unable to load account'},500,origin)
  if(!person)return result({linked:false},200,origin)
  if(req.method==='POST'){
@@ -22,15 +22,21 @@ Deno.serve(async(req)=>{
    if(!/^\d{4}-\d{2}-\d{2}T(1[3-9]|2[01]):00:00\+03:00$/.test(value))return result({error:'Choose an hourly slot from 1 PM to 9 PM Riyadh time.'},400,origin)
    const starts=new Date(value)
    if(!Number.isFinite(starts.getTime())||starts.getTime()<Date.now()+48*3600000)return result({error:'Choose a date at least 48 hours ahead.'},400,origin)
+   if(starts.getTime()>Date.now()+30*86400000)return result({error:'Choose a date within the next 30 days.'},400,origin)
+   if(!person.interest_matchmaking)return result({error:'An active matchmaking application is required.'},403,origin)
+   const ends=new Date(starts.getTime()+30*60000)
    const {data:existing}=await db.from('maktoub_intake_bookings').select('id').eq('person_id',person.id).in('status',['awaiting_payment','pending','accepted','rescheduled']).limit(1)
    if(existing?.length)return result({error:'You already have an active intake request.'},409,origin)
+   const {data:occupied,error:slotError}=await db.from('maktoub_intake_bookings').select('id').eq('starts_at',starts.toISOString()).in('status',['pending','accepted','rescheduled']).limit(1)
+   if(slotError)return result({error:'Unable to check that time. Please try again.'},500,origin)
+   if(occupied?.length)return result({error:'That time has already been requested. Please choose another.'},409,origin)
    const {data:booking,error:insertError}=await db.from('maktoub_intake_bookings').insert({
-    person_id:person.id,starts_at:starts.toISOString(),booking_email:data.user.email,
-    status:'pending',payment_status:'unpaid',timezone:'Asia/Riyadh'
-   }).select('id,starts_at,status').single()
+    person_id:person.id,starts_at:starts.toISOString(),ends_at:ends.toISOString(),booking_email:data.user.email,
+    status:'pending',payment_status:'unpaid',payment_provider:'none',payment_amount_minor:0,timezone:'Asia/Riyadh'
+   }).select('id,starts_at,ends_at,status').single()
    if(insertError){console.error('Intake request failed',insertError);return result({error:'That slot may be unavailable. Please select another.'},409,origin)}
    const bot=Deno.env.get('MAKTOUB_TELEGRAM_BOT_TOKEN'),chat=Deno.env.get('MAKTOUB_TELEGRAM_CHAT_ID')
-   if(bot&&chat){try{const response=await fetch('https://api.telegram.org/bot'+bot+'/sendMessage',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:chat,text:'New Maktoub intake request\\n'+person.full_name+'\\n'+starts.toLocaleString('en-GB',{timeZone:'Asia/Riyadh'})+' Riyadh\\nStatus: pending approval and payment'}),signal:AbortSignal.timeout(3000)});if(!response.ok)console.error('Telegram booking alert failed',response.status)}catch(e){console.error('Telegram booking alert failed',e)}}
+   if(bot&&chat){try{const response=await fetch('https://api.telegram.org/bot'+bot+'/sendMessage',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:chat,text:'New Maktoub intake request\n'+person.full_name+'\n'+starts.toLocaleString('en-GB',{timeZone:'Asia/Riyadh'})+' Riyadh\nStatus: awaiting calendar confirmation'}),signal:AbortSignal.timeout(3000)});if(!response.ok)console.error('Telegram booking alert failed',response.status)}catch(e){console.error('Telegram booking alert failed',e)}}
    return result({success:true,booking},200,origin)
   }catch(e){console.error('Intake request error',e);return result({error:'Unable to request intake.'},500,origin)}
  }
