@@ -859,7 +859,7 @@ button{cursor:pointer}
     var b=applyForm.querySelector('button[type=submit]');b.disabled=true;b.textContent='Sending…';
     try{
       var response=await fetch(INGEST_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-      if(!response.ok)throw new Error('Submission failed');
+      if(!response.ok){var failure=await response.json().catch(function(){return {}});throw new Error(failure.error||'Your request could not be completed. Please try again.');}
       applyForm.style.display='none';
       successEyebrow.textContent=path==='matchmaking'?'Private matchmaking':isEvent?MAKTOUB_EVENT.title:'Social club';
       successTitle.textContent=path==='matchmaking'?'Welcome to your next step.':isEvent?'Interest registered.':'Thank you for your interest.';
@@ -867,7 +867,7 @@ button{cursor:pointer}
       successLogin.hidden=path!=='matchmaking';successLogin.textContent='Sign in to request a time →';
       applicationSuccess.classList.add('visible');
     }catch(error){
-      applyError.textContent='Your request could not be completed. Please try again.';applyError.classList.add('visible');
+      applyError.textContent=error.message||'Your request could not be completed. Please try again.';applyError.classList.add('visible');
     }finally{
       b.disabled=false;b.textContent=path==='event'?'Register interest →':'Continue →';
     }
@@ -904,10 +904,10 @@ button{cursor:pointer}
     referSubmit.disabled=true;referSubmit.textContent='Sending…';
     try{
       var response=await fetch(INGEST_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-      if(!response.ok)throw new Error('Submission failed');
+      if(!response.ok){var failure=await response.json().catch(function(){return {}});throw new Error(failure.error||'Your request could not be completed. Please try again.');}
       referForm.style.display='none';referSuccess.classList.add('visible');
     }catch(error){
-      referError.textContent='Your referral could not be sent. Please try again.';referError.classList.add('visible');
+      referError.textContent=error.message||'Your referral could not be sent. Please try again.';referError.classList.add('visible');
     }finally{
       referSubmit.disabled=false;referSubmit.textContent='Refer someone →';
     }
