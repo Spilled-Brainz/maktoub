@@ -98,6 +98,14 @@ Deno.serve(async (req: Request) => {
       return json({ success: false, error: 'Please enter a valid email address.' }, 400, origin)
     }
 
+    // Public submissions must not change the email used to authorize an existing member.
+    const { data: existingPerson, error: existingError } = await admin
+      .from('maktoub_people').select('email').eq('normalized_phone', normalizedPhone).maybeSingle()
+    if (existingError) return json({ success: false, error: 'We could not process your submission right now.' }, 500, origin)
+    if (existingPerson && email && email.toLowerCase() !== (existingPerson.email || '').trim().toLowerCase()) {
+      return json({ success: false, error: 'This phone is already registered. Use your original email, or contact Maktoub to update your details.' }, 409, origin)
+    }
+
     const genderRaw = field(raw, 'gender', 30)
     const gender = genderRaw && ['male', 'female', 'other', 'prefer_not_to_say'].includes(genderRaw)
       ? genderRaw : null
@@ -162,23 +170,11 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    const botToken = Deno.env.get('MAKTOUB_TELEGRAM_BOT_TOKEN')
-    const chatId = Deno.env.get('MAKTOUB_TELEGRAM_CHAT_ID')
-    if (botToken && chatId && (upserted[0].is_new || eventId)) {
-      try {
-        const message = [eventId ? 'Maktoub event interest' : 'New Maktoub signup', fullName,
-          eventId ? 'Event: ' + eventId : 'Interest: ' + [interestMatchmaking && 'matchmaking', interestSocial && 'social', interestEvents && 'events'].filter(Boolean).join(', '),
-          'Source: ' + source].join('\\n')
-        const response = await fetch('https://api.telegram.org/bot' + botToken + '/sendMessage', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chat_id: chatId, text: message }),
-          signal: AbortSignal.timeout(3000),
-        })
-        if (!response.ok) console.error('Telegram signup notification failed', response.status)
-      } catch (notificationError) {
-        console.error('Telegram signup notification failed', notificationError)
-      }
+    if (upserted[0].is_new || eventId) {
+      const { error: notificationError } = await admin.from('maktoub_notification_outbox')
+        .upsert({ person_id: personId, kind: eventId ? 'event_interest' : 'signup', event_id: eventId ?? '' },
+          { onConflict: 'person_id,kind,event_id', ignoreDuplicates: true })
+      if (notificationError) console.error('Unable to queue Maktoub signup notification', notificationError)
     }
 
     if (source === 'deenaal_joinprivatesocial') {
