@@ -28,7 +28,7 @@ table{width:100%;border-collapse:collapse;background:#fff}td,th{text-align:left;
 <section id="member" hidden><p class="label">Your Maktoub</p><h1>Your profile is being built.</h1><div class="card" id="memberDetails"></div></section>
 <section id="board" hidden><p class="label">Maktoub / team</p><h1>People & events.</h1><p id="role" class="muted"></p>
 <div class="stats" id="stats"></div>
-<div class="tabs"><button data-tab="event" class="active">10 October event</button><button data-tab="people" id="peopleTab">All people</button><button data-tab="bookings" id="bookingTab">Intake requests</button></div>
+<div class="tabs"><button data-tab="event" class="active">17 October event</button><button data-tab="people" id="peopleTab">All people</button><button data-tab="bookings" id="bookingTab">Intake requests</button></div>
 <section id="event"><h2>Event outreach</h2><p class="muted">New → Contacted → Invited → Confirmed. Changes save immediately.</p>
 <div class="card"><p class="label">Add someone you met</p><div class="grid"><input id="newName" placeholder="Full name"><input id="newPhone" type="tel" placeholder="+966…"><input id="newEmail" type="email" placeholder="Email (optional)"><button id="addPerson">Add to event</button></div></div>
 <label class="label">Find a person<input id="eventSearch" type="search" placeholder="Name, phone, source, or status" style="max-width:460px;margin:10px 0 18px"></label><div class="tablewrap"><table><thead><tr><th>Person</th><th>Source</th><th>Status</th><th>Notes</th></tr></thead><tbody id="eventRows"></tbody></table></div></section>
@@ -39,7 +39,7 @@ table{width:100%;border-collapse:collapse;background:#fff}td,th{text-align:left;
 </div><div class="grid" style="margin:16px 0">
 <label><input type="checkbox" id="personMatch" style="width:auto"> Matchmaking</label>
 <label><input type="checkbox" id="personSocial" style="width:auto"> Social club</label>
-<label><input type="checkbox" id="personEvent" style="width:auto"> 10 October event</label>
+<label><input type="checkbox" id="personEvent" style="width:auto"> 17 October event</label>
 <label><input type="checkbox" id="personReferral" style="width:auto"> Referral</label></div>
 <textarea id="personNote" placeholder="What matters / next step" rows="2"></textarea>
 <button id="addGeneral" style="margin-top:12px">Save person</button>
@@ -50,6 +50,7 @@ table{width:100%;border-collapse:collapse;background:#fff}td,th{text-align:left;
 </main>
 <script>
 const BASE='https://pmjvpnqmklxxpswwvbmv.supabase.co',KEY='sb_publishable_1prLuRU6balRnnMUWkMTtA_KITZXKQe';
+const AUTH_REDIRECT='https://maktoub.app/login/';
 const OPS=BASE+'/functions/v1/maktoub-ops',MEMBER=BASE+'/functions/v1/maktoub-member';let session=null,record=null;
 const $=id=>document.getElementById(id);
 function msg(s){$('message').textContent=s;$('message').className=s?'notice':''}
@@ -79,7 +80,7 @@ async function savePerson(){try{await api('PATCH',{mode:'person',id:p.id,stage:s
  $('bookingRows').replaceChildren();bookings.forEach(b=>{const tr=el('tr');const p=people.find(x=>x.id===b.person_id);addCell(tr,personName(p));addCell(tr,b.starts_at?new Date(b.starts_at).toLocaleString('en-GB',{timeZone:'Asia/Riyadh',dateStyle:'medium',timeStyle:'short'})+' Riyadh':'—');addCell(tr,b.status);addCell(tr,b.payment_status||'—');$('bookingRows').append(tr)});
 }
 async function load(){record=await api('GET');showBoard();render()}
-async function signedIn(s){session=s;sessionStorage.setItem('maktoub_session',JSON.stringify(s));
+async function signedIn(s){session={...s,expires_at:s.expires_at||(s.expires_in?Math.floor(Date.now()/1000)+s.expires_in:0)};s=session;sessionStorage.setItem('maktoub_session',JSON.stringify(s));
 try{await load();msg('');return}catch(e){if(e.message!=='No team access'){msg(e.message);showAuth();return}}
 try{const r=await fetch(MEMBER,{headers:{Authorization:'Bearer '+session.access_token}}),j=await r.json();
 if(!r.ok)throw Error(j.error||'Unable to load account');$('auth').hidden=true;$('board').hidden=true;$('member').hidden=false;$('logout').hidden=false;
@@ -103,9 +104,9 @@ if(j.person.interest_matchmaking){
  wrap.append(el('p','Choose a date on the calendar, then a preferred 30-minute intake time in Riyadh. Dates are 2–30 days ahead. This is a request; we will confirm availability and send the appointment details. No payment is taken here.'),date,time,btn);box.append(wrap)
 }}
 msg('')}catch(e){msg(e.message);showAuth()}}
-$('link').onclick=async()=>{try{const email=$('email').value.trim();if(!email)throw Error('Enter your email first');await authFetch('otp?redirect_to='+encodeURIComponent(location.origin+'/login/'),{email,create_user:true});msg('Check your email for your sign-in link.')}catch(e){msg(e.message)}}
+$('link').onclick=async()=>{const button=$('link');try{const email=$('email').value.trim();if(!email||!$('email').checkValidity())throw Error('Enter a valid email address first');button.disabled=true;await authFetch('otp?redirect_to='+encodeURIComponent(AUTH_REDIRECT),{email,create_user:true});msg('Check your email for your sign-in link. Use the newest email; older links may have expired.')}catch(e){msg(e.message)}finally{button.disabled=false}}
 $('passwordLogin').onclick=async()=>{try{const s=await authFetch('token?grant_type=password',{email:$('email').value.trim(),password:$('password').value});await signedIn(s)}catch(e){msg(e.message)}}
-$('logout').onclick=()=>{sessionStorage.removeItem('maktoub_session');session=null;showAuth();msg('Signed out')}
+$('logout').onclick=async()=>{const token=session?.access_token;sessionStorage.removeItem('maktoub_session');session=null;showAuth();msg('Signed out');if(token){try{await fetch(BASE+'/auth/v1/logout',{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+token}})}catch(e){/* Local session is already cleared. */}}}
 $('addPerson').onclick=async()=>{try{const b=$('addPerson');b.disabled=true;await api('POST',{full_name:$('newName').value,phone:$('newPhone').value,email:$('newEmail').value});$('newName').value='';$('newPhone').value='';$('newEmail').value='';await load();msg('Person added to the event queue')}catch(e){msg(e.message)}finally{$('addPerson').disabled=false}}
 $('addGeneral').onclick=async()=>{try{const b=$('addGeneral');b.disabled=true;
 await api('POST',{mode:'person',full_name:$('personName').value,phone:$('personPhone').value,email:$('personEmail').value,city:$('personCity').value,source_detail:$('personSource').value,referred_by:$('personReferrer').value,interest_matchmaking:$('personMatch').checked,interest_social:$('personSocial').checked,interest_events:$('personEvent').checked,interest_referral:$('personReferral').checked,note:$('personNote').value});
@@ -114,6 +115,19 @@ await load();msg('Person saved and categorized')
 }catch(e){msg(e.message)}finally{$('addGeneral').disabled=false}};
 $('eventSearch').addEventListener('input',()=>{const q=$('eventSearch').value.toLowerCase();$('eventRows').querySelectorAll('tr').forEach(tr=>tr.hidden=!tr.dataset.search.includes(q))});
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));['event','people','bookings'].forEach(id=>$(id).hidden=id!==b.dataset.tab)})
-;(async()=>{try{const hash=new URLSearchParams(location.hash.slice(1));if(hash.get('access_token')){history.replaceState(null,'',location.pathname);await signedIn({access_token:hash.get('access_token'),refresh_token:hash.get('refresh_token')});return}
- const saved=JSON.parse(sessionStorage.getItem('maktoub_session')||'null');if(saved?.access_token){await signedIn(saved)}}catch(e){msg(e.message)}})()
+;(async()=>{try{
+ const hash=new URLSearchParams(location.hash.slice(1));
+ if(hash.get('error')||hash.get('error_code')){
+  sessionStorage.removeItem('maktoub_session');history.replaceState(null,'',location.pathname);showAuth();
+  msg('This sign-in link has expired or has already been used. Enter your email to request a fresh link.');return;
+ }
+ if(hash.get('access_token')){history.replaceState(null,'',location.pathname);await signedIn({access_token:hash.get('access_token'),refresh_token:hash.get('refresh_token'),expires_in:Number(hash.get('expires_in')||3600)});return}
+ const saved=JSON.parse(sessionStorage.getItem('maktoub_session')||'null');
+ if(saved?.access_token){
+  if(!saved.expires_at||saved.expires_at<=Math.floor(Date.now()/1000)+60){
+   if(!saved.refresh_token)throw Error('Please sign in again.');
+   await signedIn(await authFetch('token?grant_type=refresh_token',{refresh_token:saved.refresh_token}));
+  }else await signedIn(saved)
+ }
+}catch(e){sessionStorage.removeItem('maktoub_session');showAuth();msg('Your session has expired. Please sign in again.')}})()
 </script></html>
