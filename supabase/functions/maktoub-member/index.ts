@@ -35,8 +35,7 @@ Deno.serve(async(req)=>{
     status:'pending',payment_status:'unpaid',payment_provider:'none',payment_amount_minor:0,timezone:'Asia/Riyadh'
    }).select('id,starts_at,ends_at,status').single()
    if(insertError){console.error('Intake request failed',insertError);return result({error:'That slot may be unavailable. Please select another.'},409,origin)}
-   const bot=Deno.env.get('MAKTOUB_TELEGRAM_BOT_TOKEN'),chat=Deno.env.get('MAKTOUB_TELEGRAM_CHAT_ID')
-   if(bot&&chat){try{const response=await fetch('https://api.telegram.org/bot'+bot+'/sendMessage',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:chat,text:'New Maktoub intake request\n'+person.full_name+'\n'+starts.toLocaleString('en-GB',{timeZone:'Asia/Riyadh'})+' Riyadh\nStatus: awaiting calendar confirmation'}),signal:AbortSignal.timeout(3000)});if(!response.ok)console.error('Telegram booking alert failed',response.status)}catch(e){console.error('Telegram booking alert failed',e)}}
+   // The database trigger queues the founder alert atomically with this booking.
    return result({success:true,booking},200,origin)
   }catch(e){console.error('Intake request error',e);return result({error:'Unable to request intake.'},500,origin)}
  }
