@@ -1,0 +1,1683 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<style>:root{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Maktoub Investor Room</title><meta name="robots" content="noindex,nofollow">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Noto+Sans+Arabic:wght@400;500&display=swap">
+<style>
+/* Layout: an editorial manuscript. One column of chapters on warm paper, hairline rules, large numbers, red used only as a hand annotation. */
+:root{
+  --paper:#F4F1EA; --ink:#111111; --surface:#FBF9F4; --hair:#C9C1B7; --muted:#5E5953; --red:#9D1C1F;
+  --night:#171717; --on-night:#F4F1EA; --chip:#EAE5DB; --grid:#DCD5CA;
+  --sans:"Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --ar:"Noto Sans Arabic", "Geeza Pro", Tahoma, sans-serif;
+  --s1:clamp(42px,7.4vw,104px); --s2:clamp(32px,4.6vw,60px); --s3:clamp(21px,2.2vw,26px); --s4:17px; --s5:14px; --s6:12px;
+  --max:1180px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#171717; --ink:#F4F1EA; --surface:#1E1D1B; --hair:#4A4641; --muted:#A9A199; --red:#D0575A;
+  --night:#0E0E0E; --on-night:#F4F1EA; --chip:#26241F; --grid:#2E2C29; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#171717; --ink:#F4F1EA; --surface:#1E1D1B; --hair:#4A4641; --muted:#A9A199; --red:#D0575A;
+  --night:#0E0E0E; --on-night:#F4F1EA; --chip:#26241F; --grid:#2E2C29; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:var(--s4);line-height:1.55;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--paper)}
+h1,h2,h3,h4{font-weight:500;margin:0;text-wrap:balance;letter-spacing:-0.02em;line-height:1.04}
+p{margin:0}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+.num{font-variant-numeric:tabular-nums}
+.wrap{max-width:var(--max);margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.eyebrow{font-size:var(--s6);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:500}
+.muted{color:var(--muted)}
+.lede{font-size:var(--s3);line-height:1.35;max-width:36ch;letter-spacing:-0.01em}
+.prose{max-width:62ch}
+.note{font-size:var(--s5);color:var(--muted);max-width:72ch}
+.ph{color:var(--red);border-bottom:1px dashed var(--red);font-weight:500;white-space:nowrap}
+
+#gate{position:fixed;inset:0;z-index:100;background:var(--paper);display:flex;align-items:center;justify-content:center;overflow:auto;padding:max(24px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(24px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.gate-card{width:100%;max-width:440px;display:grid;gap:28px}
+.seal{width:72px;height:72px;border-radius:50%;background:#111 url(data:image/png;base64,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) center/cover no-repeat;display:block;flex:none;box-shadow:0 0 0 1px var(--hair)}
+.gate-card h1{font-size:clamp(38px,6vw,56px)}
+.field{display:grid;gap:6px}
+.field label{font-size:var(--s6);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:500}
+.field input{font:inherit;font-size:18px;color:var(--ink);background:transparent;border:0;border-bottom:1px solid var(--ink);padding:10px 0;border-radius:0}
+.field input::placeholder{color:var(--hair)}
+.field input:focus{outline:none;border-bottom-color:var(--red)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:var(--ink);color:var(--paper);border:0;padding:15px 22px;font-weight:500;cursor:pointer;border-radius:0;font-size:16px}
+.err{color:var(--red);font-size:var(--s5);min-height:1.4em}
+.fine{font-size:var(--s6);color:var(--muted);line-height:1.5}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--paper);border-bottom:1px solid var(--hair)}
+.top-in{display:flex;align-items:center;gap:20px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;flex:none}
+.brand .seal{width:34px;height:34px}
+.brand b{font-weight:500;letter-spacing:.06em;font-size:13px}
+nav.chapters{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0;mask-image:linear-gradient(90deg,#000 88%,transparent)}
+nav.chapters::-webkit-scrollbar{display:none}
+nav.chapters a{flex:none;text-decoration:none;font-size:13px;color:var(--muted);padding:6px 10px;white-space:nowrap}
+nav.chapters a:hover{color:var(--ink)}
+nav.chapters a.on{color:var(--ink);box-shadow:inset 0 -2px 0 var(--ink)}
+
+section.ch{padding-block:clamp(72px,10vw,128px);border-bottom:1px solid var(--hair);scroll-margin-top:60px}
+.ch-head{display:grid;grid-template-columns:minmax(0,180px) minmax(0,1fr);gap:24px;margin-bottom:clamp(36px,5vw,64px)}
+.ch-no{font-size:var(--s2);font-weight:500;line-height:1;color:var(--hair);letter-spacing:-0.03em}
+.ch-head h2{font-size:var(--s2)}
+.ch-head .lede{margin-top:18px;color:var(--muted)}
+@media (max-width:720px){.ch-head{grid-template-columns:1fr;gap:10px}}
+.dark-band{background:var(--night);color:var(--on-night)}
+.dark-band .muted,.dark-band .eyebrow,.dark-band .note{color:#A9A199}
+.dark-band .ch-no{color:#3E3B37}
+
+.seg{display:inline-flex;border:1px solid var(--ink);max-width:100%;overflow-x:auto;scrollbar-width:none}
+.seg::-webkit-scrollbar{display:none}
+.seg button{flex:none;background:transparent;border:0;padding:11px 18px;font-size:14px;font-weight:500;cursor:pointer;border-right:1px solid var(--ink);white-space:nowrap;border-radius:0}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.seg button:not([aria-pressed="true"]):hover{background:var(--chip)}
+.seg-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;margin-bottom:36px}
+
+.mark{position:relative;display:inline-block;white-space:nowrap}
+.mark svg{position:absolute;left:-7%;top:-14%;width:114%;height:128%;overflow:visible;pointer-events:none}
+.mark path{fill:none;stroke:var(--red);stroke-width:2.2;stroke-linecap:round;stroke-dasharray:900;animation:draw 1.4s .4s ease-out both}
+@keyframes draw{from{stroke-dashoffset:900}to{stroke-dashoffset:0}}
+
+.hero{padding-block:clamp(64px,9vw,120px) clamp(56px,7vw,96px);border-bottom:1px solid var(--hair)}
+.hero h1{font-size:var(--s1);max-width:15ch}
+.hero .sub{margin-top:28px;display:flex;flex-wrap:wrap;gap:12px 28px;align-items:baseline}
+.hero-tags{display:flex;flex-wrap:wrap;gap:8px}
+.hero-tags span{border:1px solid var(--ink);padding:7px 12px;font-size:13px;font-weight:500}
+.tbc{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--red);border:1px dashed var(--red);padding:2px 7px;vertical-align:middle;white-space:nowrap;margin-left:6px}
+.glance{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--hair);border:1px solid var(--ink);margin-top:clamp(40px,5vw,64px)}
+.glance > a{background:var(--paper);padding:20px 22px;display:grid;gap:6px;align-content:start;text-decoration:none;min-width:0}
+.glance > a:hover{background:var(--surface)}
+.glance .v{font-size:clamp(24px,2.6vw,32px);font-weight:500;letter-spacing:-0.02em;line-height:1.05}
+.glance .go{font-size:12px;color:var(--muted);margin-top:4px}
+.g5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.gi{background:var(--paper);padding:20px 20px 22px;display:grid;gap:10px;align-content:start;min-width:0}
+.gm{font-size:16px;line-height:1.4;font-weight:500;letter-spacing:-0.01em}
+.gs{font-size:12.5px;color:var(--muted);line-height:1.45}
+.gi .go a{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+@media (max-width:1100px){.g5{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:760px){.g5{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.g5{grid-template-columns:1fr}}
+.glance-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:10px;margin-top:clamp(40px,5vw,64px)}
+@media (max-width:900px){.glance{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.glance{grid-template-columns:1fr}}
+.ar-big{font-family:var(--ar);font-size:clamp(22px,2.6vw,30px)}
+.brief{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:1px;background:var(--hair);border:1px solid var(--hair);margin-top:clamp(48px,6vw,80px)}
+.brief > div{background:var(--paper);padding:26px 24px 28px;display:grid;gap:12px;align-content:start;min-width:0}
+.brief h3{font-size:var(--s3)}
+.b-12{grid-column:span 12}.b-8{grid-column:span 8}.b-4{grid-column:span 4}
+.b-ink{background:var(--ink)!important;color:var(--paper)}
+.b-ink .eyebrow,.b-ink .muted{color:var(--hair)}
+@media (max-width:820px){.brief > div{grid-column:span 12!important}}
+.prob{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;margin-top:6px}
+.prob > div{display:grid;gap:8px;border-top:1px solid var(--ink);padding-top:14px;min-width:0}
+@media (max-width:720px){.prob{grid-template-columns:1fr}}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:20px 28px;margin-top:6px}
+.stat .v{font-size:clamp(32px,3.8vw,46px);font-weight:500;letter-spacing:-0.03em;line-height:1}
+.stat .k{font-size:var(--s5);color:var(--muted);margin-top:8px;max-width:24ch}
+.b-ink .stat .k{color:var(--hair)}
+.issue{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:center}
+@media (max-width:820px){.issue{grid-template-columns:1fr}}
+.meter{display:grid;gap:8px}
+.meter-bar{height:14px;background:var(--chip);position:relative;border:1px solid var(--ink)}
+.meter-bar b{position:absolute;inset:0 auto 0 0;background:var(--red)}
+
+.app{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:clamp(28px,5vw,72px);align-items:start}
+@media (max-width:820px){.app{grid-template-columns:1fr;justify-items:center}}
+.phone{width:min(320px,100%);aspect-ratio:9/19;border-radius:44px;background:#111;padding:12px;box-shadow:0 8px 30px rgba(0,0,0,.08);position:relative}
+.phone .screen{width:100%;height:100%;border-radius:33px;background:#F4F1EA;color:#111;overflow:hidden;position:relative}
+.notch{position:absolute;top:20px;left:50%;transform:translateX(-50%);width:84px;height:24px;border-radius:14px;background:#111;z-index:3}
+.scr{position:absolute;inset:0;padding:58px 20px 22px;display:flex;flex-direction:column;gap:11px;font-size:13px;line-height:1.4}
+.scr .t{font-size:22px;font-weight:500;letter-spacing:-0.02em;line-height:1.1}
+.scr .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6B655E;font-weight:500}
+.pill-row{display:flex;flex-wrap:wrap;gap:6px}
+.pill{border:1px solid #111;padding:6px 10px;font-size:12px}
+.pill.on{background:#111;color:#F4F1EA}
+.sw{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #D9D2C7;font-size:12.5px}
+.sw i{width:34px;height:20px;border-radius:10px;background:#111;position:relative;flex:none}
+.sw i::after{content:"";position:absolute;right:3px;top:3px;width:14px;height:14px;border-radius:50%;background:#F4F1EA}
+.qcard{background:#111;color:#F4F1EA;padding:18px;font-size:16px;line-height:1.35}
+.wave{display:flex;align-items:center;gap:3px;height:56px}
+.wave span{flex:1;background:#111;border-radius:2px;animation:wv 1.2s ease-in-out infinite}
+@keyframes wv{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}
+.rec{width:60px;height:60px;border-radius:50%;border:2px solid #111;display:grid;place-items:center;margin:0 auto}
+.rec i{width:22px;height:22px;background:#9D1C1F;border-radius:4px}
+.bar-s{height:6px;background:#D9D2C7;position:relative}
+.bar-s b{position:absolute;inset:0 auto 0 0;background:#111}
+.pbtn{padding:13px;font-size:13px;margin-top:auto;background:#111;color:#F4F1EA;text-align:center;font-weight:500}
+.pbtn.ghost{background:transparent;color:#111;border:1px solid #111}
+.apay{margin-top:auto;background:#000;color:#fff;border-radius:10px;padding:13px;text-align:center;font-weight:600;font-size:14px}
+.badge{display:inline-block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:4px 8px;border:1px solid #9D1C1F;color:#9D1C1F;font-weight:500;width:fit-content}
+.badge.ok{border-color:#111;color:#111}
+.mcard{border:1px solid #111;padding:12px;display:grid;gap:6px;background:#FBF9F4}
+.offer{display:grid;border-top:1px solid #111}
+.offer div{display:grid;grid-template-columns:22px 1fr;gap:8px;padding:10px 0;border-bottom:1px solid #D9D2C7}
+.offer b{font-weight:500}
+.status div{display:grid;grid-template-columns:18px 1fr;gap:10px;padding:8px 0;align-items:center}
+.status i{width:12px;height:12px;border-radius:50%;border:1px solid #111}
+.status i.d{background:#111}.status i.p{background:#9D1C1F;border-color:#9D1C1F}
+.blurwrap{position:relative;display:grid;gap:8px}
+.blurt{filter:blur(4.5px);user-select:none}
+.lock{position:absolute;inset:auto 0 0 0;top:30%;display:grid;place-content:center;text-align:center;gap:2px;background:linear-gradient(transparent,rgba(244,241,234,.92) 35%)}
+.lock b{font-weight:600;font-size:15px}
+.lock span{font-size:12px;color:#6B655E}
+.journey{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:12px;color:var(--muted)}
+.journey b{color:var(--ink);font-weight:500}
+.avatar{width:44px;height:44px;border-radius:50%;background:#C9C1B7;display:grid;place-items:center;font-weight:500}
+.app-side{display:grid;gap:26px;min-width:0;width:100%}
+.steps{display:flex;flex-wrap:wrap;border:1px solid var(--ink);width:fit-content;max-width:100%}
+.steps button{background:transparent;border:0;border-right:1px solid var(--ink);width:44px;height:44px;cursor:pointer;font-weight:500;font-variant-numeric:tabular-nums}
+.steps button:last-child{border-right:0}
+.steps button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.io{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--ink)}
+.io > div{padding:16px 16px 0 0;display:grid;gap:6px;align-content:start;min-width:0}
+.io > div + div{padding-left:16px;border-left:1px solid var(--hair)}
+@media (max-width:560px){.io{grid-template-columns:1fr}.io > div + div{padding-left:0;border-left:0;border-top:1px solid var(--hair);padding-top:14px}}
+.app-side h3{font-size:var(--s2)}
+
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(24px,4vw,56px)}
+@media (max-width:860px){.two{grid-template-columns:1fr}}
+.rows{border-top:1px solid var(--ink)}
+.row{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr);gap:20px;padding:16px 0;border-bottom:1px solid var(--hair)}
+.row > *{min-width:0}
+.row .k{font-weight:500}
+@media (max-width:560px){.row{grid-template-columns:1fr;gap:4px}}
+.big{font-size:clamp(48px,6vw,80px);font-weight:500;letter-spacing:-0.04em;line-height:.95}
+.chart-wrap{overflow-x:auto;min-width:0}
+.chart-wrap svg{display:block;min-width:520px;width:100%;height:auto}
+svg text{font-family:var(--sans)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:var(--s5);margin-top:14px}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{width:12px;height:12px;display:inline-block}
+.legend i.ln{height:2px;width:16px}
+.side-panel{display:grid;gap:18px;align-content:start;min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--ink)}
+.kpis > div{padding:14px 0;border-bottom:1px solid var(--hair);display:grid;gap:4px;min-width:0}
+.kpis > div:nth-child(odd){padding-right:16px}
+.kpis .v{font-size:26px;font-weight:500;letter-spacing:-0.02em}
+.wide{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:clamp(28px,4vw,56px);align-items:start}
+@media (max-width:900px){.wide{grid-template-columns:1fr}}
+details{border-top:1px solid var(--hair);margin-top:28px;padding-top:14px}
+summary{cursor:pointer;font-weight:500;list-style:none;display:flex;justify-content:space-between;gap:12px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-size:20px;line-height:1}
+details[open] summary::after{content:"–"}
+.assump{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px 28px;margin-top:16px;font-size:var(--s5)}
+.assump b{font-weight:500;display:block}
+
+.signals{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;background:var(--hair);border:1px solid var(--hair)}
+.signals > div{background:var(--paper);padding:20px;display:grid;gap:6px;align-content:start;min-width:0}
+.signals .v{font-size:36px;font-weight:500;letter-spacing:-0.03em;line-height:1}
+.asks{margin:0;padding:0;border-top:1px solid var(--ink)}
+.asks li{list-style:none;padding:12px 0;border-bottom:1px solid var(--hair);display:grid;grid-template-columns:minmax(0,170px) minmax(0,1fr);gap:16px}
+@media (max-width:560px){.asks li{grid-template-columns:1fr;gap:2px}}
+.asks b{font-weight:500}
+
+.cycle{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(28px,5vw,64px);align-items:center}
+@media (max-width:900px){.cycle{grid-template-columns:1fr}}
+.cycle svg{width:100%;max-width:540px;height:auto;display:block;margin:0 auto}
+.cnode{cursor:pointer}
+.dark-band .rows{border-top-color:var(--on-night)}
+.dark-band .row{border-bottom-color:#3A3733}
+.dark-band .row span:not(.k){color:#A9A199}
+.gates{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:#3A3733;border:1px solid #3A3733}
+.gates > div{background:var(--night);padding:20px;display:grid;gap:8px;align-content:start;min-width:0}
+@media (max-width:820px){.gates{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:480px){.gates{grid-template-columns:1fr}}
+.gate-no{font-size:36px;font-weight:500;letter-spacing:-0.03em;line-height:1}
+
+.matrix{width:100%;border-collapse:collapse;min-width:720px;font-size:14px}
+.matrix th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:500;padding:0 6px 12px;text-align:center;vertical-align:bottom;line-height:1.25}
+.matrix th:first-child{text-align:left;padding-left:0}
+.matrix td{padding:11px 6px;border-top:1px solid var(--hair);text-align:center}
+.matrix td:first-child{text-align:left;font-weight:500;padding-left:0;white-space:nowrap}
+.matrix tr.us td{color:var(--red)}
+.dot{display:inline-block;width:14px;height:14px;border-radius:50%;border:1px solid var(--ink);vertical-align:middle}
+.dot.f{background:var(--ink)}
+.dot.h{background:linear-gradient(90deg,var(--ink) 50%,transparent 50%)}
+tr.us .dot{border-color:var(--red)}
+tr.us .dot.f{background:var(--red)}
+.score-bar{display:flex;align-items:center;gap:10px}
+.score-bar span{height:10px;background:var(--ink);display:block}
+tr.us .score-bar span{background:var(--red)}
+.comp-notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1px;background:var(--hair);border:1px solid var(--hair);margin-top:40px}
+.comp-notes > div{background:var(--paper);padding:20px;display:grid;gap:6px;align-content:start;min-width:0}
+.comp-notes h4{font-size:19px}
+
+.waves{display:grid;gap:clamp(28px,4vw,48px)}
+.wave-h{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--ink);padding-bottom:10px}
+.wave-h h3{font-size:var(--s3)}
+.countries{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1px;background:var(--hair);border:1px solid var(--hair)}
+.country{background:var(--paper);padding:20px;display:grid;gap:10px;align-content:start;min-width:0}
+.country h4{font-size:22px}
+.src{font-size:12px;color:var(--muted)}
+.src a{color:var(--muted)}
+
+.comps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;background:var(--hair);border:1px solid var(--hair)}
+.comps > div{background:var(--paper);padding:20px;display:grid;gap:6px;align-content:start;min-width:0}
+.comps .v{font-size:30px;font-weight:500;letter-spacing:-0.03em;line-height:1}
+.scen{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--hair);border:1px solid var(--ink);margin-top:40px}
+.scen button{background:var(--paper);border:0;padding:18px;text-align:left;cursor:pointer;display:grid;gap:6px;align-content:start;min-width:0;border-radius:0}
+.scen button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.scen button[aria-pressed="true"] .muted,.scen button[aria-pressed="true"] .eyebrow{color:var(--hair)}
+.scen b{font-weight:500;font-size:17px}
+@media (max-width:820px){.scen{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,4vw,56px);align-items:start;padding:28px;background:var(--surface);border:1px solid var(--hair);border-top:0}
+@media (max-width:820px){.calc{grid-template-columns:1fr}}
+.calc label{font-weight:500;display:flex;justify-content:space-between;gap:12px}
+input[type=range]{width:100%;accent-color:var(--ink)}
+.out .v{font-size:clamp(44px,6vw,72px);font-weight:500;letter-spacing:-0.04em;line-height:1}
+.out-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--ink);margin-top:18px}
+.out-grid > div{padding:12px 12px 0 0;display:grid;gap:4px;min-width:0}
+.out-grid .v2{font-size:22px;font-weight:500}
+
+.team{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1px;background:var(--hair);border:1px solid var(--hair)}
+.role{background:var(--paper);padding:22px;display:grid;gap:10px;align-content:start;text-align:left;border:0;cursor:pointer;min-width:0;border-radius:0}
+.role:hover{background:var(--surface)}
+.role[aria-expanded="true"]{background:var(--ink);color:var(--paper)}
+.role[aria-expanded="true"] .muted{color:var(--hair)}
+.role h4{font-size:21px}
+.when-chip{display:inline-block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;border:1px solid currentColor;padding:3px 8px;width:fit-content;font-weight:500}
+.role-detail{margin-top:1px;border:1px solid var(--ink);padding:clamp(20px,3vw,36px);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px}
+.role-detail ul{margin:8px 0 0;padding-left:18px;display:grid;gap:6px;font-size:15px}
+@media (max-width:820px){.role-detail{grid-template-columns:1fr}}
+
+.fly{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:clamp(28px,5vw,64px);align-items:center}
+@media (max-width:860px){.fly{grid-template-columns:1fr}}
+.fly svg{width:100%;height:auto;max-width:420px}
+
+.terms{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:#3A3733;border:1px solid #3A3733}
+.terms > div{background:var(--night);padding:24px;display:grid;gap:8px;align-content:start;min-width:0}
+@media (max-width:820px){.terms{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:480px){.terms{grid-template-columns:1fr}}
+.terms .v{font-size:clamp(28px,3.4vw,40px);font-weight:500;letter-spacing:-0.03em;line-height:1}
+
+
+/* raise */
+.raise-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--hair);border:1px solid var(--hair)}
+.raise-stats > div{background:var(--paper);padding:22px;display:grid;gap:6px;min-width:0}
+.raise-stats .v{font-size:clamp(30px,3.6vw,46px);font-weight:500;letter-spacing:-0.03em;line-height:1}
+@media (max-width:820px){.raise-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.alloc{display:flex;height:56px;border:1px solid var(--ink);margin-top:14px}
+.alloc button{border:0;border-right:1px solid var(--paper);cursor:pointer;padding:0;position:relative;min-width:0;border-radius:0}
+.alloc button:last-child{border-right:0}
+.alloc button span{position:absolute;left:8px;bottom:6px;font-size:12px;font-weight:600}
+.alloc button[aria-pressed="true"]{outline:2px solid var(--red);outline-offset:-2px;z-index:1}
+.fund-rows{border-top:1px solid var(--ink)}
+.fund-row{display:grid;grid-template-columns:14px minmax(0,1.2fr) minmax(0,2fr) 90px;gap:16px;padding:16px 0;border-bottom:1px solid var(--hair);align-items:start;cursor:pointer;background:transparent;border-left:0;border-right:0;border-top:0;width:100%;text-align:left;border-radius:0}
+.fund-row:hover{background:var(--surface)}
+.fund-row[aria-pressed="true"] .fname{color:var(--red)}
+.fund-row i{width:14px;height:14px;display:block;margin-top:4px}
+.fund-row .fname{font-weight:500}
+.fund-row .amt{text-align:right;font-weight:500;font-variant-numeric:tabular-nums}
+.fund-row .items{font-size:var(--s5);color:var(--muted)}
+.fund-row .fbar{height:6px;background:var(--chip);margin-top:8px;position:relative}
+.fund-row .fbar b{position:absolute;inset:0 auto 0 0;background:var(--ink)}
+@media (max-width:640px){.fund-row{grid-template-columns:14px minmax(0,1fr) 80px}.fund-row .items{grid-column:2 / 4}}
+.ninety{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,4vw,56px);margin-top:20px}
+@media (max-width:860px){.ninety{grid-template-columns:1fr}}
+.ninety ul{margin:10px 0 0;padding:0;border-top:1px solid var(--ink)}
+.ninety li{list-style:none;padding:12px 0;border-bottom:1px solid var(--hair);display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px}
+.ninety li b{font-weight:500;color:var(--muted);font-variant-numeric:tabular-nums}
+.done li b{color:var(--red)}
+.phase-bar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--ink);margin-top:28px}
+.phase-bar div{padding:12px 14px;border-right:1px solid var(--ink);display:grid;gap:2px}
+.phase-bar div:last-child{border-right:0}
+.phase-bar div.on{background:var(--ink);color:var(--paper)}
+.phase-bar div.on .muted{color:var(--hair)}
+
+
+/* tech */
+.arch{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.7fr) minmax(0,1fr);gap:20px;align-items:stretch}
+@media (max-width:900px){.arch{grid-template-columns:1fr}}
+.arch-col{display:grid;gap:12px;align-content:start;min-width:0}
+.abox{border:1px solid var(--ink);padding:14px 16px;font-size:15px;min-width:0}
+.abox.soft{background:var(--chip)}
+.abox b{font-weight:500;display:block}
+.engine{background:var(--night);color:var(--on-night);padding:18px;display:grid;gap:12px}
+.engine .eyebrow{color:#D9B95E}
+.mods{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.mods span{background:#2B2926;padding:10px 12px;font-size:13.5px;line-height:1.3}
+.mods span.fut{color:#8A847C}
+.dlayer{border:1px solid var(--red);background:var(--surface);padding:14px 18px;margin-top:20px;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline;font-size:15px}
+.dlayer b{color:var(--red);font-weight:500;letter-spacing:.08em;font-size:12px;text-transform:uppercase}
+.rules{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--hair);border:1px solid var(--hair)}
+.rules > div{background:var(--paper);padding:20px;display:grid;gap:6px;align-content:start;min-width:0}
+.rules h4{font-size:19px}
+@media (max-width:820px){.rules{grid-template-columns:1fr}}
+.notyet{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 40px}
+.notyet span{padding:12px 0;border-bottom:1px solid var(--hair);color:var(--muted);text-decoration:line-through;text-decoration-color:var(--red);text-decoration-thickness:2px}
+@media (max-width:640px){.notyet{grid-template-columns:1fr}}
+.ph-cards{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:clamp(24px,4vw,56px);margin-top:20px}
+@media (max-width:860px){.ph-cards{grid-template-columns:1fr}}
+.accept{background:var(--chip);padding:16px 18px;display:grid;gap:4px}
+.accept b{color:var(--red);font-weight:500;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+
+
+/* legal */
+.entities{display:grid;grid-template-columns:minmax(0,1fr) 60px minmax(0,1fr);gap:0;align-items:center;margin-top:16px}
+@media (max-width:720px){.entities{grid-template-columns:1fr}.entities .arrow{transform:rotate(90deg);justify-self:center;margin:8px 0}}
+.ent{border:1px solid var(--on-night);padding:18px;display:grid;gap:6px}
+.ent.later{border-style:dashed;color:#A9A199}
+.arrow{text-align:center;font-size:24px;color:#A9A199}
+.caps{display:grid;gap:14px;margin-top:16px}
+.cap{display:grid;grid-template-columns:minmax(0,170px) minmax(0,1fr);gap:16px;align-items:center}
+@media (max-width:560px){.cap{grid-template-columns:1fr;gap:6px}}
+.capbar{display:flex;height:30px;border:1px solid #3A3733}
+.capbar span{display:flex;align-items:center;padding-left:8px;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;min-width:0}
+.cap-legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:#A9A199;margin-top:6px}
+.cap-legend i{display:inline-block;width:11px;height:11px;margin-right:6px;vertical-align:-1px}
+
+
+.lanes{width:100%;border-collapse:collapse;min-width:900px;font-size:14.5px;line-height:1.45}
+.lanes th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:500;padding:0 16px 12px 0;border-bottom:1px solid var(--ink);vertical-align:bottom}
+.lanes th b{display:block;color:var(--ink);font-size:15px;text-transform:none;letter-spacing:-0.01em;font-weight:500;margin-top:2px}
+.lanes td{padding:16px 16px 16px 0;border-bottom:1px solid var(--hair);vertical-align:top;color:var(--muted);transition:background .2s,color .2s}
+.lanes td:first-child{color:var(--ink);width:190px}
+.lanes td:first-child b{font-weight:500;display:block}
+.lanes td:first-child span{font-size:12px;color:var(--muted)}
+.lanes td.on{color:var(--ink);background:var(--surface)}
+.lanes th.on{color:var(--red)}
+.lanes .redline{position:relative}
+.lanes .redline::after{content:"";position:absolute;right:0;top:0;bottom:0;border-right:2px solid var(--red)}
+.score td{color:var(--ink)}
+.score td:nth-child(2){color:var(--muted)}
+.score td:first-child{width:220px}
+.dpanel{border-top:1px solid #3A3733;margin-top:0;padding-block:18px}
+.dpanel:last-child{border-bottom:1px solid #3A3733}
+.dpanel summary{font-size:var(--s3);letter-spacing:-0.01em}
+.dstat{display:inline-block;margin-top:8px;font-size:12px;letter-spacing:.04em;color:#A9A199;border:1px dashed #6B655E;padding:3px 8px}
+.srclist{margin:10px 0 0;padding-left:18px;columns:2;column-gap:28px;font-size:13px;color:#A9A199}
+.srclist a{color:#A9A199}
+@media (max-width:640px){.srclist{columns:1}}
+.cash{min-width:560px}
+.cash td:first-child{white-space:nowrap}
+@media (max-width:560px){.cash{font-size:13px}.cash th{font-size:10px}}
+.cash td,.cash th{text-align:right}
+.cash td:first-child,.cash th:first-child{text-align:left;width:auto}
+.cash td{color:var(--ink);font-variant-numeric:tabular-nums;padding-block:9px}
+.gate90{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:28px;border:1px solid var(--red);padding:20px 22px;margin-top:20px}
+@media (max-width:720px){.gate90{grid-template-columns:1fr}}
+.gulf-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--hair);border:1px solid var(--hair);margin-top:12px}
+.gulf-tiles > div{background:var(--paper);padding:20px;display:grid;gap:6px;align-content:start;min-width:0;cursor:pointer}
+.gulf-tiles > div.on{background:var(--ink);color:var(--paper)}
+.gulf-tiles > div.on .note{color:var(--hair)}
+.gulf-tiles .v{font-size:clamp(34px,4vw,52px);font-weight:500;letter-spacing:-0.03em;line-height:1}
+@media (max-width:560px){.gulf-tiles{grid-template-columns:1fr}}
+
+footer{padding-block:48px calc(80px + env(safe-area-inset-bottom,0px))}
+.wm{position:fixed;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:40;font-size:11px;letter-spacing:.04em;color:var(--muted);background:var(--paper);border:1px solid var(--hair);padding:6px 10px;max-width:calc(100vw - 24px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div id="gate" role="dialog" aria-modal="true" aria-labelledby="gate-title">
+  <form class="gate-card" id="gate-form" novalidate>
+    <div class="seal" role="img" aria-label="Maktoub"></div>
+    <div style="display:grid;gap:14px">
+      <span class="eyebrow">Private investor access</span>
+      <h1 id="gate-title">Maktoub <span style="display:block;font-size:0.42em;font-weight:400;color:var(--muted);letter-spacing:0;margin-top:8px">powered by Lumiora</span></h1>
+      <p style="font-size:var(--s3);line-height:1.3;letter-spacing:-0.01em">The vision. The business. The opportunity.</p>
+      <p class="muted">Explore the product, commercial strategy and investment proposal. Enter your email to continue.</p>
+    </div>
+    <div class="field"><label for="g-email">Email</label><input id="g-email" type="email" autocomplete="email" placeholder="name@fund.com" required></div>
+    <div style="display:grid;gap:10px">
+      <button class="btn" type="submit">Enter investor room</button>
+      <div class="err" id="g-err" role="alert"></div>
+    </div>
+    <p class="fine">Confidential · Prepared for prospective investors</p>
+  <div style="position:absolute;left:-9999px" aria-hidden="true"><label>Website<input id="visit-website" name="website" tabindex="-1" autocomplete="off"></label></div><p class="note" style="margin-top:12px">By continuing, you share your email with Deena Al Jassasi to record your interest and allow investment-related follow-up. For removal, contact dee@deenaal.com.</p></form>
+</div>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="#brief"><span class="seal" role="img" aria-label="Maktoub"></span><b>MAKTOUB</b></a>
+    <nav class="chapters" id="nav" aria-label="Chapters">
+      <a href="#glance">At a glance</a><a href="#brief">Brief</a><a href="#product">App</a><a href="#customers">Customers</a><a href="#demand">Demand</a><a href="#data">Data cycle</a><a href="#projections">Projections</a><a href="#valuation">Valuation</a><a href="#competition">Competition</a><a href="#expansion">Expansion</a><a href="#exit">Exit</a><a href="#team">Team</a><a href="#growth">Growth</a><a href="#raise">The raise</a><a href="#tech">Technology</a><a href="#terms">Terms</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section id="brief" class="hero" style="scroll-margin-top:60px">
+  <div class="wrap">
+    <span class="eyebrow">Maktoub · A relational intelligence technology company · Riyadh · Seed 2026</span>
+    <h1 style="margin-top:22px;max-width:13ch">The intelligence layer for <span class="mark">marriage<svg viewBox="0 0 200 100" preserveAspectRatio="none" aria-hidden="true"><path d="M18 58 C 6 26, 70 6, 128 10 C 186 14, 204 46, 182 72 C 160 94, 70 98, 34 82 C 14 73, 10 56, 30 40"/></svg></span>.</h1>
+    <div class="sub" style="display:grid;gap:22px">
+      <div class="hero-tags"><span>Relational intelligence technology</span><span>Venture-scalable: B2C, B2B, B2G</span><span>A global problem, built in Riyadh</span></div>
+      <p class="lede" style="max-width:46ch;color:var(--ink)">Lumiora, our engine, turns a short intake and two minutes of voice into an expert-reviewed relational profile. Maktoub is developing the consumer experience, with Lumiora designed for future licensing to platforms and potential government programmes.</p>
+    </div>
+
+
+    <div id="glance" style="scroll-margin-top:70px">
+      <div class="glance-head" style="display:grid;gap:10px"><h2 style="font-size:var(--s2)">The investment, at a glance</h2><p class="lede" style="max-width:60ch;color:var(--muted)">Maktoub is a private matchmaking experience powered by Lumiora, its relationship-assessment engine. The investment will turn a founder-led process into a repeatable product and test its commercial economics and assessment quality.</p></div>
+      <div class="glance g5" style="margin-top:20px">
+        <div class="gi"><span class="eyebrow">What customers buy</span><p class="gm">Individuals buy relationship self-insight and selective matchmaking. Platforms would purchase automated assessments through Lumiora.</p><p class="gs">Consumer prices shown elsewhere—SAR 199 for a reviewed report and SAR 999 for a matchmaking application including the report—are provisional. B2B pricing interest is up to $3 per automated assessment.</p><p class="go">Explore the supporting detail: <a href="#product">The app</a> · <a href="#customers">Customers</a></p></div>
+        <div class="gi"><span class="eyebrow">Evidence so far</span><p class="gm">30+ manual intakes and approximately 20% event-to-member conversion are reported by the founder. One pilot LOI records early B2B interest.</p><p class="gs">Intake dates, conversion denominator and payment evidence require confirmation. An LOI is not contracted revenue or a guaranteed order.</p><p class="go">Explore the supporting detail: <a href="#demand">Demand</a></p></div>
+        <div class="gi"><span class="eyebrow">Proposed investment</span><p class="gm"><span style="display:grid;gap:4px"><span>Total round target — $500,000</span><span>Proposed investor commitment — $300,000</span><span>Remaining to raise — $200,000</span></span></p><p class="gs">The remaining $200,000 is not committed or secured. Proposed investor terms: $300,000 for 10%, subject to agreement. The additional $200,000 has separate terms to be agreed; its dilution effect is not yet modelled. Payment schedule for the proposed $300,000 investment: subject to final agreement.</p><p class="go">Explore the supporting detail: <a href="#raise">The raise</a> · <a href="#terms">Terms</a></p></div>
+        <div class="gi"><span class="eyebrow">What the money delivers</span><p class="gm">Use of funds for the fully funded round: product development, professional review capacity, operations, customer acquisition and a validation programme, with a planned $40,000 reserve.</p><p class="gs">The 18-month spending plan assumes the full $500,000 round is raised. The proposed $300,000 investment alone does not fully fund this plan. Revenue is excluded from that spending plan.</p><p class="go">Explore the supporting detail: <a href="#raise">Use of funds</a> · <a href="#tech">Technology</a></p></div>
+        <div class="gi"><span class="eyebrow">Next delivery milestone</span><p class="gm">Demonstrate voice recording and transcription, a preliminary AI report, and secure authorised administrator access.</p><p class="gs">These are proposed payment acceptance tests. They do not establish scientific validity or constitute the complete commercial launch.</p><p class="go">Explore the supporting detail: <a href="#tech">Technology</a> · <a href="#terms">Terms</a></p></div>
+      </div>
+    </div>
+    <div class="brief">
+      <div class="b-12 b-ink">
+        <span class="eyebrow">This is a global problem</span>
+        <h3 style="font-size:var(--s2);max-width:22ch">Marriages are breaking down and births are collapsing, on every continent.</h3>
+        <div class="stats">
+          <div class="stat"><div class="v num">9 min</div><div class="k">one divorce in Saudi Arabia every nine minutes, and 65% happen in the first year of marriage (2025)</div></div>
+          <div class="stat"><div class="v num">97%</div><div class="k">of countries forecast to fall below replacement fertility by 2100 (The Lancet, 2024)</div></div>
+          <div class="stat"><div class="v num">−20.5%</div><div class="k">fall in China's marriages in a single year, 2024</div></div>
+          <div class="stat"><div class="v num">~30%</div><div class="k">of UAE divorces happen within the first year of marriage</div></div>
+          <div class="stat"><div class="v num">0.80</div><div class="k">children per woman in South Korea in 2025, with Taiwan at about the same level, among the lowest ever recorded</div></div>
+        </div>
+      </div>
+      <div class="b-12">
+        <span class="eyebrow">Problem</span>
+        <h3 style="font-size:var(--s2);max-width:24ch">You meet people without their psychological profile, and finding someone compatible wastes months.</h3>
+        <div class="prob">
+          <div><span class="eyebrow">National · Saudi Arabia</span><p class="muted">Introductions run on family reputation, a photo and a few facts. Every meeting involves families, so each wrong match costs months and social standing. Nothing measures how two people communicate, handle conflict or picture family life.</p></div>
+          <div><span class="eyebrow">International</span><p class="muted">Apps sell curated profiles and endless choice. People spend months on dates that were never compatible, because no one assessed them before the first coffee. The apps profit from the search, not the match.</p></div>
+        </div>
+      </div>
+      <div class="b-12">
+        <span class="eyebrow">Solution</span>
+        <h3 style="font-size:var(--s2)">Relational Intelligence Analysis and Matchmaking.</h3>
+        <p class="muted prose">Members apply through Lumiora, our assessment engine: a short psychological intake and a guided voice response. Lumiora scores the answers and drafts an analysis, an expert reviewer approves it, and only accepted, identity-verified members are matched, with a report that explains why two people fit.</p>
+      </div>
+      <div class="b-8">
+        <span class="eyebrow">Market interest is high</span>
+        <div class="stats">
+          <div class="stat"><div class="v num">30+</div><div class="k">private intakes completed by the founder, with no paid marketing</div></div>
+          <div class="stat"><div class="v num">4.87M</div><div class="k">never-married Saudi nationals aged 15+ (2022 census)</div></div>
+          <div class="stat"><div class="v num">~20%</div><div class="k">of attendees at an early event converted to members (early signal)</div></div>
+          <div class="stat"><div class="v num">100+</div><div class="k">Saudi family and marriage associations and centres, plus every marriage app in the Kingdom, as B2B buyers</div></div>
+        </div>
+      </div>
+      <div class="b-4">
+        <span class="eyebrow">Why now</span>
+        <p>Saudi Arabia already screens couples before marriage and funds family stability. Arabic speech AI only recently became good enough. The first dataset linking voice to marriage outcomes goes to whoever starts first.</p>
+      </div>
+      <div class="b-12">
+        <div class="issue">
+          <div style="display:grid;gap:10px">
+            <span class="eyebrow">Current issue</span>
+            <h3 style="font-size:var(--s3)">Intakes are expensive. Every one is a 30-minute analysis by the founder.</h3>
+            <p class="muted">Demand is already there. Growth cannot be reached without technology that streamlines intake, analysis and review.</p>
+          </div>
+          <div class="meter">
+            <div style="display:flex;justify-content:space-between;gap:12px" class="note"><span>Today: founder time on intakes</span><span>Founder-led manual process</span></div>
+            <div class="meter-bar"><b style="width:100%"></b></div>
+            <div style="display:flex;justify-content:space-between;gap:12px;margin-top:8px" class="note"><span>With the app: AI drafts, an expert reviews</span><span>Founder time freed</span></div>
+            <div class="meter-bar"><b style="width:12%;background:var(--ink)"></b></div>
+          </div>
+        </div>
+      </div>
+      <div class="b-12 b-ink">
+        <div class="issue">
+          <div style="display:grid;gap:10px">
+            <span class="eyebrow">The ask</span>
+            <h3 style="font-size:var(--s2)">A $500,000 round.</h3>
+            <p class="muted">Builds the app that removes the intake bottleneck. The 18-month spending plan assumes the full $500,000 round is raised. The proposed $300,000 investment alone does not fully fund this plan. Revenue is excluded. Proposed investor terms: $300,000 for 10%, subject to agreement. The additional $200,000 has separate terms to be agreed; its dilution effect is not yet modelled.</p>
+          </div>
+          <div class="stats">
+            <div class="stat"><div class="v num">$500K</div><div class="k">Total round target</div></div>
+            <div class="stat"><div class="v num">$300K</div><div class="k">Proposed investor commitment</div></div>
+            <div class="stat"><div class="v num">$200K</div><div class="k">Remaining to raise, not committed or secured</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="product" class="ch">
+  <div class="wrap">
+    <div class="ch-head">
+      <div class="ch-no num">01</div>
+      <div><h2>The app</h2><p class="lede">One account, two journeys. Everyone gets self-insight first. Matchmaking is a separate step, earned by application.</p></div>
+    </div>
+    <p class="eyebrow" style="margin-bottom:20px;color:var(--red)">Illustrative product walkthrough · planned experience.</p>
+    <div class="app">
+      <div class="phone" aria-label="App screen preview">
+        <div class="screen">
+          <div class="notch"></div>
+          <div class="scr" data-s="1">
+            <span class="seal" role="img" aria-label="Maktoub" style="width:44px;height:44px;box-shadow:none"></span>
+            <div class="t">Know who you're meeting before you meet.</div>
+            <div class="offer">
+              <div><b>1</b><span><b>Assess.</b> A short intake and two minutes of your voice.</span></div>
+              <div><b>2</b><span><b>Understand.</b> A free snapshot of how you relate, right away.</span></div>
+              <div><b>3</b><span><b>Meet.</b> Apply for matchmaking, reviewed by experts.</span></div>
+            </div>
+            <p style="font-size:11.5px;color:#6B655E">Private by design. Never a public profile. Never swiping.</p>
+            <span class="pbtn">Begin</span>
+            <span style="text-align:center;font-size:12px;color:#6B655E">I already have an account</span>
+          </div>
+          <div class="scr" data-s="2" hidden>
+            <span class="lbl">Create your account</span>
+            <div class="t">Choose your language</div>
+            <div class="pill-row"><span class="pill on" style="font-family:var(--ar)">العربية</span><span class="pill">English</span></div>
+            <span class="lbl" style="margin-top:6px">Sign in</span>
+            <div class="apay" style="margin-top:0">Continue with Apple</div>
+            <div class="pbtn ghost" style="margin-top:0">Continue with phone number</div>
+            <p style="font-size:11.5px;color:#6B655E">No ID is needed to take the assessment. We only verify identity before an introduction.</p>
+          </div>
+          <div class="scr" data-s="3" hidden>
+            <span class="lbl">Before we listen</span>
+            <div class="t">You decide what happens to your answers.</div>
+            <div>
+              <div class="sw">Record my voice response <i></i></div>
+              <div class="sw">An expert reviewer may read it <i></i></div>
+              <div class="sw">Store my data in Saudi Arabia <i></i></div>
+              <div class="sw">Use it, anonymised, to improve Lumiora <i style="background:#C9C1B7"></i></div>
+            </div>
+            <p style="font-size:11.5px;color:#6B655E">This is self-insight, not a medical test. You can delete everything at any time.</p>
+            <span class="pbtn">I agree, continue</span>
+          </div>
+          <div class="scr" data-s="4" hidden>
+            <span class="lbl">Intake · 6 of 18 · about 6 minutes</span>
+            <div class="bar-s"><b style="width:33%"></b></div>
+            <div class="t" style="font-size:19px">When someone you care about goes quiet, what do you usually do first?</div>
+            <div style="display:grid;gap:6px">
+              <span class="pill">Give them space and wait</span>
+              <span class="pill on">Ask them what's wrong</span>
+              <span class="pill">Assume I did something</span>
+              <span class="pill">Get on with my day</span>
+            </div>
+            <span style="font-size:11.5px;color:#6B655E;margin-top:auto">Saved automatically. Pause and come back any time.</span>
+          </div>
+          <div class="scr" data-s="5" hidden>
+            <span class="lbl">Your voice · about 2 minutes</span>
+            <div class="qcard">Tell us about a time someone said no to something you wanted. What did you actually do?</div>
+            <div class="wave" aria-hidden="true"></div>
+            <div style="text-align:center;font-variant-numeric:tabular-nums;font-size:22px;font-weight:500">01:12 / 02:00</div>
+            <div class="rec" aria-hidden="true"><i></i></div>
+            <p style="font-size:11.5px;color:#6B655E;text-align:center">Speak as you would to a friend. Arabic or English.</p>
+          </div>
+          <div class="scr" data-s="6" hidden>
+            <span class="lbl">Your free snapshot</span>
+            <div class="t">How you relate</div>
+            <div class="mcard"><span class="lbl">Strength</span><span>You name what you feel early and directly.</span></div>
+            <div class="mcard"><span class="lbl">Worth exploring</span><span>When someone pulls away, you move toward them fast.</span></div>
+            <div class="mcard"><span class="lbl">Try this week</span><span>Wait one hour before following up.</span></div>
+            <span class="pbtn" style="margin-top:auto">See your extensive report</span>
+            <span class="pbtn ghost">Apply for matchmaking</span>
+          </div>
+          <div class="scr" data-s="7" hidden>
+            <span class="lbl">Extensive report · reviewed by an expert</span>
+            <div class="mcard"><span class="lbl">1 · Readiness</span><span>You are ready to bring someone into your life, and you know what you want from it.</span></div>
+            <div class="blurwrap">
+              <div class="mcard"><span class="lbl">2 · Closeness and distance</span><span class="blurt">When a partner needs space you tend to read it as a signal about you, which</span></div>
+              <div class="mcard"><span class="lbl">3 · Conflict and repair</span><span class="blurt">Your repair style is strong once you have had time alone to reflect on</span></div>
+              <div class="mcard"><span class="lbl">4 · Three things to practise</span><span class="blurt">First, notice the urge to follow up and give it one hour before</span></div>
+              <div class="lock"><b>14 more insights</b><span>Unlock the full report</span></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline"><span class="lbl">One-time</span><span style="font-size:18px;font-weight:500">SAR 199 <span style="font-size:10.5px;color:#6B655E">example</span></span></div>
+            <div class="apay" style="margin-top:0">Pay with Apple Pay</div>
+          </div>
+          <div class="scr" data-s="8" hidden>
+            <span class="lbl">Maktoub matchmaking</span>
+            <div class="t">Apply to be matched.</div>
+            <div class="offer">
+              <div><b>·</b><span>A deeper interview about the life you want</span></div>
+              <div><b>·</b><span>Expert review within 48 hours</span></div>
+              <div><b>·</b><span>Curated introductions, one at a time</span></div>
+              <div><b>·</b><span>Your extensive report included</span></div>
+            </div>
+            <p style="font-size:11.5px;color:#6B655E">Paying is a commitment, not an approval. Applications are reviewed on merit.</p>
+            <div style="display:flex;justify-content:space-between;align-items:baseline"><span class="lbl">Application fee</span><span style="font-size:18px;font-weight:500">SAR 999 <span style="font-size:10.5px;color:#6B655E">example</span></span></div>
+            <div class="apay" style="margin-top:0">Pay with Apple Pay</div>
+          </div>
+          <div class="scr" data-s="9" hidden>
+            <span class="lbl">Your application</span>
+            <div class="t">We're reading it carefully.</div>
+            <div class="status">
+              <div><i class="d"></i><span>Assessment complete</span></div>
+              <div><i class="d"></i><span>Deeper interview complete</span></div>
+              <div><i class="p"></i><span>Expert review in progress</span></div>
+              <div><i></i><span>Your decision</span></div>
+            </div>
+            <div class="mcard"><span class="lbl">Expected</span><span>Within 48 hours. We'll notify you.</span></div>
+            <p style="font-size:11.5px;color:#6B655E">Every application is read by a person. That's why we're selective.</p>
+          </div>
+          <div class="scr" data-s="10" data-v="yes" hidden>
+            <span class="lbl">Your decision</span>
+            <span class="badge ok">Accepted</span>
+            <div class="t">Welcome to Maktoub.</div>
+            <p>Your matchmaker, Reem, is now looking for people who fit the life you described.</p>
+            <div class="mcard"><span class="lbl">What happens next</span><span>When someone is selected for you, we'll verify both identities, then share why we think you'd fit.</span></div>
+            <div class="mcard"><span class="lbl">Meanwhile</span><span>You're invited to our next community evening.</span></div>
+          </div>
+          <div class="scr" data-s="10" data-v="no" hidden>
+            <span class="lbl">Your decision</span>
+            <span class="badge">Not yet</span>
+            <div class="t" style="font-size:20px">Not yet, and that's worth knowing.</div>
+            <div class="mcard"><span class="lbl">What to work on</span><span>Staying steady when someone pulls away. Asking for what you need without testing.</span></div>
+            <div class="mcard"><span class="lbl">Recommended next step</span><span>A relationship therapist who works on attachment, chosen for you. Optional, outside Maktoub.</span></div>
+            <div class="mcard"><span class="lbl">Come back</span><span>Reassess free in 90 days and see what changed.</span></div>
+            <span class="pbtn ghost" style="margin-top:auto">See the recommendation</span>
+          </div>
+          <div class="scr" data-s="11" hidden>
+            <span class="lbl">Someone has been selected for you</span>
+            <div class="t">Verify your identity</div>
+            <p>Before any introduction, both people are verified. It takes a minute.</p>
+            <div class="apay" style="margin-top:0">Verify with Nafath</div>
+            <div class="status" style="margin-top:6px">
+              <div><i class="d"></i><span>You: verifying</span></div>
+              <div><i class="d"></i><span>Your match: verified</span></div>
+            </div>
+            <p style="font-size:11.5px;color:#6B655E">Your ID is stored separately from your assessment and never shown to anyone.</p>
+          </div>
+          <div class="scr" data-s="12" hidden>
+            <span class="lbl">Introduction</span>
+            <div class="t">Someone we'd like you to meet.</div>
+            <div class="mcard">
+              <div style="display:flex;gap:12px;align-items:center"><div class="avatar">N</div><div><b style="font-weight:500">Noura, 29</b><br><span style="color:#6B655E;font-size:12px">Riyadh · Architect</span></div></div>
+              <span class="lbl">Why we think so</span>
+              <span>You both repair after conflict instead of avoiding it, and picture the same pace with family.</span>
+            </div>
+            <p style="font-size:11.5px;color:#6B655E">You'll only be connected if you both say yes.</p>
+            <span class="pbtn">Yes, introduce us</span>
+          </div>
+          <div class="scr" data-s="13" hidden>
+            <span class="lbl">Three months on</span>
+            <div class="t">How is it going with Noura?</div>
+            <div style="display:grid;gap:6px">
+              <span class="pill">We stopped seeing each other</span>
+              <span class="pill">Still getting to know each other</span>
+              <span class="pill on">Families have met</span>
+              <span class="pill">We're engaged</span>
+            </div>
+            <p style="font-size:11.5px;color:#6B655E">Your answer stays private. With consent, it supports future evaluation and model improvement.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="app-side">
+        <div class="journey"><span><b>1–7</b> Lumiora assessment · everyone</span><span><b>8–13</b> Maktoub matchmaking · applicants</span></div>
+        <div class="steps" role="group" aria-label="Choose a screen" id="steps"></div>
+        <div style="display:grid;gap:14px">
+          <span class="eyebrow" id="app-eyebrow"></span>
+          <h3 id="app-title"></h3>
+          <p class="prose muted" id="app-desc"></p>
+          <div id="decision-toggle" hidden>
+            <div class="seg" role="group" aria-label="Decision outcome" id="seg-dec">
+              <button aria-pressed="true" data-v="yes">Accepted</button><button aria-pressed="false" data-v="no">Not yet</button>
+            </div>
+          </div>
+        </div>
+        <div class="io">
+          <div><span class="eyebrow">Member gives</span><p id="io-in"></p></div>
+          <div><span class="eyebrow">Maktoub produces</span><p id="io-out"></p></div>
+          <div><span class="eyebrow">Business effect</span><p id="io-rev"></p></div>
+        </div>
+        <p class="note">The MVP is accepted when three things work end to end: the app records a voice answer and produces a transcript, the system generates a preliminary AI report, and an authorised administrator can securely access both.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="customers" class="ch">
+  <div class="wrap">
+    <div class="ch-head">
+      <div class="ch-no num">02</div>
+      <div><h2>Market size and three customers</h2><p class="lede">A global market, a Saudi beachhead we can count person by person, and three customers who pay for the same engine.</p></div>
+    </div>
+    <div class="two" style="margin-bottom:72px">
+      <div style="min-width:0">
+        <span class="eyebrow">TAM · SAM · SOM</span>
+        <svg viewBox="0 0 520 420" role="img" aria-label="Total, serviceable and obtainable market" style="width:100%;max-width:520px;height:auto;display:block;margin-top:12px">
+          <circle cx="260" cy="220" r="195" fill="var(--chip)" stroke="var(--ink)" stroke-width="1"/>
+          <circle cx="260" cy="290" r="122" fill="var(--paper)" stroke="var(--ink)" stroke-width="1"/>
+          <circle cx="260" cy="350" r="56" fill="var(--red)"/>
+          <text x="260" y="70" text-anchor="middle" font-size="12" fill="var(--muted)" letter-spacing="1">TAM · GLOBAL</text>
+          <text x="260" y="108" text-anchor="middle" font-size="40" font-weight="500" fill="var(--ink)">$8.5B</text>
+          <text x="260" y="132" text-anchor="middle" font-size="12" fill="var(--muted)">online dating and matchmaking, 2026</text>
+          <text x="260" y="200" text-anchor="middle" font-size="12" fill="var(--muted)" letter-spacing="1">SAM · MENA</text>
+          <text x="260" y="236" text-anchor="middle" font-size="32" font-weight="500" fill="var(--ink)">~$1B</text>
+          <text x="260" y="258" text-anchor="middle" font-size="12" fill="var(--muted)">dating apps by 2030</text>
+          <text x="260" y="346" text-anchor="middle" font-size="20" font-weight="600" fill="#fff">$15.5M</text>
+          <text x="260" y="366" text-anchor="middle" font-size="10.5" fill="#fff">SOM · Year 5</text>
+        </svg>
+        <p class="note" style="margin-top:10px">TAM: Statista, of which matchmaking is $4.25B. SAM: Grand View Research via AGBI, $655M in 2023 growing about 6% a year, before government assessment. SOM: our Year 5 projection, about 1.5% of SAM. B2G premarital assessment sits on top of all three.</p>
+      </div>
+      <div>
+        <span class="eyebrow">Saudi Arabia, counted bottom-up</span>
+        <div class="rows" style="margin-top:12px">
+          <div class="row"><span class="k">4.87M</span><span class="muted">never-married Saudi nationals aged 15+</span></div>
+          <div class="row"><span class="k">1.43M</span><span class="muted">never married and aged 25–39, the core matchmaking market</span></div>
+          <div class="row"><span class="k">~300,000</span><span class="muted">people a year pass mandatory premarital screening (150,117 contracts × 2)</span></div>
+          <div class="row"><span class="k">100+</span><span class="muted">family and marriage associations and centres, plus AlKhattaba, Melkah, Awaser, Muzz and Hawaya, as B2B buyers</span></div>
+          <div class="row"><span class="k">$3.8M</span><span>a year if just 1% of never-married 25–39s pay a SAR 999 application</span></div>
+          <div class="row"><span class="k">$0.6–0.9M</span><span>a year from one Saudi premarital assessment contract at $2–3 per person</span></div>
+        </div>
+        <p class="src" style="margin-top:12px">Sources: <a href="https://gulfmigration.grc.net/saudi-arabia-saudi-population-aged-15-and-above-by-sex-age-group-and-marital-status-census-2022/?print=pdf" target="_blank" rel="noopener">GASTAT census 2022 via GLMM</a> · <a href="https://www.hess.sa/khebra/detailsnewsticker/132.html" target="_blank" rel="noopener">Bayt Al-Khebra family directory</a> · <a href="https://english.ajel.sa/saudi-marriages-raised-by-8-9-in-2020/" target="_blank" rel="noopener">GASTAT via Ajel</a> · <a href="https://www.statista.com/outlook/dmo/eservices/dating-services/saudi-arabia" target="_blank" rel="noopener">Statista</a> · <a href="https://www.agbi.com/lifestyle/2025/02/one-in-five-saudis-look-for-their-valentine-on-dating-apps/" target="_blank" rel="noopener">AGBI</a></p>
+      </div>
+    </div>
+    <div class="seg-row">
+      <div class="seg" role="group" aria-label="Customer segment" id="seg-cust">
+        <button aria-pressed="true" data-v="all">All</button><button aria-pressed="false" data-v="b2c">B2C · Members</button><button aria-pressed="false" data-v="b2b">B2B · Platforms</button><button aria-pressed="false" data-v="b2g">B2G · Government</button>
+      </div>
+      <span class="eyebrow">Estimated annual revenue · USD · illustrative</span>
+    </div>
+    <div class="wide">
+      <div style="min-width:0">
+        <div class="chart-wrap"><svg id="hockey" viewBox="0 0 660 340" role="img" aria-label="Revenue by customer segment, 2026 to 2031"></svg></div>
+        <div class="legend" id="hockey-legend"></div>
+      </div>
+      <div class="side-panel">
+        <span class="eyebrow" id="cust-who"></span>
+        <div class="big num" id="cust-big"></div>
+        <p class="muted" id="cust-bigk"></p>
+        <div class="rows" id="cust-rows"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="demand" class="ch">
+  <div class="wrap">
+    <div class="ch-head">
+      <div class="ch-no num">03</div>
+      <div><h2>Early demand, founder-led delivery.</h2><p class="lede">The market is asking. Today we can only answer as fast as one founder can run intakes.</p></div>
+    </div>
+    <span class="eyebrow">The market is asking</span>
+    <div class="signals" style="margin-top:14px">
+      <div><div class="v num">30+</div><span class="note">intakes completed by the founder</span></div>
+      <div><div class="v num">30 min</div><span class="note">average time per intake, all founder-led</span></div>
+      <div><div class="v num">~20%</div><span class="note">event-to-member conversion at an early event, with no paid marketing (early signal)</span></div>
+      <div><div class="v num">1 LOI</div><span class="note">a matchmaking company's letter of intent at up to $3 per assessment, before the app exists. Not yet revenue</span></div>
+    </div>
+    <div class="two" style="margin-top:40px">
+      <div style="display:grid;gap:10px;border-top:1px solid var(--ink);padding-top:16px"><span class="eyebrow">Research · 133 Saudi men · 2024</span><p style="font-size:var(--s3);line-height:1.3;letter-spacing:-0.01em">Saudi men asked for the premarital programme to include mental-illness and drug screening.</p><p class="src">Alasmari, <a href="https://pubmed.ncbi.nlm.nih.gov/38583067/" target="_blank" rel="noopener">African Journal of Reproductive Health</a></p></div>
+      <div style="display:grid;gap:10px;border-top:1px solid var(--ink);padding-top:16px"><span class="eyebrow">Research · 955 Saudi adults · 2022</span><p style="font-size:var(--s3);line-height:1.3;letter-spacing:-0.01em">Most supported premarital mental-health screening, yet most didn't know screening could include it.</p><p class="src">Alhusseini et al., <a href="https://pubmed.ncbi.nlm.nih.gov/36398011/" target="_blank" rel="noopener">Journal of Taibah University Medical Sciences</a></p></div>
+    </div>
+    <p class="note" style="margin-top:14px">Maktoub is not a medical screen. It answers this demand with a psychological readiness assessment: self-insight, reviewed by experts.</p>
+    <div class="two" style="margin-top:56px">
+      <div>
+        <span class="eyebrow">What they're asking for</span>
+        <ul class="asks" style="margin-top:14px">
+          <li><b>Discretion</b><span class="muted">No public profile, no strangers browsing photos.</span></li>
+          <li><b>Serious intent</b><span class="muted">Everyone is there for marriage.</span></li>
+          <li><b>A real profile</b><span class="muted">How someone thinks and relates, before the first meeting.</span></li>
+          <li><b>Family-compatible</b><span class="muted">A process they can explain to their parents.</span></li>
+          <li><b>Expert guidance</b><span class="muted">An expert reviewer and a matchmaker, not an algorithm alone.</span></li>
+          <li><b>Places to meet</b><span class="muted">Curated, culturally rooted events.</span></li>
+        </ul>
+      </div>
+      <div>
+        <span class="eyebrow">Our current issues</span>
+        <div style="margin-top:14px"><div class="seg" role="group" aria-label="Issue type" id="seg-bn">
+          <button aria-pressed="true" data-v="ops">Operations</button><button aria-pressed="false" data-v="tech">Technology</button>
+        </div></div>
+        <div class="rows" id="bn-rows" style="margin-top:20px"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="data" class="ch dark-band">
+  <div class="wrap">
+    <div class="ch-head">
+      <div class="ch-no num">04</div>
+      <div><h2>How the data feeds itself</h2><p class="lede">Consented outcomes can support future evaluation and model improvement. Tap a stage to see what it feeds.</p></div>
+    </div>
+    <div class="cycle">
+      <svg id="cycle" viewBox="0 0 560 560" role="img" aria-label="Data cycle"></svg>
+      <div style="display:grid;gap:18px">
+        <span class="eyebrow" id="cy-step"></span>
+        <h3 id="cy-title" style="font-size:var(--s2)"></h3>
+        <p class="prose" id="cy-desc" style="color:#A9A199"></p>
+        <div class="rows">
+          <div class="row"><span class="k">Data in</span><span id="cy-in"></span></div>
+          <div class="row"><span class="k">Feeds</span><span id="cy-out"></span></div>
+        </div>
+        <p class="note">This is signal detection, not lie detection. The voice shows where to ask the second question. We aim to build a consented dataset linking Arabic relationship interviews, professional review and subsequent relationship outcomes.</p>
+      </div>
+    </div>
+    <div style="margin-top:72px">
+      <span class="eyebrow">Validation gates</span>
+      <div class="gates" style="margin-top:18px">
+        <div><div class="gate-no num">1</div><b style="font-weight:500">MVP accepted</b><span class="note">Record, transcribe, report, secure admin access.</span></div>
+        <div><div class="gate-no num">2</div><b style="font-weight:500">First 300 applications</b><span class="note">Consented recordings with expert ratings.</span></div>
+        <div><div class="gate-no num">3</div><b style="font-weight:500">Six-month outcome cohort</b><span class="note">First labels to test signal against outcome.</span></div>
+        <div><div class="gate-no num">4</div><b style="font-weight:500">Beats the baseline</b><span class="note">AI plus expert review predicts better than the expert alone. Then we license.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="projections" class="ch">
+  <div class="wrap">
+    <div class="ch-head">
+      <div class="ch-no num">05</div>
+      <div><h2>Financial projections</h2><p class="lede">Years 1 and 2 are a plan. Years 5 and 10 are a direction, drawn lighter on purpose.</p></div>
+    </div>
+    <div class="seg-row">
+      <div class="seg yr-seg" role="group" aria-label="Projection year">
+        <button aria-pressed="true" data-v="1">Year 1 · 2027</button><button aria-pressed="false" data-v="2">Year 2 · 2028</button><button aria-pressed="false" data-v="5">Year 5 · 2031</button><button aria-pressed="false" data-v="10">Year 10 · 2036</button>
+      </div>
+      <span class="eyebrow">Illustrative management scenario · USD</span>
+    </div>
+    <div class="wide">
+      <div style="min-width:0">
+        <span class="eyebrow">Revenue by stream, year by year</span>
+        <div class="chart-wrap" style="margin-top:12px"><svg id="p-cols" viewBox="0 0 660 330" role="img" aria-label="Revenue by stream"></svg></div>
+        <div class="legend" id="p-legend"></div>
+      </div>
+      <div class="side-panel">
+        <span class="eyebrow" id="p-geo"></span>
+        <div class="big num" id="p-total"></div>
+        <p class="muted">Annual revenue</p>
+        <div class="kpis" id="p-kpis"></div>
+      </div>
+    </div>
+    <div class="two" style="margin-top:56px">
+      <div style="min-width:0"><span class="eyebrow">Matchmaking applicants a year</span><div class="chart-wrap" style="margin-top:12px"><svg id="p-mem" viewBox="0 0 520 220" role="img" aria-label="Members by year"></svg></div></div>
+      <div style="min-width:0"><span class="eyebrow">Gross margin · illustrative assumption</span><div class="chart-wrap" style="margin-top:12px"><svg id="p-gm" viewBox="0 0 520 220" role="img" aria-label="Gross margin by year"></svg></div></div>
+    </div>
+    <details>
+      <summary>Assumptions behind the numbers</summary>
+      <div class="assump">
+        <div><b>Matchmaking and reports</b>Application fee about $266 (SAR 999, example) and extensive report about $53 (SAR 199, example). About three reports sold per applicant. 1,000 applicants in Year 1, scaling into thousands as B2B partners send users.</div>
+        <div><b>Events</b>About $118 average ticket, from SAR 444 and 888 tiers.</div>
+        <div><b>Licensing</b>$3 per assessment at launch (LOI), easing to $2 at volume.</div>
+        <div><b>Government</b>Saudi Ministry of Justice at $2–3 per partner, then GCC ministries.</div>
+        <div><b>Base plan</b>The 18-month spending plan assumes the full $500,000 round is raised. The proposed $300,000 investment alone does not fully fund this plan. Revenue is excluded.</div>
+        <div><b>Gross margin</b>Gross margin may improve as automated licensing grows. Processing, hosting, integration, support and any contracted professional review still carry costs. The margins shown are illustrative assumptions to be tested in the pilot.</div>
+        <div><b>Consumer and B2B pricing</b>Consumer reports include professional review. The proposed B2B price of up to $3 covers an automated assessment; any professional review must be separately scoped and priced.</div>
+      </div>
+    </details>
+  </div>
+</section>
+
+<section id="valuation" class="ch">
+  <div class="wrap">
+    <div class="ch-head">
+      <div class="ch-no num">06</div>
+      <div><h2>Valuation, built from the projections</h2><p class="lede">A revenue multiple at each horizon. Investor stake values appear once ownership and the round valuation are agreed.</p></div>
+    </div>
+    <div class="seg-row">
+      <div class="seg yr-seg" role="group" aria-label="Valuation year">
+        <button aria-pressed="true" data-v="1">Year 1</button><button aria-pressed="false" data-v="2">Year 2</button><button aria-pressed="false" data-v="5">Year 5</button><button aria-pressed="false" data-v="10">Year 10</button>
+      </div>
+      <span class="eyebrow">Synced with projections</span>
+    </div>
+    <div class="wide">
+      <div style="min-width:0">
+        <div class="chart-wrap"><svg id="v-chart" viewBox="0 0 660 330" role="img" aria-label="Valuation range and stake value"></svg></div>
+        <div class="legend">
+          <span><i style="background:var(--hair)"></i>Company valuation range</span>
+          <span id="v-stake-legend" hidden><i class="ln" style="background:var(--red)"></i>Lead investor stake value</span>
+          <span class="muted">Log scale: each gridline is ten times the one below</span>
+        </div>
+      </div>
+      <div class="side-panel">
+        <div class="kpis">
+          <div style="grid-column:span 2"><span class="eyebrow">Company value</span><span class="v num" id="v-val" style="font-size:40px"></span><span class="note" id="v-basis"></span></div>
+          <div><span class="eyebrow">Stake</span><span class="v num" id="v-stake"></span><span class="note" id="v-stakek"></span></div>
+          <div><span class="eyebrow">Multiple</span><span class="v num" id="v-mult"></span><span class="note">on the agreed investment</span></div>
+          <div style="grid-column:span 2"><span class="eyebrow">Stake value</span><span class="v num" id="v-worth" style="font-size:22px;color:var(--red)"></span></div>
+        </div>
+      </div>
+    </div>
+    <p class="note" style="margin-top:24px">Multiples follow consumer-subscription and vertical-AI comparables and compress as the company matures. The proposed entry terms are $300,000 for 10%, subject to agreement. Stake values and return multiples remain hidden pending the separate $200,000 financing terms and subsequent dilution assumptions. Future financing terms are not agreed. The option pool comes from the founder's share.</p>
+  </div>
+</section>
+
+<section id="competition" class="ch">
+  <div class="wrap">
+    <div class="ch-head">
+      <div class="ch-no num">07</div>
+      <div><h2>Competition</h2><p class="lede">Six things a marriage-minded person needs. Everyone covers one or two. Maktoub is built to cover all six.</p></div>
+    </div>
+    <div class="seg-row">
+      <div class="seg" role="group" aria-label="Market" id="seg-comp">
+        <button aria-pressed="true" data-v="nat">National</button><button aria-pressed="false" data-v="int">International</button>
+      </div>
+      <span class="eyebrow"><span class="dot f" style="width:10px;height:10px"></span> Covers &nbsp; <span class="dot h" style="width:10px;height:10px"></span> Partly &nbsp; <span class="dot" style="width:10px;height:10px"></span> Missing</span>
+    </div>
+    <div class="chart-wrap"><table class="matrix" id="matrix"></table></div>
+    <div class="comp-notes" id="comp-notes"></div>
+  </div>
+</section>
+
+<section id="expansion" class="ch">
+  <div class="wrap">
+    <div class="ch-head">
+      <div class="ch-no num">08</div>
+      <div><h2>Where we expand</h2><p class="lede">Two tracks. Premium matchmaking for people whose time is too valuable to waste, and licensing to governments already paying to strengthen marriage: against divorce in the Gulf, and against a shrinking population in Asia.</p></div>
+    </div>
+    <div style="display:grid;grid-template-columns:minmax(0,1fr);gap:clamp(48px,6vw,80px)">
+      <div class="two">
+        <div style="display:grid;gap:16px;align-content:start">
+          <span class="eyebrow">Track 1 · Who pays us directly</span>
+          <h3 style="font-size:var(--s2)">People who would hire a matchmaker, because their time is the scarcest thing they have.</h3>
+          <p class="muted prose">Executives, physicians, founders, senior government and finance professionals. They will not swipe for months. They want a vetted shortlist, discretion and someone who has already done the reading. It is a niche, and it pays premium prices.</p>
+        </div>
+        <div class="rows">
+          <div class="row"><span class="k">Why they pay</span><span class="muted">An hour of their time costs more than a month of membership</span></div>
+          <div class="row"><span class="k">What they buy</span><span class="muted">The extensive report, expert review and a few curated introductions</span></div>
+          <div class="row"><span class="k">What they refuse</span><span class="muted">Public profiles, endless chat and unvetted matches</span></div>
+          <div class="row"><span class="k">Where they are</span><span class="muted">Riyadh and Jeddah first, then Dubai and Abu Dhabi, Singapore, Seoul and Tokyo, the same cities as Track 2</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="seg-row" style="margin-bottom:18px">
+          <div style="display:grid;gap:8px"><span class="eyebrow">Track 2 · Governments already acting</span><h3 style="font-size:var(--s3)">This is a global problem. Marriages are breaking down in some countries, and births are collapsing in others.</h3></div>
+          <div class="seg" role="group" aria-label="Country" id="seg-gov">
+            <button aria-pressed="true" data-v="0">Saudi Arabia</button><button aria-pressed="false" data-v="1">UAE</button><button aria-pressed="false" data-v="2">Kuwait</button><button aria-pressed="false" data-v="3">China</button><button aria-pressed="false" data-v="4">Singapore</button><button aria-pressed="false" data-v="5">South Korea</button><button aria-pressed="false" data-v="6">Taiwan</button><button aria-pressed="false" data-v="7">Japan</button><button aria-pressed="false" data-v="8">Italy</button>
+          </div>
+        </div>
+        <div class="wide">
+          <div style="min-width:0">
+            <div id="gulf-vis"><span class="eyebrow">Where marriages are breaking down</span><div class="gulf-tiles" id="gulf-tiles"></div><p class="note" style="margin-top:12px">In the Gulf the problem is divorce and cultural fit, not births. Imported dating products don't fit family culture.</p></div>
+            <div id="asia-vis" hidden><span class="eyebrow">Where populations are shrinking · total fertility rate, children per woman · replacement is 2.1</span>
+            <div class="chart-wrap" style="margin-top:12px"><svg id="tfr" viewBox="0 0 640 310" role="img" aria-label="Fertility rates in Singapore, South Korea, Taiwan, Japan and Italy"></svg></div></div>
+          </div>
+          <div class="side-panel">
+            <span class="eyebrow" id="g-name"></span>
+            <div class="big num" id="g-big"></div>
+            <p class="muted" id="g-bigk"></p>
+          </div>
+        </div>
+        <div class="two" style="margin-top:28px">
+          <div><span class="eyebrow">What the government is doing</span><div class="rows" id="g-doing" style="margin-top:12px"></div></div>
+          <div><span class="eyebrow">Where Maktoub fits</span><p id="g-fit" style="margin-top:12px;font-size:var(--s3);line-height:1.35;letter-spacing:-0.01em"></p><p class="src" id="g-src" style="margin-top:16px"></p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="exit" class="ch">
+  <div class="wrap">
+    <div class="ch-head">
+      <div class="ch-no num">09</div>
+      <div><h2>Exit, realistically</h2><p class="lede">Most dating-tech exits are tuck-ins by a strategic buyer. We plan for that, and treat the large outcome as upside.</p></div>
+    </div>
+    <span class="eyebrow">What exits in this category look like</span>
+    <div class="comps" style="margin-top:14px">
+      <div><span class="eyebrow">2021 · Match Group</span><div class="v num">$1.73B</div><b style="font-weight:500">Hyperconnect</b><span class="note">Social discovery at global scale. The outlier, not the plan.</span></div>
+      <div><span class="eyebrow">2019 · Match Group</span><div class="v">Undisclosed</div><b style="font-weight:500">Hawaya</b><span class="note">A regional Arab marriage app, bought for market entry.</span></div>
+      <div><span class="eyebrow">2022 · Bumble</span><div class="v">Undisclosed</div><b style="font-weight:500">Fruitz</b><span class="note">A young-audience app, bought as a tuck-in.</span></div>
+      <div><span class="eyebrow">Potential strategic buyer categories</span><div class="v num">5</div><b style="font-weight:500">Match · Bumble · Muzz · Saudi strategic · Wellbeing platform</b><span class="note">Each buys trust, data or a region it lacks.</span></div>
+    </div>
+
+    <div class="scen" id="scen" role="group" aria-label="Exit scenario"></div>
+    <div class="calc">
+      <div style="display:grid;gap:18px">
+        <span class="eyebrow">Payout calculator</span>
+        <div style="display:grid;gap:8px"><label for="c-val"><span>Acquisition value</span><span class="num" id="c-val-l"></span></label><input id="c-val" type="range" min="5" max="400" step="5" value="25"></div>
+        <div style="display:grid;gap:8px"><label for="c-yr"><span>Exit year</span><span class="num" id="c-yr-l"></span></label><input id="c-yr" type="range" min="2" max="10" step="1" value="4"></div>
+        <div style="display:grid;gap:8px"><label for="c-sec"><span>Sold earlier in secondaries</span><span class="num" id="c-sec-l"></span></label><input id="c-sec" type="range" min="0" max="25" step="5" value="0"></div>
+        <p class="note">Proposed investor entry stake: 10% for $300,000, subject to agreement. Proceeds and multiples remain hidden until the additional $200,000 financing and future dilution assumptions are defined. The calculator will then apply the agreed stake, carrying milestone stakes forward to intermediate years as an illustrative assumption.</p>
+        <p class="note">Assumed secondary sale prices, illustrative and not verified transaction values: a $16.2M company value for exits in Years 2–3, $25M for Years 4–5 and $77M for Years 6–10. Secondary sales are capped at 25% of the holding per round.</p>
+        <p class="note">A 4% transaction-cost assumption is applied. Taxes are excluded. Once terms are agreed, results will use the agreed investment amount and will not reflect payment timing unless a schedule is agreed.</p>
+      </div>
+      <div class="out" style="display:grid;gap:8px">
+        <span class="eyebrow">Illustrative proceeds after assumed transaction costs</span>
+        <div class="v num" id="c-out"></div>
+        <span class="muted" id="c-sub"></span>
+        <div class="out-grid" id="c-grid">
+          <div><span class="eyebrow">Stake</span><span class="v2 num" id="c-stake"></span></div>
+          <div><span class="eyebrow">Multiple</span><span class="v2 num" id="c-mult"></span></div>
+          <div id="c-irr-box"><span class="eyebrow">Illustrative annualised multiple</span><span class="v2 num" id="c-irr"></span></div>
+        </div>
+      </div>
+    </div>
+    <p class="note" style="margin-top:16px">If the company fails, the investment can be lost in full. Payouts assume ordinary shares without a liquidation preference.</p>
+  </div>
+</section>
+
+<section id="team" class="ch">
+  <div class="wrap">
+    <div class="ch-head">
+      <div class="ch-no num">10</div>
+      <div><h2>The team, and who we hire next</h2><p class="lede">Seven roles in the order the raise funds them. Open any role for its mandate, requirements and first 90 days.</p></div>
+    </div>
+    <div class="team" id="team-grid"></div>
+    <div class="role-detail" id="role-detail" hidden></div>
+  </div>
+</section>
+
+<section id="growth" class="ch">
+  <div class="wrap">
+    <div class="ch-head">
+      <div class="ch-no num">11</div>
+      <div><h2>Marketing and growth</h2><p class="lede">Events pay for acquisition. Members create consented data. Consented outcomes can support future evaluation and model improvement, and good matches become the stories that fill the next event.</p></div>
+    </div>
+    <div class="fly">
+      <svg viewBox="0 0 420 420" role="img" aria-label="Growth flywheel">
+        <circle cx="210" cy="210" r="150" fill="none" stroke="var(--hair)" stroke-width="1"/>
+        <path d="M210 60 A150 150 0 0 1 340 135" fill="none" stroke="var(--red)" stroke-width="2.2" stroke-linecap="round"/>
+        <polygon points="340,135 328,130 334,120" fill="var(--red)"/>
+        <g font-size="14" fill="var(--ink)" font-weight="500" text-anchor="middle">
+          <circle cx="210" cy="60" r="6" fill="var(--ink)"/><text x="210" y="40">Events</text>
+          <circle cx="340" cy="135" r="6" fill="var(--ink)"/><text x="372" y="122">Members</text>
+          <circle cx="340" cy="285" r="6" fill="var(--ink)"/><text x="372" y="312">Applications</text>
+          <circle cx="210" cy="360" r="6" fill="var(--ink)"/><text x="210" y="390">Better model</text>
+          <circle cx="80" cy="285" r="6" fill="var(--ink)"/><text x="54" y="312">Better matches</text>
+          <circle cx="80" cy="135" r="6" fill="var(--ink)"/><text x="52" y="122">Stories</text>
+        </g>
+        <text x="210" y="206" text-anchor="middle" font-size="34" font-weight="500" fill="var(--ink)">~20%</text>
+        <text x="210" y="230" text-anchor="middle" font-size="12" fill="var(--muted)">event-to-member conversion</text>
+      </svg>
+      <div class="rows">
+        <div class="row"><span class="k">Curated events</span><span class="muted">Monthly wellness and culture events co-hosted with Stella Stays and RawEscapes. Tickets cover the cost of acquisition.</span></div>
+        <div class="row"><span class="k">Private circle rates</span><span class="muted">Members and their friends get private ticket rates and a fast-tracked application.</span></div>
+        <div class="row"><span class="k">Founder-led content</span><span class="muted">Behaviour and relationship insight from the founder builds trust before anyone pays.</span></div>
+        <div class="row"><span class="k">Direct invitations</span><span class="muted">Personal WhatsApp outreach to a curated contact base.</span></div>
+        <div class="row"><span class="k">Platform licensing</span><span class="muted">Pilot with the LOI platform, publish results, then sell to the next platform with proof.</span></div>
+        <div class="row"><span class="k">Government</span><span class="muted">A premarital wellbeing tool for family-stability and Quality of Life programmes.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="raise" class="ch">
+  <div class="wrap">
+    <div class="ch-head">
+      <div class="ch-no num">12</div>
+      <div><h2>The raise: a $500,000 round</h2><p class="lede">Use of funds for the fully funded round, and what happens in the 90 days after funding lands.</p></div>
+    </div>
+    <div class="raise-stats">
+      <div><span class="eyebrow">Total round target</span><div class="v num">$500,000</div><span class="note">Funds the 18-month plan in full</span></div>
+      <div><span class="eyebrow">Proposed investor commitment</span><div class="v num">$300,000</div><span class="note">Payment schedule subject to final agreement</span></div>
+      <div><span class="eyebrow">Remaining to raise</span><div class="v num">$200,000</div><span class="note">Not committed or secured</span></div>
+      <div><span class="eyebrow">Ownership and valuation</span><div class="v">To confirm</div><span class="note">Option pool from the founder's share</span></div>
+    </div>
+
+    <div style="margin-top:64px">
+      <div class="seg-row" style="margin-bottom:0"><span class="eyebrow">Use of funds for the fully funded round · tap a block for its line items</span><span class="eyebrow num">Fully funded round · $500,000</span></div>
+      <div class="alloc" id="alloc" role="group" aria-label="Use of funds"></div>
+      <div class="wide" style="margin-top:28px">
+        <div class="fund-rows" id="fund-rows"></div>
+        <div class="side-panel">
+          <span class="eyebrow">Where the money goes, month by month</span>
+          <div class="chart-wrap"><svg id="runway" viewBox="0 0 520 300" role="img" aria-label="Cumulative spend over 18 months"></svg></div>
+          <p class="note"><b style="font-weight:500;color:var(--ink)">Planned expenditure for the fully funded round—not available cash.</b> The 18-month spending plan assumes the full $500,000 round is raised. The proposed $300,000 investment alone does not fully fund this plan. The remaining $200,000 is not counted as available cash.</p>
+        </div>
+      </div>
+      <p class="note" style="margin-top:20px">Payment schedule for the proposed $300,000 investment: subject to final agreement.</p>
+    </div>
+
+    <div style="margin-top:72px">
+      <div class="seg-row" style="margin-bottom:18px">
+        <div style="display:grid;gap:8px"><span class="eyebrow">The 90-day strategy, from the day the money lands</span><h3 style="font-size:var(--s2)">Four workstreams. In parallel from day one.</h3><p class="muted prose">Engineering starts immediately alongside science, brand and operations. Not a month of presentations and planning.</p></div>
+        <div class="seg" role="group" aria-label="Highlight a month" id="seg-90">
+          <button aria-pressed="false" data-v="-1">All</button><button aria-pressed="true" data-v="0">Days 1–30</button><button aria-pressed="false" data-v="1">Days 31–60</button><button aria-pressed="false" data-v="2">Days 61–90</button>
+        </div>
+      </div>
+      <div class="chart-wrap"><table class="lanes" id="lanes"></table></div>
+      <div class="gate90">
+        <div><span class="eyebrow" style="color:var(--red)">The proposed payment milestone is not the 90-day strategy</span><p style="margin-top:8px">The proposed gate, to be confirmed in final terms, is deliberately narrow: record and transcribe voice, produce a preliminary AI insight report, and securely show profiles, responses and reports in admin.</p></div>
+        <div><span class="eyebrow">Not payment conditions</span><p class="muted" style="margin-top:8px">App Store approval, 50 assessments, match results, validated science and full automation.</p></div>
+      </div>
+      <p style="margin-top:28px;font-size:var(--s3);font-weight:500;letter-spacing:-0.01em">Simplicity in the contract. Ambition in execution.</p>
+    </div>
+
+    <div id="reporting" style="margin-top:72px;scroll-margin-top:70px">
+      <div style="display:grid;gap:10px"><span class="eyebrow">Investor reporting</span><h3 style="font-size:var(--s2)">How we will report progress</h3><p class="muted prose">Proposed reporting: a monthly operating update and a quarterly review call. Investors receive aggregated business metrics, never applicant recordings, private reports or identifying intake information.</p></div>
+      <div class="chart-wrap" style="margin-top:20px"><table class="lanes score"><thead><tr><th>Metric</th><th>Current evidence</th><th>Next checkpoint</th><th>Reporting</th></tr></thead><tbody><tr><td><b>Investment cash received</b></td><td>Funding receipt status to confirm.</td><td>Reconcile each cleared tranche to the corporate bank account</td><td>Monthly</td></tr><tr><td><b>Operating spend and runway</b></td><td>Planned spend: $460,000 over 18 months; planned reserve: $40,000; assumes the full $500,000 round is raised</td><td>Calculate actual runway from available cash and committed expenditure, including tranche timing</td><td>Monthly</td></tr><tr><td><b>Paying customers and customer cash collected</b></td><td>Payment baseline pending reconciliation.</td><td>Establish the baseline from payment records; separate sign-ups, paying customers and completed services</td><td>Monthly</td></tr><tr><td><b>Delivery cost and contribution per report</b></td><td>Pilot measurement pending.</td><td>Measure selling price less direct review, processing, payment and support costs</td><td>Monthly once paid delivery begins</td></tr><tr><td><b>Professional review turnaround</b></td><td>48-hour target; performance measurement pending.</td><td>Measure the percentage completed within 48 hours of a complete submission</td><td>Monthly</td></tr><tr><td><b>Report quality</b></td><td>Pilot quality baseline pending.</td><td>Establish reviewer agreement, correction and escalation measures with the scientific lead</td><td>Monthly during the pilot</td></tr><tr><td><b>Candidate pool and introductions</b></td><td>Aggregated operating baseline pending.</td><td>Report eligible active candidates, introductions offered and introductions accepted by both people</td><td>Monthly</td></tr><tr><td><b>B2B commercial progress</b></td><td>One reported Bohri Cupid pilot LOI; no contracted volume supplied</td><td>Confirm pilot scope, paid volume, integration responsibilities and purchasing decision</td><td>Monthly</td></tr></tbody></table></div>
+      <p class="note" style="margin-top:14px">These are proposed management measures. Targets without an established baseline will be set after initial measurement. Sign-ups, introductions and relationship outcomes are distinct measures.</p>
+    </div>
+  </div>
+</section>
+
+<section id="tech" class="ch">
+  <div class="wrap">
+    <div class="ch-head">
+      <div class="ch-no num">13</div>
+      <div><h2>What the fully funded round builds</h2><p class="lede">Two connected systems: Lumiora, the assessment engine we license, and Maktoub, the matchmaking app built on top of it.</p></div>
+    </div>
+
+    <div class="arch">
+      <div class="arch-col">
+        <span class="eyebrow">Clients</span>
+        <div class="abox"><b>Maktoub app</b><span class="muted">iOS and Android, Arabic and English</span></div>
+        <div class="abox"><b>Reviewer and admin dashboard</b><span class="muted">Web, for expert reviewers and matchmakers</span></div>
+        <div class="abox"><b>Partner API</b><span class="muted">Platforms and governments license Lumiora (months 10–18)</span></div>
+      </div>
+      <div class="arch-col">
+        <span class="eyebrow">Maktoub · consumer services</span>
+        <div class="abox soft">Profiles · applications · status tracking · matchmaking fee · human-curated matchmaking · identity verification · admin permissions</div>
+        <div class="engine">
+          <span class="eyebrow">Lumiora · assessment and intelligence engine</span>
+          <div class="mods">
+            <span>Questionnaires and branching interviews</span><span>Voice: record, transcribe, acoustics</span>
+            <span>Rule-based scoring and AI interpretation</span><span>Free snapshot and premium reports</span>
+            <span>Professional review workflow</span><span>Longitudinal assessment records</span>
+            <span>Provider-agnostic AI layer</span><span class="fut">API layer for B2B and B2G</span>
+          </div>
+        </div>
+      </div>
+      <div class="arch-col">
+        <span class="eyebrow">External services · swappable</span>
+        <div class="abox">Speech-to-text, Arabic and English<span class="muted" style="display:block;font-size:13px">HUMAIN to be evaluated</span></div>
+        <div class="abox">Language model providers</div>
+        <div class="abox">Identity verification</div>
+        <div class="abox">App Store, Google Play and payments</div>
+        <div class="abox">Cloud hosting and backups</div>
+      </div>
+    </div>
+    <div class="dlayer"><b>Data layer</b><span>Identity</span><span class="muted">|</span><span>Psychological</span><span class="muted">|</span><span>Matchmaking</span><span class="muted">kept in separate domains · consent ledger · audit logs · encrypted · 1-hour recovery point, 24-hour recovery time</span></div>
+
+    <div style="margin-top:72px">
+      <div class="seg-row" style="margin-bottom:0">
+        <div style="display:grid;gap:8px"><span class="eyebrow">The build, across the 18 months the raise funds</span><h3 style="font-size:var(--s3)">Launch, adapt, license.</h3></div>
+        <div class="seg" role="group" aria-label="Build phase" id="seg-build">
+          <button aria-pressed="true" data-v="0">Days 1–90</button><button aria-pressed="false" data-v="1">Months 4–9</button><button aria-pressed="false" data-v="2">Months 10–18</button>
+        </div>
+      </div>
+      <div class="phase-bar" id="build-bar"></div>
+      <div class="ph-cards">
+        <div><span class="eyebrow">What gets built</span><ul class="asks" id="b-items" style="margin-top:12px"></ul></div>
+        <div style="display:grid;gap:16px;align-content:start">
+          <div class="accept"><b>Acceptance test</b><span id="b-accept"></span></div>
+          <div class="rows"><div class="row"><span class="k">Who builds it</span><span class="muted" id="b-who"></span></div><div class="row"><span class="k">Funded by</span><span class="muted" id="b-cost"></span></div><div class="row"><span class="k">Unlocks</span><span id="b-unlock"></span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:72px">
+      <span class="eyebrow">Rules written into the code</span>
+      <div class="rules" style="margin-top:14px">
+        <div><h4>An engine, not an AI psychologist</h4><p class="muted" style="font-size:15px">Versioned questionnaires and scoring rules. The AI interprets inside approved limits.</p></div>
+        <div><h4>No paid report without a professional</h4><p class="muted" style="font-size:15px">Every paid consumer report carries recorded professional approval. B2B review responsibilities will be defined in each contract.</p></div>
+        <div><h4>Every statement labelled</h4><p class="muted" style="font-size:15px">Established scoring, self-reported, exploratory observation or professionally reviewed. No unsupported diagnostic claims.</p></div>
+        <div><h4>Verified before introduction</h4><p class="muted" style="font-size:15px">No ID needed to take the assessment. Both people verified before any introduction.</p></div>
+        <div><h4>Voice is evidence, not a verdict</h4><p class="muted" style="font-size:15px">Acoustic measures are exploratory and never generate a psychological conclusion alone.</p></div>
+        <div><h4>Our data trains no one else's model</h4><p class="muted" style="font-size:15px">Saudi data residency reviewed with counsel. Providers can be switched without a rebuild.</p></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="terms" class="ch dark-band" style="border-bottom:0">
+  <div class="wrap">
+    <div class="ch-head">
+      <div class="ch-no num">14</div>
+      <div><h2>The terms</h2><p class="lede" style="color:#A9A199">Simple, staged and protected. Final Arabic agreements to be reviewed by Saudi counsel.</p></div>
+    </div>
+    <div class="terms">
+      <div><span class="eyebrow">Total round target</span><div class="v num">$500,000</div><span class="note">The fully funded round</span></div>
+      <div><span class="eyebrow">Proposed investor commitment</span><div class="v num">$300,000</div><span class="note">Proposed 10% for $300,000; subject to agreement</span></div>
+      <div><span class="eyebrow">Remaining to raise</span><div class="v num">$200,000</div><span class="note">Not committed or secured</span></div>
+      <div><span class="eyebrow">Payment schedule</span><div class="v" style="font-size:22px">Subject to final agreement</div><span class="note">For the proposed $300,000 investment</span></div>
+    </div>
+    <div class="rows" style="margin:24px 0"><div class="row"><span class="k">Priority for the proposed $300K</span><span>Initial product delivery, professional review and essential operations come first. Hiring and spending will be staged against cleared payments. The remaining $200K would complete the broader funding plan; it is not assumed available. A standalone $300K delivery budget and payment schedule remain to be finalised before commitments are made.</span></div></div>
+    <div class="two" style="margin-top:48px">
+      <div class="rows">
+        <div class="row"><span class="k">Structure</span><span>Saudi company first, with a UAE holding company from the next round</span></div>
+        <div class="row"><span class="k">Equity</span><span>Named from incorporation, credited as each payment clears</span></div>
+        <div class="row"><span class="k">Option pool</span><span>Proposed pool from the founder’s share; final pool size and financing dilution to be agreed</span></div>
+      </div>
+      <div class="rows">
+        <div class="row"><span class="k">Reporting</span><span>Monthly one-page update and a quarterly review call</span></div>
+        <div class="row"><span class="k">Privacy</span><span>Investors see aggregated metrics only, never recordings or reports</span></div>
+        <div class="row"><span class="k">Contact</span><span>Deena Al Jassasi, Founder · maktoub.app</span></div>
+      </div>
+    </div>
+    <div style="margin-top:72px">
+      <span class="eyebrow">Legal structure</span>
+      <div class="entities">
+        <div class="ent"><span class="eyebrow">Now</span><b style="font-weight:500;font-size:20px">Maktoub · Saudi company</b><span style="color:#A9A199;font-size:15px">Holds the brand, Lumiora IP, data and contracts. Proposed investor ownership: 10% for the full $300,000 funded, subject to final documentation and any subsequent dilution.</span></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="ent later"><span class="eyebrow">From the next round</span><b style="font-weight:500;font-size:20px">UAE holding company</b><span style="font-size:15px">Owns the Saudi company, so later international investors and new markets plug in above it.</span></div>
+      </div>
+    </div>
+    <div class="two" style="margin-top:56px">
+      <div>
+        <span class="eyebrow">Ownership at each stage · illustrative</span> <span class="tbc">To confirm</span><p class="note" style="margin-top:6px">Proposed entry terms: $300,000 for 10%, subject to agreement. The remaining $200,000 is a separate fundraising target. Its terms and effect on ownership must be agreed before displaying a fully funded cap table.</p>
+        <div class="caps" hidden>
+          <div class="cap"><span>Incorporation</span><div class="capbar"><span style="flex:90;background:#F4F1EA;color:#111">Founder 90%</span><span style="flex:10;background:var(--red);color:#fff">10%</span></div></div>
+          <div class="cap"><span>Option pool created</span><div class="capbar"><span style="flex:80;background:#F4F1EA;color:#111">Founder 80%</span><span style="flex:10;background:var(--red);color:#fff">10%</span><span style="flex:10;background:#6B655E;color:#fff">10%</span></div></div>
+          <div class="cap"><span>Next priced round</span><div class="capbar"><span style="flex:68;background:#F4F1EA;color:#111">Founder 68%</span><span style="flex:8.5;background:var(--red);color:#fff">8.5</span><span style="flex:8.5;background:#6B655E;color:#fff">8.5</span><span style="flex:15;background:#3A3733;color:#F4F1EA">15%</span></div></div>
+        </div>
+        <div class="cap-legend" hidden><span><i style="background:#F4F1EA"></i>Founder</span><span><i style="background:var(--red)"></i>Lead investor</span><span><i style="background:#6B655E"></i>Option pool</span><span><i style="background:#3A3733;outline:1px solid #6B655E"></i>New investors</span></div>
+        <p class="note" style="margin-top:14px">The option pool is carved from the founder's share.</p>
+      </div>
+      <div class="rows">
+        <div class="row"><span class="k">Governing documents</span><span>Final Arabic agreements to be reviewed by Saudi counsel. English versions are summaries.</span></div>
+        <div class="row"><span class="k">Before filing</span><span>Saudi counsel approves the initial shareholding in writing before incorporation is filed</span></div>
+        <div class="row"><span class="k">Equity credit</span><span>Shares are credited as each payment clears into the corporate account</span></div>
+        <div class="row"><span class="k">MVP acceptance</span><span>Three tests: voice recorded and transcribed, preliminary AI report generated, secure admin access to both</span></div>
+        <div class="row"><span class="k">Secondary sales</span><span>Up to 25% of the lead investor's holding per round, with company consent</span></div>
+        <div class="row"><span class="k">Data and IP</span><span>Commissioned code and IP assigned to the company. Personal data under Saudi PDPL</span></div>
+      </div>
+    </div>
+
+    <div style="margin-top:56px;display:grid;gap:0" id="documents">
+      <details class="dpanel">
+        <summary>Supporting documents</summary>
+        <div class="rows" style="margin-top:16px">
+          <div class="row"><span class="k">Bohri Cupid pilot LOI</span><span><span style="display:block">Founder-reported LOI dated 23 September 2026, signed under Brainz For Consulting, recording interest in a Lumiora pilot at up to $3 per automated assessment.</span><span class="dstat">Signed document to attach and verify.</span><span class="note" style="display:block;margin-top:4px">Pricing interest does not establish minimum volume or booked revenue.</span></span></div>
+          <div class="row"><span class="k">Financial model</span><span><span style="display:block">Detailed assumptions supporting revenue, delivery costs, operating expenditure, tranche timing and runway.</span><span class="dstat">Supporting model to attach and reconcile with this room.</span></span></div>
+          <div class="row"><span class="k">Technical delivery scope</span><span><span style="display:block">Product scope, responsibilities, milestones, acceptance tests and handover requirements.</span><span class="dstat">Final delivery scope to attach.</span></span></div>
+          <div class="row"><span class="k">Proposed investment terms</span><span><span style="display:block">Funding, ownership, tranche mechanics, governance and transfer provisions.</span><span class="dstat">Proposed documents to attach; final terms subject to agreement.</span></span></div>
+          <div class="row"><span class="k">Market and competitor sources</span><span><span style="display:block">References supporting market statistics and competitor claims.</span><ul class="srclist"><li><a href="https://gulfnews.com/world/gulf/saudi/short-lived-marriages-on-the-rise-in-saudi-arabia-as-65-of-divorces-occur-within-first-year-1.500195831" target="_blank" rel="noopener">Gulf News, 2025</a></li><li><a href="https://gulfnews.com/world/gulf/saudi/saudi-arabia-expert-proposes-creating-national-marriage-platform-1.1723543623945" target="_blank" rel="noopener">Gulf News</a></li><li><a href="https://pubmed.ncbi.nlm.nih.gov/38583067/" target="_blank" rel="noopener">Alasmari 2024</a></li><li><a href="https://pubmed.ncbi.nlm.nih.gov/36398011/" target="_blank" rel="noopener">Alhusseini et al. 2022</a></li><li><a href="https://www.khaleejtimes.com/uae/uae-marriages-divorce-data-experts-concerned" target="_blank" rel="noopener">Khaleej Times</a></li><li><a href="https://gulfnews.com/amp/story/uae/3000-marriage-grants-planned-under-uaes-dh209m-allocation-1.500411324" target="_blank" rel="noopener">Gulf News</a></li><li><a href="https://www.khaleejtimes.com/uae/uae-birth-rates-emirati-families" target="_blank" rel="noopener">Khaleej Times</a></li><li><a href="https://gulfnews.com/world/gulf/kuwait/kuwait-50-of-marriages-ended-in-divorce-in-first-six-months-of-2025-1.500254015" target="_blank" rel="noopener">Gulf News</a></li><li><a href="https://gulfnews.com/world/gulf/kuwait/nearly-half-of-kuwaits-citizens-remain-unmarried-despite-government-support-1.1729333234698" target="_blank" rel="noopener">Gulf News</a></li><li><a href="https://asianews.network/china-records-6-1m-marriage-registrations-in-2024/" target="_blank" rel="noopener">Asia News Network</a></li><li><a href="https://www.aljazeera.com/economy/2026/10/5/singapore-turns-matchmaker-amid-rock-bottom-birthrate" target="_blank" rel="noopener">Al Jazeera</a></li><li><a href="https://www.malaymail.com/news/singapore/2026/10/21/love-upgraded-singapores-govt-dating-platform-firstdate-raises-age-limit-to-45/239999" target="_blank" rel="noopener">Malay Mail</a></li><li><a href="https://demographer.org/analysis/south-korea-japan-singapore-fertility/" target="_blank" rel="noopener">Demographer</a></li><li><a href="https://www.koreaherald.com/article/10491758" target="_blank" rel="noopener">Korea Herald</a></li><li><a href="https://www.asianews.it/en/east-asia/taiwan/taiwan-s-birthrate-plummets-below-south-korea-s" target="_blank" rel="noopener">AsiaNews</a></li><li><a href="https://www.aljazeera.com/news/2025/9/18/taiwan-battles-low-birth-rate-with-new-family-subsidies" target="_blank" rel="noopener">Al Jazeera</a></li><li><a href="https://www.datingnews.com/industry-trends/tokyo-says-its-government-run-dating-app-has-led-to-hundreds-of-marriages/" target="_blank" rel="noopener">DatingNews</a></li><li><a href="https://www.istat.it/en/press-release/births-and-fertility-of-the-resident-population-year-2024/" target="_blank" rel="noopener">Istat</a></li><li><a href="https://gulfmigration.grc.net/saudi-arabia-saudi-population-aged-15-and-above-by-sex-age-group-and-marital-status-census-2022/?print=pdf" target="_blank" rel="noopener">GASTAT census 2022 via GLMM</a></li><li><a href="https://www.hess.sa/khebra/detailsnewsticker/132.html" target="_blank" rel="noopener">Bayt Al-Khebra family directory</a></li><li><a href="https://english.ajel.sa/saudi-marriages-raised-by-8-9-in-2020/" target="_blank" rel="noopener">GASTAT via Ajel</a></li><li><a href="https://www.statista.com/outlook/dmo/eservices/dating-services/saudi-arabia" target="_blank" rel="noopener">Statista</a></li><li><a href="https://www.agbi.com/lifestyle/2025/02/one-in-five-saudis-look-for-their-valentine-on-dating-apps/" target="_blank" rel="noopener">AGBI</a></li></ul></span></div>
+        </div>
+      </details>
+      <details class="dpanel">
+        <summary>Items to finalise</summary>
+        <div class="rows" style="margin-top:16px">
+          <div class="row"><span class="k">1 · Customer prices and service obligations</span><span>Confirm the provisional SAR 199 report and SAR 999 application prices, service duration, introduction entitlement, rejection/refund policy and treatment when no suitable match is available.</span></div>
+          <div class="row"><span class="k">2 · Delivery economics</span><span>Confirm reviewer rates and time per case, AI and payment costs, customer support, verification and matchmaking labour. Establish contribution before increasing acquisition spending.</span></div>
+          <div class="row"><span class="k">3 · Funding schedule</span><span>The total round target is $500,000. The proposed investor commitment is $300,000, and the remaining $200,000 is not committed or secured. Payment schedule for the proposed $300,000 investment: subject to final agreement. Proposed investor terms: $300,000 for 10%, subject to agreement. The additional $200,000 has separate terms to be agreed; its dilution effect is not yet modelled.</span></div>
+          <div class="row"><span class="k">4 · Delivery and acceptance</span><span>Confirm the person responsible for accepting the MVP, test evidence, acceptance period and response to delayed or unsuccessful delivery. Distinguish the payment gate from the full launch scope.</span></div>
+          <div class="row"><span class="k">5 · Hiring and operating budget</span><span>Reconcile CTO involvement from day one versus month four, founder salary rate and funded duration, and the budget for the part-time operations role.</span></div>
+          <div class="row"><span class="k">6 · Ownership and governance</span><span>Confirm how ownership follows funds received, option-pool treatment, investor decision rights, treatment of unpaid tranches and the proposed future holding-company structure in the final documentation.</span></div>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="wrap">
+  <p class="note">Maktoub · Riyadh · Confidential. Projections, valuations and payouts are illustrative management scenarios and not a forecast or an offer. Personal data handled under Saudi Arabia's Personal Data Protection Law.</p>
+</footer>
+<div class="wm" id="wm" hidden></div>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const fmt=n=>{if(n>=1e9)return"$"+(n/1e9).toFixed(2).replace(/\.?0+$/,"")+"B";if(n>=1e6)return"$"+(n/1e6).toFixed(n>=1e7?0:1).replace(/\.0$/,"")+"M";if(n>=1e3)return"$"+Math.round(n/1e3)+"K";return"$"+Math.round(n)};
+const rng=(a,b)=>a===b?fmt(a):fmt(a)+"–"+fmt(b).slice(1);
+const NS="http://www.w3.org/2000/svg";
+function el(t,a,txt){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e}
+function seg(node,cb){node.addEventListener("click",ev=>{const b=ev.target.closest("button");if(!b||!node.contains(b))return;[...node.children].forEach(x=>x.setAttribute("aria-pressed",x===b));cb(b.dataset.v)})}
+
+/* Persist email before opening; visitor identity is self-reported. */
+let email="";
+function noteSection(id){}
+function enter(e){email=e;$("#gate").hidden=true;const wm=$("#wm");wm.textContent="Confidential · prepared for "+e;wm.hidden=false;}
+const saved=store.get("mk_investor_email_v2");if(saved)enter(saved);
+$("#gate-form").addEventListener("submit",async ev=>{
+ ev.preventDefault();const e=$("#g-email").value.trim();const btn=$("#gate-form button");
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)){$("#g-err").textContent="Enter a valid email address.";return;}
+ btn.disabled=true;btn.textContent="Opening…";$("#g-err").textContent="";
+ try{
+  const res=await fetch("https://pmjvpnqmklxxpswwvbmv.supabase.co/functions/v1/investor-room-visit",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:e,website:$("#visit-website").value})});
+  const data=await res.json();if(!res.ok||!data.ok)throw new Error(data.error||"Unable to save. Please try again.");
+  store.set("mk_investor_email_v2",e);enter(e);
+ }catch(err){$("#g-err").textContent=err.message||"Connection failed. Please try again.";}
+ finally{btn.disabled=false;btn.textContent="Enter investor room";}
+});
+
+/* app */
+const APP=[
+ {e:"Welcome",t:"A welcome that explains the offer",d:"Three steps, said plainly: assess, understand, meet. The promise of privacy comes before any ask.",i:"Nothing yet",o:"A clear promise and one action",r:"Top of the funnel"},
+ {e:"Account",t:"Language and account",d:"Arabic or English first, then sign in with Apple or a phone number. No ID is asked for at this stage, so nothing slows people down.",i:"Language, phone or Apple ID",o:"One account for both journeys",r:"Lowest-friction start"},
+ {e:"Consent",t:"Consent, just in time",d:"Consent appears right before the microphone opens, not buried in sign-up. It says clearly that this is self-insight, not a medical test.",i:"Four consent choices",o:"A consent record tied to every later use of the data",r:"Trust, and data Lumiora can legally learn from"},
+ {e:"Intake",t:"The intake, about six minutes",d:"Short structured questions on relationships, family and the future. Answers save automatically, so people can pause and come back.",i:"18 quick answers",o:"Scored responses for the analysis",r:"Replaces most of the founder's 30-minute intake"},
+ {e:"Voice",t:"Two minutes of voice",d:"One guided prompt answered aloud, in Arabic or English. It asks for a real example, not a performance.",i:"About two minutes of speech",o:"Recording and transcript",r:"The signal no profile app collects"},
+ {e:"Free snapshot",t:"Value before any payment",d:"An instant, automated snapshot: one strength, one pattern worth exploring and one thing to try this week. Then two clear paths: go deeper, or apply for matchmaking.",i:"Nothing new",o:"A free, non-diagnostic snapshot",r:"The hook that earns the first payment"},
+ {e:"Extensive report",t:"The extensive report, behind a blur",d:"The first section is open so people feel the quality. The rest is visible but blurred. Every paid report is approved by an expert reviewer, and the hidden text never reaches the phone until it is paid for.",i:"Payment through Apple Pay",o:"A full report, reviewed by an expert",r:"Revenue from everyone, matched or not"},
+ {e:"Apply",t:"Apply for matchmaking",d:"Everyone pays the same application fee, which covers the deeper interview, expert review and the extensive report. Paying is a commitment, never a guarantee of acceptance.",i:"Application fee",o:"An open matchmaking application",r:"The main B2C revenue moment"},
+ {e:"Review",t:"Deeper interview, then review",d:"A deeper interview about the life they want, then an expert reviewer reads everything within 48 hours. Status is always visible.",i:"Lifestyle and relational answers",o:"A reviewed application",r:"Selectivity is part of the value"},
+ {e:"Decision",t:"The decision, separate from the report",d:"Accepted members are told what happens next. Everyone else gets \"not yet\": what to work on, a recommended therapist outside Maktoub, and a free reassessment in 90 days. Nobody is shown a dead end.",i:"They read their result",o:"Admission, or growth recommendations",r:"Reassessment shows how people change over time"},
+ {e:"Verify",t:"Identity, only when it matters",d:"Identity is verified only when someone has been selected for an introduction, and both people must be verified before they are connected.",i:"Nafath verification",o:"Verified identities, stored separately",r:"Trust at the moment it is needed"},
+ {e:"Introduction",t:"An introduction with a reason",d:"One person at a time, with the reasons in plain language. They are connected only if both say yes.",i:"Yes or not now",o:"A match record and the first outcome label",r:"Membership and event revenue"},
+ {e:"Check-in",t:"Check-ins that teach Lumiora",d:"At three months, six months and engagement, members report where things stand. Consented outcomes can support future evaluation and model improvement.",i:"A one-tap status",o:"Outcome labels linked to the original assessment",r:"The data asset an acquirer buys"}
+];
+const steps=$("#steps");
+APP.forEach((a,i)=>{const b=document.createElement("button");b.textContent=i+1;b.setAttribute("aria-pressed",i===0);b.setAttribute("aria-label","Screen "+(i+1)+": "+a.e);b.dataset.v=i;steps.appendChild(b)});
+const wave=$(".wave");for(let i=0;i<28;i++){const s=document.createElement("span");s.style.animationDelay=(i*0.07%1.2)+"s";s.style.height=(30+((i*37)%70))+"%";wave.appendChild(s)}
+let dec="yes",cur=0;
+function showApp(i){cur=+i;$$(".scr").forEach(s=>{const n=+s.dataset.s;s.hidden=!(n===cur+1&&(!s.dataset.v||s.dataset.v===dec))});const a=APP[cur];
+  $("#app-eyebrow").textContent="Screen "+(cur+1)+" of 13 · "+(cur<7?"Lumiora · ":"Maktoub · ")+a.e;$("#app-title").textContent=a.t;$("#app-desc").textContent=a.d;$("#io-in").textContent=a.i;$("#io-out").textContent=a.o;$("#io-rev").textContent=a.r;$("#decision-toggle").hidden=cur!==9}
+seg(steps,showApp);seg($("#seg-dec"),v=>{dec=v;showApp(cur)});showApp(0);
+
+/* customers hockey stick */
+const YRS=[2026,2027,2028,2029,2030,2031];
+const SEGS=[
+ {k:"b2c",n:"B2C · Members",c:"var(--ink)",v:[null,519e3,1.564e6,3.43e6,5.95e6,9.11e6],users:["30+","1,000","3,000","6,000","10,000","15,000"],ulabel:"Matchmaking applicants",
+  rows:[["Who","Marriage-minded professionals, 25–38"],["Buys","The extensive report, the matchmaking application, and events"],["Today","30+ manual intakes by the founder, capped by her hours"],["From 2027","The app replaces intakes; expert reviewers approve"]]},
+ {k:"b2b",n:"B2B · Platforms",c:"var(--muted)",v:[0,150e3,600e3,1.6e6,3.2e6,5.0e6],users:["0","50K","200K","600K","1.3M","2M"],ulabel:"Assessments a year",
+  rows:[["Who","Marriage and matchmaking platforms, plus 100+ Saudi family and marriage associations"],["Buys","The voice assessment by API, per assessment"],["Price","$3 at launch (LOI), easing to $2 at volume"],["Contracts","1 in 2027, 2 in 2028, about 8 by 2031"]]},
+ {k:"b2g",n:"B2G · Government",c:"var(--red)",v:[0,0,150e3,400e3,800e3,1.35e6],users:["0","0","Pilot","1","2","3"],ulabel:"Government contracts",
+  rows:[["Who","Ministries of Justice and family-affairs bodies"],["Buys","Premarital assessment per partner, plus reporting"],["Saudi math","150,117 contracts × 2 × $2–3 = $600–900K a year"],["Timing","Pilot in 2028, Saudi contract 2029, GCC after"]]}
+];
+let custSel="all";
+function drawHockey(){
+  const svg=$("#hockey");svg.innerHTML="";const L=60,R=630,T=60,B=295,max=17e6;
+  const x=i=>L+(R-L)*i/(YRS.length-1), y=v=>B-(v/max)*(B-T);
+  const phases=[[0,1.1,"Manual","Founder intakes"],[1.1,1.6,"App live","Feb 2027"],[1.6,2.05,"B2B","contracts"],[2.05,5,"B2G + scale","Government and GCC"]];
+  phases.forEach((p,i)=>{const x1=L+(R-L)*p[0]/5,x2=L+(R-L)*p[1]/5;if(i%2===0)svg.appendChild(el("rect",{x:x1,y:T-44,width:x2-x1,height:B-T+44,fill:"var(--chip)"}));
+    svg.appendChild(el("text",{x:x1+6,y:T-28,"font-size":11,"font-weight":600,fill:"var(--ink)"},p[2]));svg.appendChild(el("text",{x:x1+6,y:T-14,"font-size":10,fill:"var(--muted)"},p[3]))});
+  [0,5e6,10e6,15e6].forEach(g=>{svg.appendChild(el("line",{x1:L,x2:R,y1:y(g),y2:y(g),stroke:"var(--grid)","stroke-width":1}));svg.appendChild(el("text",{x:L-8,y:y(g)+4,"text-anchor":"end","font-size":11,fill:"var(--muted)"},g?"$"+g/1e6+"M":"0"))});
+  const i0=1;/* 2026: revenue not established, so the curve starts in 2027 */
+  let base=YRS.map(()=>0);const bands={};
+  SEGS.forEach(s=>{const top=base.map((b,i)=>b+(s.v[i]??0));let d="M"+x(i0)+","+y(top[i0]);top.forEach((t,i)=>{if(i>i0)d+=" L"+x(i)+","+y(t)});for(let i=YRS.length-1;i>=i0;i--)d+=" L"+x(i)+","+y(base[i]);d+="Z";
+    const on=custSel==="all"||custSel===s.k;svg.appendChild(el("path",{d,fill:s.c,"fill-opacity":on?(s.k==="b2b"?.8:.92):.1,stroke:"var(--paper)","stroke-width":1}));bands[s.k]={base:base.slice(),top};base=top;});
+  const totals=base;
+  YRS.forEach((yr,i)=>{svg.appendChild(el("text",{x:x(i),y:B+22,"text-anchor":"middle","font-size":12,fill:"var(--muted)"},yr));
+    if(i<i0){svg.appendChild(el("text",{x:x(i)+6,y:B-24,"font-size":10.5,fill:"var(--muted)"},"Revenue not"));svg.appendChild(el("text",{x:x(i)+6,y:B-10,"font-size":10.5,fill:"var(--muted)"},"established"));return}
+    const val=custSel==="all"?totals[i]:SEGS.find(s=>s.k===custSel).v[i];const yy=custSel==="all"?y(totals[i]):y(bands[custSel].top[i]);
+    if(val>0){svg.appendChild(el("circle",{cx:x(i),cy:yy,r:3.5,fill:"var(--paper)",stroke:"var(--ink)","stroke-width":1.5}));const last=i===YRS.length-1;svg.appendChild(el("text",{x:x(i)+(last?-8:0),y:yy-10,"text-anchor":last?"end":"middle","font-size":12,"font-weight":600,fill:"var(--ink)"},fmt(val)))}});
+  $("#hockey-legend").innerHTML=SEGS.map(s=>`<span><i style="background:${s.c}"></i>${s.n}</span>`).join("");
+  if(custSel==="all"){$("#cust-who").textContent="All three customers · 2031";$("#cust-big").textContent=fmt(totals[5]);$("#cust-bigk").textContent="estimated revenue in 2031. From a founder-led manual service with 30+ reported intakes. Current revenue is not established in this presentation.";
+    $("#cust-rows").innerHTML=SEGS.map(s=>`<div class="row"><span class="k">${s.n}</span><span class="muted">${fmt(s.v[5])} in 2031 · ${s.users[5]} ${s.ulabel.toLowerCase()}</span></div>`).join("")+`<div class="row"><span class="k">The bend</span><span>The curve turns when the app removes the intake bottleneck in 2027.</span></div>`}
+  else{const s=SEGS.find(z=>z.k===custSel);$("#cust-who").textContent=s.n;$("#cust-big").textContent=fmt(s.v[5]);$("#cust-bigk").textContent="estimated in 2031 · "+s.users[5]+" "+s.ulabel.toLowerCase();
+    $("#cust-rows").innerHTML=s.rows.map(r=>`<div class="row"><span class="k">${r[0]}</span><span class="muted">${r[1]}</span></div>`).join("")+`<div class="row"><span class="k">${s.ulabel}</span><span class="num muted">${YRS.map((y,i)=>y+": "+s.users[i]).join(" · ")}</span></div>`}
+}
+seg($("#seg-cust"),v=>{custSel=v;drawHockey()});drawHockey();
+
+/* demand issues */
+const BN={
+ ops:[["Intakes","Every intake is a 30-minute analysis by the founder. This is the main constraint."],["Expert review","Reviewer hours cap how many reports are reviewed each week."],["Matching","Introductions are made by hand, one at a time."],["Events","One event a month limits new-member flow."],["The raise fixes it","The app takes over intake. A head of matchmaking and fractional expert reviewers take over review."]],
+ tech:[["No app yet","Applications and interviews are captured manually until the MVP is accepted."],["Arabic speech","Gulf dialects need a tuned transcription layer."],["Slow labels","Outcomes take months, so the dataset must start now."],["Compliance","Consent, encryption and Saudi data residency must be built in from the start."],["The raise fixes it","The MVP with a contracted engineer, then a CTO who owns the voice pipeline and data."]]
+};
+function showBn(k){$("#bn-rows").innerHTML=BN[k].map((r,i)=>`<div class="row"><span class="k">${r[0]}</span><span class="${i===BN[k].length-1?"":"muted"}">${r[1]}</span></div>`).join("")}
+seg($("#seg-bn"),showBn);showBn("ops");
+
+/* data cycle */
+const CY=[
+ {n:"Application",d:"Members state intentions and values and give consent. This frames everything the model reads next.",i:"Intentions, values, consent",o:"Context for the AI analysis"},
+ {n:"Voice interview",d:"Eight spoken answers about family, conflict, money and the future.",i:"Audio and transcript",o:"Raw signal for the AI"},
+ {n:"AI analysis",d:"Lumiora scores structured answers with versioned rules and the AI drafts an interpretation, with every statement traceable to its evidence. Pitch, pauses and speech rate are stored as exploratory data only and never generate conclusions on their own.",i:"Transcript, scores and acoustic measures",o:"A draft relational profile for the reviewer"},
+ {n:"Expert review",d:"A professional reviewer with relationship-psychology expertise rates the profile on a fixed rubric. Every rating becomes a training label.",i:"Draft profile",o:"Expert labels that correct the model"},
+ {n:"Decision",d:"Accepted, or not yet with growth recommendations. Reassessments show how people change over time.",i:"AI profile plus expert rating",o:"Acceptance labels and reapplication data"},
+ {n:"Introduction",d:"A matchmaker pairs two accepted members and records why.",i:"Two profiles",o:"A match hypothesis to test"},
+ {n:"Outcomes",d:"Second meeting, three months, six months, engagement, marriage. Collected with consent at each check-in.",i:"Member check-ins",o:"The ground truth no competitor has"},
+ {n:"Model retraining",d:"With consent, outcomes are linked back to the original assessments. Consented outcomes can support future evaluation and model improvement.",i:"Interviews joined to outcomes",o:"A sharper AI analysis for the next applicant"}
+];
+let cySel=2;
+function drawCycle(){
+  const svg=$("#cycle");svg.innerHTML="";const cx=280,cy=280,r=180;
+  svg.appendChild(el("circle",{cx,cy,r,fill:"none",stroke:"#3A3733","stroke-width":1}));
+  const ang=i=>-Math.PI/2+i*2*Math.PI/CY.length;
+  for(let i=0;i<CY.length;i++){const a1=ang(i)+0.14,a2=ang(i+1)-0.14;const p1=[cx+r*Math.cos(a1),cy+r*Math.sin(a1)],p2=[cx+r*Math.cos(a2),cy+r*Math.sin(a2)];
+    const hot=i===cySel,col=hot?"var(--red)":"#6B655E",w=hot?2.4:1.2;
+    svg.appendChild(el("path",{d:`M${p1[0]},${p1[1]} A${r},${r} 0 0 1 ${p2[0]},${p2[1]}`,fill:"none",stroke:col,"stroke-width":w}));
+    const tx=-Math.sin(a2),ty=Math.cos(a2),nx=Math.cos(a2),ny=Math.sin(a2);
+    svg.appendChild(el("path",{d:`M${p2[0]-tx*9+nx*5},${p2[1]-ty*9+ny*5} L${p2[0]},${p2[1]} L${p2[0]-tx*9-nx*5},${p2[1]-ty*9-ny*5}`,fill:"none",stroke:col,"stroke-width":w}));}
+  const a7=ang(7),a2n=ang(2),ri=r-28;
+  svg.appendChild(el("path",{d:`M${cx+ri*Math.cos(a7)},${cy+ri*Math.sin(a7)} Q ${cx} ${cy-20} ${cx+ri*Math.cos(a2n)},${cy+ri*Math.sin(a2n)}`,fill:"none",stroke:cySel===7?"var(--red)":"#6B655E","stroke-width":1.4,"stroke-dasharray":"4 5"}));
+  CY.forEach((c,i)=>{const a=ang(i),px=cx+r*Math.cos(a),py=cy+r*Math.sin(a);const g=el("g",{class:"cnode",tabindex:0,role:"button","aria-label":c.n,"data-i":i});
+    const on=i===cySel;g.appendChild(el("circle",{cx:px,cy:py,r:on?20:15,fill:on?"var(--red)":"#171717",stroke:on?"var(--red)":"#F4F1EA","stroke-width":1.4}));
+    g.appendChild(el("text",{x:px,y:py+4.5,"text-anchor":"middle","font-size":13,"font-weight":600,fill:"#F4F1EA"},i+1));
+    const cs=Math.cos(a),sn=Math.sin(a);let lx,ly,anc;
+    if(Math.abs(cs)<0.2){lx=px;ly=sn<0?py-30:py+42;anc="middle"}else{lx=px+(cs>0?28:-28);ly=py+5;anc=cs>0?"start":"end"}
+    g.appendChild(el("text",{x:lx,y:ly,"text-anchor":anc,"font-size":14,"font-weight":500,fill:on?"#F4F1EA":"#A9A199"},c.n));
+    svg.appendChild(g)});
+  svg.appendChild(el("text",{x:cx,y:cy+16,"text-anchor":"middle","font-size":15,"font-weight":500,fill:"#F4F1EA"},"Consented outcomes can support"));
+  svg.appendChild(el("text",{x:cx,y:cy+38,"text-anchor":"middle","font-size":15,"font-weight":500,fill:"#F4F1EA"},"future evaluation and model improvement"));
+  const c=CY[cySel];$("#cy-step").textContent="Stage "+(cySel+1)+" of "+CY.length;$("#cy-title").textContent=c.n;$("#cy-desc").textContent=c.d;$("#cy-in").textContent=c.i;$("#cy-out").textContent=c.o;
+}
+$("#cycle").addEventListener("click",ev=>{const g=ev.target.closest(".cnode");if(g){cySel=+g.dataset.i;drawCycle()}});
+$("#cycle").addEventListener("keydown",ev=>{const g=ev.target.closest(".cnode");if(g&&(ev.key==="Enter"||ev.key===" ")){ev.preventDefault();cySel=+g.dataset.i;drawCycle();const n=document.querySelector('#cycle .cnode[data-i="'+cySel+'"]');if(n)n.focus()}});
+drawCycle();
+
+/* projections */
+const STR=[{k:"sub",n:"Matchmaking + reports",c:"var(--ink)"},{k:"evt",n:"Events",c:"var(--hair)"},{k:"lic",n:"Licensing",c:"var(--muted)"},{k:"gov",n:"Government",c:"var(--red)"}];
+const AY=[{y:2027,yr:1,sub:425e3,evt:94e3,lic:150e3,gov:0,mem:1000,gm:58},{y:2028,yr:2,sub:1.328e6,evt:236e3,lic:600e3,gov:150e3,mem:3000,gm:66},{y:2029,yr:3,sub:2.93e6,evt:500e3,lic:1.6e6,gov:400e3,mem:6000,gm:70},{y:2030,yr:4,sub:5.05e6,evt:900e3,lic:3.2e6,gov:800e3,mem:10000,gm:73},{y:2031,yr:5,sub:7.69e6,evt:1.42e6,lic:5e6,gov:1.35e6,mem:15000,gm:75}];
+const Y10={y:2036,yr:10,sub:31.9e6,evt:4.8e6,lic:30e6,gov:5e6,mem:60000,gm:80};
+const P={1:{geo:"Riyadh",assess:"50K",team:"6",events:"10",markets:"1"},2:{geo:"Saudi Arabia",assess:"200K",team:"12",events:"20",markets:"1"},5:{geo:"Saudi Arabia + GCC",assess:"2.5M",team:"45",events:"100",markets:"5"},10:{geo:"Saudi, UAE, Singapore, Korea and Japan",assess:"17M",team:"160",events:"330",markets:"10"}};
+const rowOf=y=>y===10?Y10:AY.find(a=>a.yr===y);
+const tot=r=>STR.reduce((a,s)=>a+r[s.k],0);
+function drawCols(sel){
+  const svg=$("#p-cols");svg.innerHTML="";const L=56,T=30,B=280,max=17e6;const y=v=>B-(v/max)*(B-T);
+  [0,5e6,10e6,15e6].forEach(g=>{svg.appendChild(el("line",{x1:L,x2:520,y1:y(g),y2:y(g),stroke:"var(--grid)"}));svg.appendChild(el("text",{x:L-8,y:y(g)+4,"text-anchor":"end","font-size":11,fill:"var(--muted)"},g?"$"+g/1e6+"M":"0"))});
+  const bw=56,gap=(520-L-bw*5)/5;
+  AY.forEach((r,i)=>{const x=L+gap/2+i*(bw+gap);let b=0;const isSel=r.yr===sel;const far=r.yr>2;
+    STR.forEach(s=>{const v=r[s.k];if(!v)return;const h=(v/max)*(B-T);svg.appendChild(el("rect",{x,y:y(b+v),width:bw,height:Math.max(h,1),fill:s.c,"fill-opacity":isSel?1:(far?.4:.65)}));b+=v});
+    svg.appendChild(el("text",{x:x+bw/2,y:y(b)-8,"text-anchor":"middle","font-size":12,"font-weight":isSel?600:500,fill:"var(--ink)"},fmt(b)));
+    svg.appendChild(el("text",{x:x+bw/2,y:B+20,"text-anchor":"middle","font-size":12,fill:isSel?"var(--ink)":"var(--muted)","font-weight":isSel?600:400},"Y"+r.yr+" · "+r.y))});
+  const cx=540,isSel=sel===10;
+  svg.appendChild(el("line",{x1:530,x2:530,y1:T,y2:B,stroke:"var(--hair)","stroke-dasharray":"3 4"}));
+  svg.appendChild(el("rect",{x:cx,y:T+10,width:110,height:150,fill:isSel?"var(--ink)":"none",stroke:"var(--ink)","stroke-dasharray":isSel?"0":"4 4"}));
+  svg.appendChild(el("text",{x:cx+55,y:T+40,"text-anchor":"middle","font-size":11,fill:isSel?"var(--paper)":"var(--muted)"},"Year 10 · 2036"));
+  svg.appendChild(el("text",{x:cx+55,y:T+84,"text-anchor":"middle","font-size":28,"font-weight":500,fill:isSel?"var(--paper)":"var(--ink)"},fmt(tot(Y10))));
+  svg.appendChild(el("text",{x:cx+55,y:T+108,"text-anchor":"middle","font-size":11,fill:isSel?"var(--hair)":"var(--muted)"},"off this scale"));
+  svg.appendChild(el("text",{x:cx+55,y:T+128,"text-anchor":"middle","font-size":11,fill:isSel?"var(--hair)":"var(--muted)"},"direction, not plan"));
+  $("#p-legend").innerHTML=STR.map(s=>`<span><i style="background:${s.c}"></i>${s.n} <b class="num" style="font-weight:500">${fmt(rowOf(sel)[s.k])}</b></span>`).join("");
+}
+function drawLine(id,key,sel,fv,max,ticks){
+  const svg=$(id);svg.innerHTML="";const L=56,R=490,T=24,B=180;const pts=AY.concat([Y10]);const x=i=>L+(R-L)*i/(pts.length-1),y=v=>B-(v/max)*(B-T);
+  ticks.forEach(g=>{svg.appendChild(el("line",{x1:L,x2:R,y1:y(g),y2:y(g),stroke:"var(--grid)"}));svg.appendChild(el("text",{x:L-8,y:y(g)+4,"text-anchor":"end","font-size":11,fill:"var(--muted)"},fv(g)))});
+  let d="";pts.forEach((p,i)=>{d+=(i?" L":"M")+x(i)+","+y(p[key])});
+  svg.appendChild(el("path",{d:d+` L${x(pts.length-1)},${B} L${x(0)},${B}Z`,fill:"var(--ink)","fill-opacity":.06}));
+  svg.appendChild(el("path",{d,fill:"none",stroke:"var(--ink)","stroke-width":2}));
+  pts.forEach((p,i)=>{const on=p.yr===sel;svg.appendChild(el("circle",{cx:x(i),cy:y(p[key]),r:on?6:3.5,fill:on?"var(--red)":"var(--paper)",stroke:on?"var(--red)":"var(--ink)","stroke-width":1.5}));
+    svg.appendChild(el("text",{x:x(i),y:B+20,"text-anchor":"middle","font-size":11,fill:on?"var(--ink)":"var(--muted)"},"Y"+p.yr));
+    if(on){const last=i===pts.length-1;svg.appendChild(el("text",{x:x(i)+(last?-10:0),y:y(p[key])-12,"text-anchor":last?"end":"middle","font-size":13,"font-weight":600,fill:"var(--ink)"},fv(p[key])))}});
+}
+
+/* valuation */
+/* Ownership and round valuation are not yet agreed: stake-based outputs stay hidden until TERMS_CONFIRMED is true */
+const TERMS_CONFIRMED=false,INVEST=3e5;
+const V={1:{lo:null,hi:null,basis:"Proposed $300K for 10%; additional financing terms pending",stake:null,sk:"At entry"},2:{lo:13.9e6,hi:18.5e6,basis:"6–8× Year 2 revenue",stake:8.5,sk:"After the seed round"},5:{lo:77e6,hi:108e6,basis:"5–7× Year 5 revenue",stake:5.65,sk:"After the next priced round"},10:{lo:287e6,hi:430e6,basis:"4–6× Year 10 revenue",stake:4.5,sk:"After an assumed later round"}};
+function drawVal(sel){
+  const svg=$("#v-chart");svg.innerHTML="";const L=64,R=640,T=30,B=284;const y=v=>B-(Math.log10(v)-5)/4*(B-T);
+  [1e5,1e6,1e7,1e8,1e9].forEach(g=>{svg.appendChild(el("line",{x1:L,x2:R,y1:y(g),y2:y(g),stroke:"var(--grid)"}));svg.appendChild(el("text",{x:L-8,y:y(g)+4,"text-anchor":"end","font-size":11,fill:"var(--muted)"},fmt(g)))});
+  const ys=[1,2,5,10];const x=i=>L+70+i*((R-L-150)/3);let d="";const pts=[];
+  ys.forEach((yr,i)=>{const v=V[yr],on=yr===sel,xx=x(i);
+    if(v.lo==null){svg.appendChild(el("text",{x:xx,y:y(5e6),"text-anchor":"middle","font-size":12,"font-weight":on?600:500,fill:"var(--red)"},"To confirm"))}
+    else{const top=y(v.hi),bot=y(v.lo);svg.appendChild(el("rect",{x:xx-26,y:top,width:52,height:Math.max(bot-top,6),fill:on?"var(--ink)":"var(--hair)"}));
+      svg.appendChild(el("text",{x:xx,y:top-10,"text-anchor":"middle","font-size":12,"font-weight":on?600:500,fill:"var(--ink)"},rng(v.lo,v.hi)));
+      if(TERMS_CONFIRMED&&v.stake!=null){const sv=(v.lo+v.hi)/2*v.stake/100;d+=(d?" L":"M")+xx+","+y(sv);pts.push([xx,sv,on])}}
+    svg.appendChild(el("text",{x:xx,y:B+22,"text-anchor":"middle","font-size":12,fill:on?"var(--ink)":"var(--muted)","font-weight":on?600:400},"Year "+yr))});
+  if(TERMS_CONFIRMED&&d){svg.appendChild(el("path",{d,fill:"none",stroke:"var(--red)","stroke-width":2}));
+    pts.forEach(([xx,sv,on])=>{svg.appendChild(el("circle",{cx:xx,cy:y(sv),r:on?6:4,fill:on?"var(--red)":"var(--paper)",stroke:"var(--red)","stroke-width":1.6}));svg.appendChild(el("text",{x:xx+34,y:y(sv)+4,"font-size":12,"font-weight":on?600:400,fill:"var(--red)"},fmt(sv)))})}
+  $("#v-stake-legend").hidden=!TERMS_CONFIRMED;
+}
+function showYear(yv){
+  $$(".yr-seg").forEach(g=>[...g.children].forEach(b=>b.setAttribute("aria-pressed",b.dataset.v==yv)));
+  const r=rowOf(yv),p=P[yv];$("#p-geo").textContent=p.geo;$("#p-total").textContent=fmt(tot(r));$("#p-total").style.opacity=yv>=5?.62:1;
+  $("#p-kpis").innerHTML=[["Matchmaking applicants",r.mem.toLocaleString("en-US")],["Assessments a year",p.assess],["Events a year",p.events],["Markets",p.markets],["Team",p.team],["Gross margin (illustrative)",r.gm+"%"]].map(k=>`<div><span class="eyebrow">${k[0]}</span><span class="v num">${k[1]}</span></div>`).join("");
+  drawCols(yv);
+  drawLine("#p-mem","mem",yv,v=>v>=1000?(v/1000)+"K":String(v),65000,[0,20000,40000,60000]);
+  drawLine("#p-gm","gm",yv,v=>v+"%",100,[0,25,50,75,100]);
+  const v=V[yv];$("#v-val").textContent=v.lo==null?"To confirm":rng(v.lo,v.hi);$("#v-basis").textContent=v.basis;
+  if(TERMS_CONFIRMED&&v.lo!=null&&v.stake!=null){$("#v-stake").textContent=v.stake+"%";$("#v-stakek").textContent=v.sk;const lo=v.lo*v.stake/100,hi=v.hi*v.stake/100;$("#v-worth").textContent=rng(lo,hi);$("#v-mult").textContent=lo===hi?(lo/INVEST).toFixed(1)+"×":(lo/INVEST).toFixed(0)+"–"+(hi/INVEST).toFixed(0)+"×";}
+  else{$("#v-stake").textContent="To confirm";$("#v-stakek").textContent="Proposed entry stake: 10%; later dilution unresolved";$("#v-worth").textContent="Shown once terms are agreed";$("#v-mult").textContent="—";}
+  drawVal(yv);
+}
+$$(".yr-seg").forEach(g=>g.addEventListener("click",ev=>{const b=ev.target.closest("button");if(b)showYear(+b.dataset.v)}));
+showYear(1);
+
+/* competition */
+const DIMS=["Marriage intent","Cultural + family fit","Psychological assessment","AI analysis","Expert human review","Curated in-person"];
+const COMP={
+ nat:[["Maktoub",[2,2,2,2,2,2],"Planned capability coverage",true],["Melkah · ملكة",[2,2,1,0,1,0],"Claims 4,500+ marriages, $35–40 a month"],["Awaser",[2,2,1,0,0,0],"Paid Saudi app, psychiatrist-founded"],["AlKhattaba",[2,2,0,0,0,0],"8M users, 400K marriages (company claims)"],["Traditional khatabas",[2,2,0,0,0,1],"Every city"],["Muzz in Saudi",[2,1,0,1,0,0],"15M+ members globally (company figure)"],["Labayh",[0,2,2,0,2,0],"Online therapy, adjacent"]],
+ int:[["Maktoub",[2,2,2,2,2,2],"Planned capability coverage",true],["Muzz",[2,1,0,1,0,0],"15M+ members, YC S17 (company figure)"],["Hawaya",[2,2,0,0,0,0],"Match Group's Arab marriage app"],["Overtone",[1,0,1,2,0,0],"Voice AI dating, Match-backed"],["Hinge",[1,0,0,1,0,0],"Relationship-focused dating"],["Tinder",[0,0,0,1,0,0],"Match Group flagship"],["Bumble",[0,0,0,1,0,0],"Women-first dating"]]
+};
+const NOTES={
+ nat:[["Melkah · ملكة","The most direct Saudi rival. Nafath ID verification, family accounts managing up to four profiles, advisors, and profile questions answered by text or voice. It shows personality types and love languages but runs no assessment: voice is a profile feature, not an analysis. Self-reported 4,500+ marriages, subscriptions from about $35 a month to a $300 premium tier."],["Awaser","A psychiatrist-founded rival. Founded by psychiatrist Dr. Mohammed Alolayan, it filters by region, family, education and tribe, lets families manage accounts and charges a subscription. It has no AI matching today, and staff do not review profiles."],["AlKhattaba","Proves Saudis will use an app to marry at scale, but matching runs on profiles and filters."],["Traditional khatabas","Trusted and personal, with no science and no way to scale beyond one matchmaker's memory."]],
+ int:[["Match Group","Owns Tinder, Hinge and Hawaya. A potential strategic buyer category, not a head-on rival in the Gulf."],["Overtone","Voice AI without cultural trust or expert review. Evidence that voice is an emerging layer, and a potential licensing prospect."],["Muzz","The global Muslim marriage leader. Faith fit at scale, without compatibility science."]]
+};
+function showComp(k){
+  $("#matrix").innerHTML=`<thead><tr><th>Player</th>${DIMS.map(d=>`<th>${d}</th>`).join("")}<th style="text-align:left">Coverage</th><th style="text-align:left">Scale</th></tr></thead><tbody>`+
+   COMP[k].map(r=>{const s=r[1].reduce((a,b)=>a+b,0)/2;return `<tr class="${r[3]?"us":""}"><td>${r[0]}</td>${r[1].map(v=>`<td><span class="dot ${v===2?"f":v===1?"h":""}" title="${v===2?"Covers":v===1?"Partly":"Missing"}"></span></td>`).join("")}<td><div class="score-bar"><span style="width:${Math.max(s,0.2)/6*90}px"></span><b class="num" style="font-weight:500">${s}/6</b></div></td><td class="muted" style="text-align:left;font-size:13px">${r[2]}</td></tr>`}).join("")+"</tbody>";
+  $("#comp-notes").innerHTML=NOTES[k].map(n=>`<div><h4>${n[0]}</h4><p class="muted" style="font-size:15px">${n[1]}</p></div>`).join("");
+}
+seg($("#seg-comp"),showComp);showComp("nat");
+
+/* expansion */
+const GOV=[
+ {n:"Saudi Arabia",r:"gulf",tile:"9 min",tilek:"one divorce every nine minutes, 65% in the first year",big:"9 min",bigk:"one divorce every nine minutes in 2025, about 157 a day, and over 65% within the first year of marriage (Ministry of Justice and GASTAT)",
+  doing:[["Premarital screening","Mandatory before every marriage contract, but medical only"],["National platform","A state-run marriage platform under the Family Affairs Council has been proposed publicly (2024)"],["Demand","Research shows Saudis want psychological readiness checked before marriage, and Saudi men have asked for it"],["Culture","Families take part in the decision, so any solution must be private, Arabic-first and family-compatible"]],
+  fit:"Add a psychological readiness assessment to the premarital screening the state already runs, designed for Saudi family culture.",
+  src:[["Gulf News, 2025","https://gulfnews.com/world/gulf/saudi/short-lived-marriages-on-the-rise-in-saudi-arabia-as-65-of-divorces-occur-within-first-year-1.500195831"],["Gulf News","https://gulfnews.com/world/gulf/saudi/saudi-arabia-expert-proposes-creating-national-marriage-platform-1.1723543623945"],["Alasmari 2024","https://pubmed.ncbi.nlm.nih.gov/38583067/"],["Alhusseini et al. 2022","https://pubmed.ncbi.nlm.nih.gov/36398011/"]]},
+ {n:"United Arab Emirates",r:"gulf",tile:"~30%",tilek:"of divorces happen in the first year of marriage",big:"~30%",bigk:"of divorces happen within the first year of marriage (UAE Ministry of Justice, four emirates, 2020–2024)",
+  doing:[["Diagnosis","Psychologists quoted on the data blame a lack of compatibility, not a lack of love, and call for premarital counselling"],["Year of the Family","2026 is the UAE's Year of the Family"],["Marriage grants","Dh70,000 each, about 3,000 in 2026 from a Dh209M budget"],["Readiness","An FNC member proposed replacing the grant's age rule with a social and psychological readiness assessment"]],
+  fit:"Be the social and psychological readiness assessment the Federal National Council has already proposed, built for Emirati family culture instead of imported from Western dating apps.",
+  src:[["Khaleej Times","https://www.khaleejtimes.com/uae/uae-marriages-divorce-data-experts-concerned"],["Gulf News","https://gulfnews.com/amp/story/uae/3000-marriage-grants-planned-under-uaes-dh209m-allocation-1.500411324"],["Khaleej Times","https://www.khaleejtimes.com/uae/uae-birth-rates-emirati-families"]]},
+ {n:"Kuwait",r:"gulf",tile:"~50%",tilek:"of marriages registered in early 2025 ended in divorce",big:"~50%",bigk:"of marriages registered in the first half of 2025 ended in divorce, according to reports",
+  doing:[["Marriage","Marriage rates at a five-year low"],["Singles","Nearly half of citizens remain unmarried despite government support"],["Culture","A family-centred society where imported dating apps carry stigma"]],
+  fit:"A premarital readiness assessment for a government already paying to support marriage.",
+  src:[["Gulf News","https://gulfnews.com/world/gulf/kuwait/kuwait-50-of-marriages-ended-in-divorce-in-first-six-months-of-2025-1.500254015"],["Gulf News","https://gulfnews.com/world/gulf/kuwait/nearly-half-of-kuwaits-citizens-remain-unmarried-despite-government-support-1.1729333234698"]]},
+ {n:"China",r:"gulf",tile:"−20.5%",tilek:"marriages in 2024, the largest fall on record",big:"−20.5%",bigk:"fall in marriage registrations in 2024, from 7.68 million to about 6.1 million, while divorces rose",
+  doing:[["Marriages","About 6.1 million registrations in 2024, down from 7.68 million"],["Divorces","2.62 million, up 1.1%"],["Births","Fewer marriages feed directly into fewer births"]],
+  fit:"A licensing market for matchmaking platforms and local programmes, entered through partners.",
+  src:[["Asia News Network","https://asianews.network/china-records-6-1m-marriage-registrations-in-2024/"]]},
+ {n:"Singapore",r:"asia",tfr:0.87,tl:"0.87",big:"0.87",note:"The government built its own matchmaking app.",bigk:"resident fertility rate in 2025, a record low, with the citizen population expected to shrink from the early 2040s",
+  doing:[["<span class=\"mark\">FirstDate<svg viewBox=\"0 0 200 100\" preserveAspectRatio=\"none\" aria-hidden=\"true\"><path d=\"M18 58 C 6 26, 70 6, 128 10 C 186 14, 204 46, 182 72 C 160 94, 70 98, 34 82 C 14 73, 10 56, 30 40\"/></svg></span>","GovTech's dating platform, piloted in 2026: national digital ID, a values survey, one match at a time"],["Expansion","The age limit has already been raised to 45"],["Baby support","Almost S$70,000 in benefits per child"],["History","State matchmaking since the Social Development Unit of the 1980s"]],
+  fit:"License the voice and psychological layer to FirstDate, which already matches one person at a time but measures only stated preferences.",
+  src:[["Al Jazeera","https://www.aljazeera.com/economy/2026/10/5/singapore-turns-matchmaker-amid-rock-bottom-birthrate"],["Malay Mail","https://www.malaymail.com/news/singapore/2026/10/21/love-upgraded-singapores-govt-dating-platform-firstdate-raises-age-limit-to-45/239999"],["Demographer","https://demographer.org/analysis/south-korea-japan-singapore-fertility/"]]},
+ {n:"South Korea",r:"asia",tfr:0.80,tl:"0.80",big:"0.80",bigk:"fertility rate in 2025, the world's lowest",
+  doing:[["Seoul","City-run matchmaking: 3,286 people applied for 100 places in the first season"],["Incheon","Five matchmaking events a year, with wedding subsidies under review"],["Busan","District matchmaking with cash for matched couples"],["Cash","National and local payments to marry and to have children"]],
+  fit:"Replace headcount-based blind dates with assessed matches, so municipal budgets produce relationships rather than events.",
+  src:[["Korea Herald","https://www.koreaherald.com/article/10491758"],["Demographer","https://demographer.org/analysis/south-korea-japan-singapore-fertility/"]]},
+ {n:"Taiwan",r:"asia",tfr:0.8,tl:"~0.8",big:"~0.8",bigk:"fertility rate in 2025, now below South Korea, with births down to 107,812",
+  doing:[["Births","107,812 in 2025, down 27,044 in a single year"],["Subsidies","New family subsidies announced in 2025"],["Signal","The fastest fall in East Asia"]],
+  fit:"License assessed matchmaking to government programmes and platforms.",
+  src:[["AsiaNews","https://www.asianews.it/en/east-asia/taiwan/taiwan-s-birthrate-plummets-below-south-korea-s"],["Al Jazeera","https://www.aljazeera.com/news/2025/9/18/taiwan-battles-low-birth-rate-with-new-family-subsidies"]]},
+ {n:"Japan",r:"asia",tfr:1.14,tl:"1.14",big:"1.14",bigk:"fertility rate in 2025 (provisional), with fewer than one million births",
+  doing:[["Tokyo Enmusubi","The Tokyo government's matchmaking app, launched 2024: ID, proof of single status and income, an interview, ¥11,000 fee"],["Demand","36,000 applied, fewer than half accepted, about 16,000 members"],["Results","265 marriages and 760 long-term couples"],["Gap","Nearly 70% of people interested in marriage were not actively searching"]],
+  fit:"Tokyo already vets applicants by interview and offers an optional EQ test. Maktoub turns that interview into a scored, expert-reviewed assessment.",
+  src:[["DatingNews","https://www.datingnews.com/industry-trends/tokyo-says-its-government-run-dating-app-has-led-to-hundreds-of-marriages/"],["Demographer","https://demographer.org/analysis/south-korea-japan-singapore-fertility/"]]},
+ {n:"Italy",r:"asia",tfr:1.18,tl:"1.18",big:"1.18",bigk:"fertility rate in 2024, an all-time low, with 369,944 births",
+  doing:[["Births","369,944 in 2024, about 36% below 2008"],["Fertility","Below even the 1995 low of 1.19"],["Signal","Proof this is not only an Asian problem"]],
+  fit:"A later licensing market, and Europe's evidence that falling marriage and births are global.",
+  src:[["Istat","https://www.istat.it/en/press-release/births-and-fertility-of-the-resident-population-year-2024/"]]}
+];
+let gSel=0;const MK='<svg viewBox="0 0 200 100" preserveAspectRatio="none" aria-hidden="true"><path d="M18 58 C 6 26, 70 6, 128 10 C 186 14, 204 46, 182 72 C 160 94, 70 98, 34 82 C 14 73, 10 56, 30 40"/></svg>';
+function drawTfr(){
+  const g=GOV[gSel];const gulf=g.r==="gulf";$("#gulf-vis").hidden=!gulf;$("#asia-vis").hidden=gulf;
+  $("#gulf-tiles").innerHTML=GOV.filter(x=>x.r==="gulf").map((x,i)=>`<div class="${GOV.indexOf(x)===gSel?"on":""}" data-i="${GOV.indexOf(x)}"><span class="eyebrow" style="color:inherit;opacity:.7">${x.n}</span><div class="v num">${x.tile}</div><span class="note">${x.tilek}</span></div>`).join("");
+  const svg=$("#tfr");svg.innerHTML="";const A=GOV.filter(x=>x.r==="asia");const L=130,R=600,T=16,rowH=52,max=2.5,N=A.length;const x=v=>L+(R-L)*v/max;
+  [0,0.5,1,1.5,2,2.5].forEach(t=>{svg.appendChild(el("line",{x1:x(t),x2:x(t),y1:T,y2:T+rowH*N,stroke:"var(--grid)"}));svg.appendChild(el("text",{x:x(t),y:T+rowH*N+18,"text-anchor":"middle","font-size":11,fill:"var(--muted)"},t))});
+  A.forEach((c,i)=>{const y=T+i*rowH+rowH/2,on=GOV.indexOf(c)===gSel;
+    svg.appendChild(el("text",{x:L-12,y:y+4,"text-anchor":"end","font-size":13,"font-weight":on?600:500,fill:on?"var(--ink)":"var(--muted)"},c.n));
+    svg.appendChild(el("rect",{x:L,y:y-10,width:x(c.tfr)-L,height:20,fill:on?"var(--red)":"var(--ink)","fill-opacity":on?1:.75}));
+    svg.appendChild(el("text",{x:x(c.tfr)+8,y:y+4,"font-size":12,"font-weight":600,fill:on?"var(--red)":"var(--ink)"},c.tl));
+    svg.appendChild(el("rect",{x:0,y:y-rowH/2,width:640,height:rowH,fill:"transparent",style:"cursor:pointer","data-i":GOV.indexOf(c)}))});
+  svg.appendChild(el("line",{x1:x(2.1),x2:x(2.1),y1:T-6,y2:T+rowH*N,stroke:"var(--red)","stroke-width":1.4,"stroke-dasharray":"5 4"}));
+  svg.appendChild(el("text",{x:x(2.1)-6,y:T+6,"text-anchor":"end","font-size":11,fill:"var(--red)"},"Replacement 2.1"));
+  $("#g-name").innerHTML=g.n+(g.note?` · <span class="mark" style="color:var(--red)">${g.note}${MK}</span>`:"");$("#g-big").textContent=g.big;$("#g-bigk").textContent=g.bigk;
+  $("#g-doing").innerHTML=g.doing.map(r=>`<div class="row"><span class="k">${r[0]}</span><span class="muted">${r[1]}</span></div>`).join("");
+  $("#g-fit").textContent=g.fit;$("#g-src").innerHTML="Sources: "+g.src.map(s=>`<a href="${s[1]}" target="_blank" rel="noopener">${s[0]}</a>`).join(" · ");
+  [...$("#seg-gov").children].forEach((b,i)=>b.setAttribute("aria-pressed",i===gSel));
+}
+seg($("#seg-gov"),v=>{gSel=+v;drawTfr()});
+$("#tfr").addEventListener("click",ev=>{const r=ev.target.closest("[data-i]");if(r){gSel=+r.dataset.i;drawTfr()}});
+$("#gulf-tiles").addEventListener("click",ev=>{const r=ev.target.closest("[data-i]");if(r){gSel=+r.dataset.i;drawTfr()}});
+drawTfr();
+
+/* exit calculator */
+const SCEN=[
+ {n:"Early tuck-in",v:25,y:4,d:"A strategic buys the data and the Gulf foothold early, before licensing scales. Illustrative early acquisition scenario; no buyer interest or offer is established."},
+ {n:"Strategic at scale",v:90,y:6,d:"A global platform buys licensing and the GCC base. An illustrative outcome requiring commercial scale, evidence of value and an interested buyer."},
+ {n:"Category outcome",v:300,y:10,d:"Maktoub becomes the assessment layer for marriage across the region. Upside, not the plan."},
+ {n:"Modest sale",v:10,y:3,d:"An acqui-hire or small sale if licensing is slow. Capital recovery depends on sale value, dilution, transaction terms and costs."}
+];
+/* Illustrative dilution: milestone stakes carried forward to intermediate years */
+const stakeFor=y=>y<2?10:y<5?8.5:y<10?5.65:4.5;
+const sc=$("#scen");sc.innerHTML=SCEN.map((s,i)=>`<button aria-pressed="${i===0}" data-i="${i}"><span class="eyebrow">${fmt(s.v*1e6)} · Year ${s.y}</span><b>${s.n}</b><span class="muted" style="font-size:13px">${s.d}</span></button>`).join("");
+sc.addEventListener("click",ev=>{const b=ev.target.closest("button");if(!b)return;const s=SCEN[+b.dataset.i];$("#c-val").value=s.v;$("#c-yr").value=s.y;calc()});
+function calc(){
+  const v=+$("#c-val").value*1e6,y=+$("#c-yr").value,sec=+$("#c-sec").value/100,st=stakeFor(y);
+  $("#c-val-l").textContent=fmt(v);$("#c-yr-l").textContent="Year "+y+" · "+(2026+y);$("#c-sec-l").textContent=Math.round(sec*100)+"% of holding";
+  const roundVal=y<=3?16.2e6:y<=5?25e6:77e6;const secProceeds=st/100*sec*roundVal;
+  if(!TERMS_CONFIRMED){$("#c-out").textContent="To confirm";$("#c-sub").textContent="The proposed entry stake is 10% for $300,000. Return calculations remain paused until the additional $200,000 financing terms and subsequent dilution assumptions are defined.";$("#c-grid").hidden=true;[...sc.children].forEach((b,i)=>{const s=SCEN[i];b.setAttribute("aria-pressed",s.v*1e6===v&&s.y===y)});return}
+  $("#c-grid").hidden=false;
+  const exitStake=st*(1-sec),gross=v*exitStake/100*0.96,net=gross+secProceeds,mult=net/INVEST,irr=Math.pow(Math.max(mult,1e-4),1/y)-1;
+  $("#c-out").textContent=fmt(net);
+  $("#c-sub").textContent=sec>0?`${fmt(gross)} at exit plus ${fmt(secProceeds)} from earlier secondaries`:`${exitStake.toFixed(2)}% of ${fmt(v)}, less transaction costs`;
+  $("#c-stake").textContent=exitStake.toFixed(2)+"%";$("#c-mult").textContent=mult.toFixed(1)+"×";
+  $("#c-irr-box").hidden=sec>0;$("#c-irr").textContent=Math.pow(Math.max(mult,1e-4),1/y).toFixed(2)+"× a year";
+  [...sc.children].forEach((b,i)=>{const s=SCEN[i];b.setAttribute("aria-pressed",s.v*1e6===v&&s.y===y)});
+}
+["#c-val","#c-yr","#c-sec"].forEach(s=>$(s).addEventListener("input",calc));calc();
+
+/* team */
+const TEAM=[
+ {r:"Founder & CEO",who:"Deena Al Jassasi",when:"In seat",m:"Vision, fundraising, platform and government partnerships, product direction and the review standard every reviewer and matchmaker follows.",req:["Previous mental-health tech company","PTSD research at McGill and the Douglas","Human behaviour facilitator and event host","Arabic and English, deep Riyadh network"],d90:["Close the round and incorporate","Accept the MVP","Hire the CTO and head of matchmaking","Convert the LOI into a paid pilot"]},
+ {r:"CTO · Voice AI lead",who:"Hiring",when:"Month 4",m:"Own the voice pipeline end to end: application, Arabic transcription, the AI report, review tools, payments and the outcome dataset.",req:["7+ years shipping production ML or speech systems","Arabic speech recognition or NLP experience","Mobile and backend, security by default","Has built under data-protection law, ideally PDPL"],d90:["Take over the MVP from the contracted engineer","Tune Gulf-dialect transcription","Ship consent, encryption and Apple Pay","Design the outcome-label schema"]},
+ {r:"Relationship scientist",who:"Fractional",when:"On funding",m:"Design the interview, the review rubric and the validation study that proves the signal.",req:["PhD in psychology or relationship science","Published work on couples or marital outcomes","Research ethics and consent design","Comfortable working with ML engineers"],d90:["Finalise the eight interview questions","Write the review rubric","Define outcome measures","Draft the validation study"]},
+ {r:"Lead reviewer + expert reviewers",who:"Fractional network",when:"On funding",m:"Review every AI analysis against the rubric, approve reports and recommend acceptance. Self-insight, never diagnosis.",req:["Postgraduate training in psychology or relationship science","Experience in relationship coaching, counselling or psychometrics","Arabic fluency and cultural sensitivity","Discretion with sensitive data"],d90:["Review the first applications to rubric","Set acceptance and escalation rules","Calibrate with blind second reviews","Train two more reviewers"]},
+ {r:"Head of matchmaking",who:"Hiring",when:"Month 6",m:"Take introductions off the founder and turn her judgement into a repeatable process.",req:["Matchmaking, concierge or HR background","Fluent in Gulf family dynamics","Exceptional discretion","Comfortable working from AI and expert reports"],d90:["Own all introductions","Hit a weekly introduction target","Document the matching playbook","Collect every outcome label on time"]},
+ {r:"Partnerships & government lead",who:"Hiring",when:"Year 2",m:"Sell licensing to platforms and the premarital assessment to ministries.",req:["Enterprise or government sales in Saudi Arabia","Experience with Etimad procurement","Arabic and English","A network in family-affairs and justice bodies"],d90:["Convert the LOI to a contract","Open two more platform pilots","Prepare the Ministry of Justice proposal","Build the pricing and reporting pack"]},
+ {r:"Community & brand lead",who:"Hiring",when:"Year 2",m:"Run the event engine, partner co-hosting, content and the private circle.",req:["Events or community building in Riyadh","Partnerships with hospitality and wellness brands","Taste that matches the brand","Owns conversion, not just attendance"],d90:["Move to two events a month","Lift conversion above 20%","Launch the referral circle","Build the content calendar"]}
+];
+const tg=$("#team-grid"),rd=$("#role-detail");
+tg.innerHTML=TEAM.map((t,i)=>`<button class="role" aria-expanded="false" aria-controls="role-detail" data-i="${i}"><span class="when-chip">${t.when}</span><h4>${t.r}</h4><span class="muted">${t.who}</span></button>`).join("");
+tg.addEventListener("click",ev=>{const b=ev.target.closest(".role");if(!b)return;const open=b.getAttribute("aria-expanded")==="true";$$(".role").forEach(x=>x.setAttribute("aria-expanded","false"));if(open){rd.hidden=true;return}
+  b.setAttribute("aria-expanded","true");const t=TEAM[+b.dataset.i];rd.innerHTML=`<div><span class="eyebrow">Mandate · ${t.r}</span><p style="margin-top:10px">${t.m}</p></div><div><span class="eyebrow">${t.when==="In seat"?"Background":"Requirements"}</span><ul>${t.req.map(x=>`<li>${x}</li>`).join("")}</ul></div><div><span class="eyebrow">First 90 days</span><ul>${t.d90.map(x=>`<li>${x}</li>`).join("")}</ul></div>`;rd.hidden=false});
+tg.querySelector(".role").click();
+
+
+/* raise */
+const FUNDS=[
+ {n:"Product and AI",v:175e3,c:"var(--ink)",items:"90-day MVP with one senior engineer $60K · CTO from month 4 $70K · design, penetration testing and independent QA $15K · speech, AI, identity verification and hosting $20K · Saudi data-residency and PDPL review $10K"},
+ {n:"Expert review and matchmaking",v:105e3,c:"var(--muted)",items:"Fractional expert reviewers $45K · head of matchmaking from month 6 $35K · relationship scientist $25K"},
+ {n:"Founder and operations",v:85e3,c:"var(--hair)",items:"Founder salary $60K · incorporation, Saudi counsel, accounting and zakat $25K"},
+ {n:"Growth and community",v:75e3,c:"var(--red)",items:"Events $40K · partnerships and PR $20K · brand and content $15K"},
+ {n:"Validation study",v:20e3,c:"var(--grid)",items:"Outcome tracking, research ethics, consent design and the six-month cohort"},
+ {n:"Reserve",v:40e3,c:"var(--chip)",items:"Held back for overruns or delayed funding. Released only by decision"}
+];
+let fSel=0;
+function drawFunds(){
+  $("#alloc").innerHTML=FUNDS.map((f,i)=>`<button aria-pressed="${i===fSel}" data-i="${i}" style="flex:${f.v};background:${f.c}" aria-label="${f.n}, ${fmt(f.v)}"><span style="color:${i<2?"var(--paper)":"var(--ink)"}">${f.v/5e3}%</span></button>`).join("");
+  $("#fund-rows").innerHTML=FUNDS.map((f,i)=>`<button class="fund-row" aria-pressed="${i===fSel}" data-i="${i}"><i style="background:${f.c};border:1px solid var(--ink)"></i><span><span class="fname">${f.n}</span><span class="fbar"><b style="width:${f.v/175e3*100}%;background:${i===fSel?"var(--red)":"var(--ink)"}"></b></span></span><span class="items">${i===fSel?f.items:f.v/5e3+"% of the raise"}</span><span class="amt">${fmt(f.v)}</span></button>`).join("");
+}
+function pickFund(ev){const b=ev.target.closest("button[data-i]");if(!b)return;fSel=+b.dataset.i;drawFunds()}
+$("#alloc").addEventListener("click",pickFund);$("#fund-rows").addEventListener("click",pickFund);drawFunds();
+(function(){const svg=$("#runway");const M=[28,22,22,26,26,26,27,27,27,27,27,27,25,25,24,24,25,25];const L=52,R=505,T=24,B=250,max=500;const x=i=>L+(R-L)*i/18,y=v=>B-(v/max)*(B-T);
+  [0,100,200,300,400,500].forEach(g=>{svg.appendChild(el("line",{x1:L,x2:R,y1:y(g),y2:y(g),stroke:"var(--grid)"}));svg.appendChild(el("text",{x:L-8,y:y(g)+4,"text-anchor":"end","font-size":11,fill:"var(--muted)"},"$"+g+"K"))});
+  svg.appendChild(el("rect",{x:L,y:y(500),width:R-L,height:y(460)-y(500),fill:"var(--chip)"}));
+  svg.appendChild(el("text",{x:L+8,y:y(480)+4,"font-size":11,fill:"var(--muted)"},"Reserve $40K"));
+  let c=0,d="M"+x(0)+","+y(0);M.forEach((m,i)=>{c+=m;d+=" L"+x(i+1)+","+y(c)});
+  svg.appendChild(el("path",{d:d+` L${x(18)},${B} L${x(0)},${B}Z`,fill:"var(--ink)","fill-opacity":.07}));
+  svg.appendChild(el("path",{d,fill:"none",stroke:"var(--ink)","stroke-width":2}));
+  const ms=[[3,"MVP accepted"],[6,"Matchmaking lead"],[9,"Paid B2B pilot"],[18,"Next round"]];
+  let cum=[0];M.forEach(m=>cum.push(cum[cum.length-1]+m));
+  ms.forEach(([m,t],k)=>{svg.appendChild(el("circle",{cx:x(m),cy:y(cum[m]),r:4.5,fill:"var(--red)"}));const last=m===18;svg.appendChild(el("text",{x:x(m)+(last?-8:8),y:y(cum[m])+(k%2?18:-10),"text-anchor":last?"end":"start","font-size":11,"font-weight":600,fill:"var(--red)"},t))});
+  [0,3,6,9,12,15,18].forEach(m=>svg.appendChild(el("text",{x:x(m),y:B+20,"text-anchor":"middle","font-size":11,fill:"var(--muted)"},"M"+m)));
+})();
+const LANES=[
+ {n:"Product + engineering",o:"Senior engineer · fractional technical lead <span class=\"tbc\" style=\"margin:4px 0 0\">Confirm</span>",c:["App flow: secure voice recording, transcription, AI draft and applicant admin. Audit the existing Supabase and n8n. A working three-part investor demo.","Payments, consent controls, the reviewer interface, production-grade logging, secure release and correction, bilingual QA.","Harden the mobile experience, fix bugs and latency, build the matching workflow. App Store readiness as a stretch goal."]},
+ {n:"Science + quality",o:"Lead psychometrician · reviewers",c:["Hire and vet the lead psychometrician. Agree the construct map, draft the rubric, the reviewer case test and the transcription benchmark.","Calibrate reviewers. Pilot the standardised interview, log every expert change, refine the report and its limits.","Target 50 invited assessments, 100 at most. Measure reviewer agreement, comprehension and errors. Write the validation plan."]},
+ {n:"Brand + acquisition",o:"Founder · community",c:["Premium identity and bilingual onboarding. Invite high-quality pilot candidates. Refine the events and referral proposition.","Test narrative clarity, pricing, consent and friction. Improve sign-up.","Assess the candidate mix and qualified pool, test paid conversion, make the first carefully curated introductions."]},
+ {n:"Operations + finance",o:"Part-time operations lead",c:["Part-time operations trial, weekly plans, accounting and invoice controls, a founder exception dashboard, bank and compliance structure.","Procedures for privacy, escalation, delayed reports and outreach failures. Monthly ledger reconciliation.","Unit cost per reviewed report, quality and match outcomes, hiring lessons, the first operating review."]}
+];
+function show90(v){v=+v;
+  const hd=["Days 1–30","Days 31–60","Days 61–90"],sub=["Foundation · core tech demonstrable","Functional end to end","Pilot and production readiness"];
+  $("#lanes").innerHTML=`<thead><tr><th>Workstream</th>${hd.map((h,i)=>`<th class="${v===i?"on":""}${i===0?" redline":""}">${h}<b>${sub[i]}</b></th>`).join("")}</tr></thead><tbody>`+
+   LANES.map(l=>`<tr><td><b>${l.n}</b><span>${l.o}</span></td>${l.c.map((c,i)=>`<td class="${v===-1||v===i?"on":""}${i===0?" redline":""}">${c}</td>`).join("")}</tr>`).join("")+"</tbody>";}
+seg($("#seg-90"),show90);show90(0);
+
+
+/* build phases */
+const BUILD=[
+ {t:"Launch the MVP",g:"Option A: the structured assessment",items:[["Days 1–30","Audit the existing Supabase code, confirm architecture, mobile foundation, authentication, initial intake, working audio recording"],["Days 31–60","Full assessment engine, transcription and acoustic processing, free and reviewed reports, payments, matchmaking admin, identity verification"],["Days 61–90","Arabic and English testing, security and recovery tests, privacy documentation, App Store and Google Play submission"]],
+  accept:"A tested release candidate, submitted to both stores, with documented handover and recovery procedures. First demo as early as possible: voice to transcript, preliminary AI report, secure admin view.",who:"One senior engineer sourced and vetted by Lemon.io, with design, penetration testing and QA contracted separately",cost:"About $75K of the product budget",unlock:"The proposed payment milestone, and the founder off intakes"},
+ {t:"Adapt and scale",g:"Option B: adaptive AI interviewing",items:[["Adaptive follow-ups","AI selects follow-up questions from an approved framework, bounded by reviewer controls"],["Lumiora Premium","Monthly and annual plans, additional assessments and reassessment"],["Reviewer scale","Assignment queues and editable AI drafts so each reviewer handles far more applications"],["Saudi hosting","Evaluate HUMAIN speech APIs and Saudi data residency"]],
+  accept:"Adaptive interviews running inside approved limits, with reviewer time per application measurably lower than in the MVP.",who:"The CTO, who joins in month 4 and takes ownership from the contracted engineer",cost:"CTO salary plus about $10K of AI and hosting",unlock:"Premium revenue, and enough throughput for the paid B2B pilot"},
+ {t:"License",g:"Lumiora as a product others buy",items:[["Partner API","The API layer for the LOI platform and the next licensing customers"],["Longitudinal records","Repeat assessments compared over time, with retention rules set by legal review"],["Research governance","Consent and permissions for the six-month validation cohort"],["Government reporting","Aggregated, anonymised reporting for a ministry pilot"]],
+  accept:"The first platform integrated by API and billed per assessment, and outcome labels collected from the first cohort.",who:"The CTO plus the relationship scientist",cost:"The rest of the product budget and the validation study",unlock:"Gate 4, the next round and government contracts"}
+];
+function showBuild(i){i=+i;const b=BUILD[i];
+  $("#build-bar").innerHTML=BUILD.map((p,k)=>`<div class="${k===i?"on":""}"><span class="eyebrow ${k===i?"":"muted"}">${["Days 1–90","Months 4–9","Months 10–18"][k]}</span><b style="font-weight:500">${p.t}</b><span class="muted" style="font-size:13px">${p.g}</span></div>`).join("");
+  $("#b-items").innerHTML=b.items.map(r=>`<li><b>${r[0]}</b><span class="muted">${r[1]}</span></li>`).join("");
+  $("#b-accept").textContent=b.accept;$("#b-who").textContent=b.who;$("#b-cost").textContent=b.cost;$("#b-unlock").textContent=b.unlock;}
+seg($("#seg-build"),showBuild);showBuild(0);
+
+/* nav */
+const links=$$("#nav a");
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){const id=e.target.id;links.forEach(a=>a.classList.toggle("on",a.getAttribute("href")==="#"+id));const on=links.find(a=>a.classList.contains("on"));if(on){const n=$("#nav");n.scrollLeft=on.offsetLeft-n.offsetLeft-24}noteSection(id)}})},{rootMargin:"-45% 0px -50% 0px"});
+$$("main section[id]").forEach(s=>io.observe(s));
+})();
+</script>
+
+</body>
+</html>
