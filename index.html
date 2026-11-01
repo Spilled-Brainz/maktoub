@@ -692,6 +692,16 @@ button{cursor:pointer}
       <p class="label" id="successEyebrow">Maktoub</p>
       <h3 id="successTitle">Thank you.</h3>
       <p id="successCopy"></p>
+      <form id="signupBooking" hidden style="margin-top:24px">
+        <h3>Choose your introductory call</h3>
+        <p>Free · 30 minutes · Riyadh time (UTC+3). Choose a preferred time below, then verify your email to submit the request. Your appointment is confirmed after founder approval.</p>
+        <div class="form-grid">
+          <div class="field"><label for="signupDate">Preferred date</label><input id="signupDate" type="date" required></div>
+          <div class="field"><label for="signupTime">Preferred time · Riyadh</label><select id="signupTime" required></select></div>
+        </div>
+        <p id="signupBookingMessage" role="status" style="margin-top:16px"></p>
+        <button class="btn btn-solid" id="signupBookingContinue" type="submit">Continue with this time →</button>
+      </form>
       <div class="success-actions">
         <a class="btn btn-solid" href="/login" data-portal-link id="successLogin" hidden>Sign in to request a time →</a>
         <button class="btn btn-line" type="button" data-close-success>Close →</button>
@@ -820,7 +830,7 @@ button{cursor:pointer}
   var modal=$('applyModal'), pathField=$('pathField'), title=$('modalTitle'), eyebrow=$('modalEyebrow');
   var applyForm=$('applyForm'), applyError=$('applyError'), applicationSuccess=$('applicationSuccess'), successEyebrow=$('successEyebrow'), successTitle=$('successTitle'), successCopy=$('successCopy'), successLogin=$('successLogin');
   function lockScroll(on){document.body.style.overflow=on?'hidden':''}
-  function resetApplyState(){applyForm.reset();$('city').value='Riyadh';$('country_iso2').value='SA';$('preferred_language').value='en';applyForm.style.display='';applicationSuccess.classList.remove('visible');applyError.classList.remove('visible');applyError.textContent='';successLogin.hidden=true}
+  function resetApplyState(){applyForm.reset();$('city').value='Riyadh';$('country_iso2').value='SA';$('preferred_language').value='en';applyForm.style.display='';applicationSuccess.classList.remove('visible');applyError.classList.remove('visible');applyError.textContent='';successLogin.hidden=true;$('signupBooking').hidden=true}
   function openModal(path){
     resetApplyState();pathField.value=path;var whyLabel=$('whyLabel');if(whyLabel){whyLabel.textContent=path==='matchmaking'?'How do you want your ideal partner to make you feel?':path==='event'?'What interests you about this event?':'What are you looking for more of?';}var whyInput=$('why');whyInput.required=path==='matchmaking';whyInput.placeholder=path==='matchmaking'?'In your own words — a few words are enough.':'A few words are enough.';document.querySelector('#consent + span').textContent=path==='event'?'I agree to be contacted privately about this event and my Maktoub registration.':'I agree to be contacted privately about Maktoub matchmaking, the social club and onboarding.';applyForm.querySelector('button[type=submit]').textContent=path==='event'?'Register interest →':'Continue →';
     if(path==='matchmaking'){title.textContent='Join Maktoub matchmaking.';eyebrow.textContent='Private matchmaking / founding application'}
@@ -863,14 +873,47 @@ button{cursor:pointer}
       applyForm.style.display='none';
       successEyebrow.textContent=path==='matchmaking'?'Private matchmaking':isEvent?MAKTOUB_EVENT.title:'Social club';
       successTitle.textContent=path==='matchmaking'?'Welcome to your next step.':isEvent?'Interest registered.':'Thank you for your interest.';
-      successCopy.textContent=path==='matchmaking'?'We’ve received your details. Your private profile is being built. Sign in with your email to choose a preferred intake time; we’ll confirm availability and send the appointment details.':isEvent?'We’ve registered your interest for '+MAKTOUB_EVENT.title+'. We’ll contact you privately with the next step.':'We’ve received your social club interest. We’ll be in touch privately when there is something relevant for you.';
-      successLogin.hidden=path!=='matchmaking';successLogin.textContent='Sign in to request a time →';
+      successCopy.textContent=path==='matchmaking'?'Your application is saved. Choose your preferred introductory call time below.':isEvent?'We’ve registered your interest for '+MAKTOUB_EVENT.title+'. We’ll contact you privately with the next step.':'We’ve received your social club interest. We’ll be in touch privately when there is something relevant for you.';
+      successLogin.hidden=path!=='matchmaking';successLogin.textContent='Already verified? Open your booking →';
+      if(path==='matchmaking')showSignupCalendar(payload.email);
       applicationSuccess.classList.add('visible');
     }catch(error){
       applyError.textContent=error.message||'Your request could not be completed. Please try again.';applyError.classList.add('visible');
     }finally{
       b.disabled=false;b.textContent=path==='event'?'Register interest →':'Continue →';
     }
+  });
+
+  // Show the calendar immediately after signup; keep verification before a booking write.
+  var signupEmail='';
+  function refreshSignupTimes(){
+    var date=$('signupDate'), time=$('signupTime'), previous=time.value;
+    time.replaceChildren();
+    INTAKE.times.forEach(function(t){
+      var ms=Date.parse(date.value+'T'+t+':00+03:00');
+      if(ms>=Date.now()+48*3600000&&ms<=Date.now()+30*86400000){
+        var option=document.createElement('option');option.value=t;option.textContent=t+' Riyadh';time.appendChild(option);
+      }
+    });
+    if([].some.call(time.options,function(o){return o.value===previous}))time.value=previous;
+    if(!time.options.length){var empty=document.createElement('option');empty.value='';empty.textContent='Choose another date';time.appendChild(empty)}
+  }
+  function showSignupCalendar(email){
+    signupEmail=email;$('signupBooking').hidden=false;$('signupBookingMessage').textContent='';
+    var date=$('signupDate'), now=Date.now();
+    date.min=new Date(now+51*3600000).toISOString().slice(0,10);
+    date.max=new Date(now+30*86400000+3*3600000).toISOString().slice(0,10);
+    date.value=date.min;refreshSignupTimes();
+    if(!$('signupTime').value){date.value=new Date(now+75*3600000).toISOString().slice(0,10);refreshSignupTimes()}
+  }
+  $('signupDate').addEventListener('change',refreshSignupTimes);
+  $('signupBooking').addEventListener('submit',function(e){
+    e.preventDefault();if(!this.reportValidity())return;
+    var starts=$('signupDate').value+'T'+$('signupTime').value+':00+03:00', ms=Date.parse(starts);
+    if(ms<Date.now()+48*3600000||ms>Date.now()+30*86400000){refreshSignupTimes();$('signupBookingMessage').textContent='Please choose another time, at least 48 hours ahead.';return}
+    try{sessionStorage.setItem('maktoub_booking_email',signupEmail)}catch(e){}
+    // The URL carries only a date/time, never applicant details or credentials.
+    location.assign('/login/?intake='+encodeURIComponent(starts));
   });
 
   /* ---------------- Referral modal ---------------- */
