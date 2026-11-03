@@ -47,10 +47,15 @@ async function availableSlots() {
   const { data: cal, error: calErr } = await db.from('maktoub_calendar_busy').select('starts_at,ends_at').gte('ends_at', new Date().toISOString())
   if (calErr) console.error('calendar busy read failed', calErr)
   for (const c of cal ?? []) busy.push([Date.parse(c.starts_at), Date.parse(c.ends_at)])
+  // Founder days off (Riyadh dates): the whole day is unbookable.
+  const { data: off, error: offErr } = await db.from('maktoub_blocked_dates').select('day')
+  if (offErr) console.error('blocked dates read failed', offErr)
+  const daysOff = new Set((off ?? []).map(o => String(o.day)))
   const slots: string[] = []
   const day0 = new Date(Date.now() + 3 * 3600000); day0.setUTCHours(0, 0, 0, 0)
   for (let d = 0; d <= s.max_days_ahead + 1; d++) {
     const dayUtc = day0.getTime() + d * 86400000 - 3 * 3600000 // Riyadh midnight in UTC ms
+    if (daysOff.has(new Date(dayUtc + 3 * 3600000).toISOString().slice(0, 10))) continue
     for (let m = startMin; m + s.session_minutes <= endMin; m += 60) {
       const st = dayUtc + m * 60000, en = st + sessionMs
       if (st < earliest || st > latest) continue
