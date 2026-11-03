@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><title>Booking decision | Maktoub</title><style>
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400&display=swap');
+:root{--paper:#f4f1ea;--ink:#151515;--navy:#142c4b;--line:#d0c8be;--muted:#6b665f;font-family:"Instrument Sans",Arial,sans-serif;color:var(--ink);background:var(--paper)}
+*{box-sizing:border-box}body{margin:0}header{height:66px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 24px;letter-spacing:.13em;font-size:14px;font-weight:600}
+main{max-width:520px;margin:0 auto;padding:48px 24px 80px}.top{display:flex;justify-content:space-between;border-bottom:1px solid var(--ink);padding-bottom:16px;margin-bottom:28px;font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+h1{font-size:clamp(32px,8vw,48px);font-weight:500;letter-spacing:-.04em;margin:0 0 20px}dl{margin:0 0 24px}dt{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-top:16px}dd{margin:6px 0 0;font-size:18px}
+button{display:block;width:100%;padding:18px;margin-top:14px;font:500 12px "Instrument Sans",sans-serif;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border:1px solid var(--ink)}
+#approve{background:var(--ink);color:var(--paper)}#decline{background:transparent;color:var(--ink)}button:disabled{opacity:.5}
+#msg{margin-top:20px;line-height:1.5;color:var(--muted)}.sig{font-family:Newsreader,Georgia,serif;font-style:italic;font-size:24px;color:var(--muted);margin-top:40px}
+</style></head><body><header>MAKTOUB</header><main><div class="top"><span>Founder approval</span><span>Private</span></div><h1 id="title">Loading request…</h1><dl id="details" hidden><dt>Applicant</dt><dd id="name"></dd><dt>WhatsApp</dt><dd id="phone"></dd><dt>Requested time</dt><dd id="when"></dd></dl><div id="actions" hidden><button id="approve">Approve &amp; create Meet</button><button id="decline">Decline</button></div><p id="msg" role="status" aria-live="polite"></p><div class="sig">It’s written.</div></main><script>
+const endpoint='https://pmjvpnqmklxxpswwvbmv.supabase.co/functions/v1/maktoub-book';
+const q=new URLSearchParams(location.hash.slice(1)),id=q.get('id'),token=q.get('t');const $=x=>document.getElementById(x);
+const call=a=>fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:a,id,token})}).then(async r=>({ok:r.ok,j:await r.json().catch(()=>({}))}));
+(async()=>{if(!id||!token){$('title').textContent='Invalid link.';return}const {ok,j}=await call('view');if(!ok){$('title').textContent='Link unavailable.';$('msg').textContent=j.error||'';return}
+$('name').textContent=j.name;$('phone').textContent=j.phone;$('when').textContent=new Date(j.starts_at).toLocaleString('en-GB',{weekday:'long',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Riyadh'})+' · Riyadh';$('details').hidden=false;
+if(j.status!=='pending'){$('title').textContent='Already decided.';$('msg').textContent='Status: '+j.status;return}$('title').textContent='Consultation request';$('actions').hidden=false})();
+async function decide(a){if(a==='decline'&&!confirm('Decline this request?'))return;$('approve').disabled=$('decline').disabled=true;$('msg').textContent='Recording your decision…';const {ok,j}=await call(a);
+if(!ok){$('msg').textContent=j.error||'Something went wrong. Try again.';$('approve').disabled=$('decline').disabled=false;return}$('actions').hidden=true;$('title').textContent=a==='approve'?'Approved.':'Declined.';
+$('msg').textContent=a==='approve'?'The Calendar event and Meet link are being created. You will receive a Telegram message within a minute with a one-tap WhatsApp confirmation to send.':'You will receive a Telegram message with a one-tap WhatsApp reply to send, if you wish.';history.replaceState(null,'',location.pathname)}
+$('approve').onclick=()=>decide('approve');$('decline').onclick=()=>decide('decline');
+</script></body></html>

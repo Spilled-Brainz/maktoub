@@ -40,3 +40,11 @@ At last check: zero canonical people, zero event contacts, zero intake requests.
 ## Tomorrow's conference handoff
 
 Share the website event section for interest registration. Event leads appear in the event queue automatically. Team members can use quick add for a person met in person once their access is granted. The event status and notes live in the database, not a parallel spreadsheet. No one should promise a confirmed event seat or intake slot from an interest submission.
+
+## Booking flow (updated 3 November 2026)
+
+- `/book/` submits directly to the `maktoub-book` edge function (no account needed). It upserts the canonical person by phone, creates a `pending` row in `maktoub_intake_bookings`, and is rate limited per IP and per phone via `maktoub_rate_hit`. A hidden honeypot field silently drops bots.
+- The existing booking trigger queues a `booking_request` outbox row. n8n workflow "Maktoub — New signup Telegram alerts" calls `maktoub_next_notification()`, which issues a single-use approval token (only its SHA-256 hash is stored) and returns a `/book/decision/#id=…&t=…` link for the Telegram button.
+- `/book/decision/` calls `maktoub-book` (`view`, `approve`, `decline`). `maktoub_decide_booking()` changes status and queues `booking_approved` / `booking_declined` atomically; the token is cleared on use.
+- On `booking_approved`, n8n creates the Google Calendar event on dee@deenaal.com with a deterministic id (`mk` + booking id, so retries cannot duplicate) and a Meet link, stores it via `maktoub_record_calendar()`, then sends the founder a one-tap `wa.me` confirmation. No customer message is sent automatically.
+- An outbox row is marked sent only after Telegram succeeds.
