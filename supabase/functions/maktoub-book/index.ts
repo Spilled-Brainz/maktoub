@@ -43,6 +43,10 @@ async function availableSlots() {
   if (error) throw error
   const busy = (taken ?? []).filter(b => !(b.status === 'awaiting_payment' && b.payment_hold_expires_at && Date.parse(b.payment_hold_expires_at) <= Date.now()))
     .map(b => [Date.parse(b.starts_at), Date.parse(b.ends_at)])
+  // Founder's Google Calendar busy times, synced by n8n every 15 minutes (start/end only).
+  const { data: cal, error: calErr } = await db.from('maktoub_calendar_busy').select('starts_at,ends_at').gte('ends_at', new Date().toISOString())
+  if (calErr) console.error('calendar busy read failed', calErr)
+  for (const c of cal ?? []) busy.push([Date.parse(c.starts_at), Date.parse(c.ends_at)])
   const slots: string[] = []
   const day0 = new Date(Date.now() + 3 * 3600000); day0.setUTCHours(0, 0, 0, 0)
   for (let d = 0; d <= s.max_days_ahead + 1; d++) {
