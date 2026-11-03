@@ -100,7 +100,7 @@ Deno.serve(async (req: Request) => {
 
     // Public submissions must not change the email used to authorize an existing member.
     const { data: existingPerson, error: existingError } = await admin
-      .from('maktoub_people').select('email').eq('normalized_phone', normalizedPhone).maybeSingle()
+      .from('maktoub_people').select('email,interest_matchmaking,interest_social,interest_events').eq('normalized_phone', normalizedPhone).maybeSingle()
     if (existingError) return json({ success: false, error: 'We could not process your submission right now.' }, 500, origin)
     if (existingPerson && email && email.toLowerCase() !== (existingPerson.email || '').trim().toLowerCase()) {
       return json({ success: false, error: 'This phone is already registered. Use your original email, or contact Maktoub to update your details.' }, 409, origin)
@@ -170,9 +170,12 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    if (upserted[0].is_new || eventId) {
+    // Existing contacts who apply for something new (e.g. social club -> matchmaking) must also alert the founder.
+    const addedInterests = existingPerson ? (['matchmaking', 'social', 'events'] as const)
+      .filter(k => bool(raw, `interest_${k}`) && !(existingPerson as Record<string, unknown>)[`interest_${k}`]) : []
+    if (upserted[0].is_new || eventId || addedInterests.length) {
       const { error: notificationError } = await admin.from('maktoub_notification_outbox')
-        .upsert({ person_id: personId, kind: eventId ? 'event_interest' : 'signup', event_id: eventId ?? '' },
+        .upsert({ person_id: personId, kind: eventId ? 'event_interest' : 'signup', event_id: eventId ?? (upserted[0].is_new ? '' : `added:${addedInterests.join('+')}`) },
           { onConflict: 'person_id,kind,event_id', ignoreDuplicates: true })
       if (notificationError) console.error('Unable to queue Maktoub signup notification', notificationError)
     }

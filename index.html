@@ -694,13 +694,13 @@ button{cursor:pointer}
       <p id="successCopy"></p>
       <form id="signupBooking" hidden style="margin-top:24px">
         <h3>Choose your introductory call</h3>
-        <p>Free · 30 minutes · Riyadh time (UTC+3). Choose a preferred time below, then verify your email to submit the request. Your appointment is confirmed after founder approval.</p>
+        <p>Free · 30 minutes · Riyadh time (UTC+3). Choose a preferred time below and send your request. Your appointment is confirmed after founder approval.</p>
         <div class="form-grid">
           <div class="field"><label for="signupDate">Preferred date</label><input id="signupDate" type="date" required></div>
           <div class="field"><label for="signupTime">Preferred time · Riyadh</label><select id="signupTime" required></select></div>
         </div>
         <p id="signupBookingMessage" role="status" style="margin-top:16px"></p>
-        <button class="btn btn-solid" id="signupBookingContinue" type="submit">Continue with this time →</button>
+        <button class="btn btn-solid" id="signupBookingContinue" type="submit">Request this time →</button>
       </form>
       <div class="success-actions">
         <a class="btn btn-solid" href="/login" data-portal-link id="successLogin" hidden>Sign in to request a time →</a>
@@ -911,9 +911,13 @@ button{cursor:pointer}
     e.preventDefault();if(!this.reportValidity())return;
     var starts=$('signupDate').value+'T'+$('signupTime').value+':00+03:00', ms=Date.parse(starts);
     if(ms<Date.now()+48*3600000||ms>Date.now()+30*86400000){refreshSignupTimes();$('signupBookingMessage').textContent='Please choose another time, at least 48 hours ahead.';return}
-    try{sessionStorage.setItem('maktoub_booking_email',signupEmail)}catch(e){}
-    // The URL carries only a date/time, never applicant details or credentials.
-    location.assign('/login/?intake='+encodeURIComponent(starts));
+    // Submit the request directly; no account step. Founder approval follows via Telegram.
+    var form=this, btn=form.querySelector('button[type=submit]'), msg=$('signupBookingMessage');
+    if(btn){btn.disabled=true}msg.textContent='Sending your request…';
+    fetch('https://pmjvpnqmklxxpswwvbmv.supabase.co/functions/v1/maktoub-book',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'request',full_name:applyForm.elements.name.value.trim(),phone:applyForm.elements.phone.value.trim(),country_iso2:applyForm.elements.country_iso2.value,email:signupEmail||'',starts_at:starts,consent:true})})
+    .then(function(r){return r.json().catch(function(){return {}}).then(function(j){if(!r.ok||!j.success)throw new Error(j.error||'We could not send your request. Please try again.');return j})})
+    .then(function(){form.querySelectorAll('input,select,button').forEach(function(el){el.disabled=true});msg.textContent='Thank you. Your request for '+new Date(starts).toLocaleString('en-GB',{weekday:'long',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Riyadh'})+' (Riyadh time) is awaiting founder approval. Once approved, you will receive your confirmation and video link on WhatsApp.'})
+    .catch(function(err){msg.textContent=err.message;if(btn){btn.disabled=false}});
   });
 
   /* ---------------- Referral modal ---------------- */

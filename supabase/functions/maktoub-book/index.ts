@@ -95,7 +95,8 @@ Deno.serve(async (req) => {
 
     const fullName = str(body.full_name, 150), phoneRaw = str(body.phone, 60), email = str(body.email, 254)
     if (!fullName || !phoneRaw || body.consent !== true) return json({ error: 'Please complete your name, WhatsApp number and consent.' }, 400, origin)
-    const parsed = parsePhoneNumberFromString(phoneRaw)
+    const iso = str(body.country_iso2, 2)?.toUpperCase()
+    const parsed = parsePhoneNumberFromString(phoneRaw, iso && /^[A-Z]{2}$/.test(iso) ? iso as any : undefined)
     if (!parsed || !parsed.isValid()) return json({ error: 'Please enter your WhatsApp number in international format, e.g. +966 5X XXX XXXX.' }, 400, origin)
     const phone = parsed.number
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ error: 'Please check your email address, or leave it empty.' }, 400, origin)
