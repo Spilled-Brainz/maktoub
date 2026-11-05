@@ -57,7 +57,7 @@ section.step{animation:in .4s var(--ease)}
 .price{display:grid;grid-template-columns:1fr;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);margin:30px 0}
 .price>div{padding:20px 0}
 .price>div+div{border-top:1px solid var(--hair)}
-.amt{font-size:clamp(48px,9vw,78px);font-weight:500;letter-spacing:-.04em;line-height:.95;font-variant-numeric:tabular-nums}
+.amt{font-size:clamp(24px,4vw,30px);font-weight:500;letter-spacing:-.015em;line-height:1.1;margin-top:6px;font-variant-numeric:tabular-nums}
 .steps{list-style:none;margin:0;padding:0;border-top:1px solid var(--ink)}
 .steps li{display:grid;grid-template-columns:44px 1fr;gap:12px;padding:16px 0;border-bottom:1px solid var(--hair);font-size:16px;color:#3E3B37}
 .steps li .label{padding-top:4px;color:var(--smoke)}
@@ -187,7 +187,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
         </div>
         <h3>Your membership</h3>
         <ol class="steps">
-          <li><span class="label">01</span><span><b>Intake &amp; voice</b>A confidential intake and one short voice answer, here, in about twenty minutes.</span></li>
+          <li><span class="label">01</span><span><b>Your details &amp; voice</b>Your name, email and date of birth, and one short voice answer. A few minutes.</span></li>
           <li><span class="label">02</span><span><b>Your report</b>A personalised voice analysis report, within seven days of your payment and complete intake.</span></li>
           <li><span class="label">03</span><span><b>Report review</b>A consultation on your report and recommendations, with time for your questions.</span></li>
           <li><span class="label">04</span><span><b>Readiness</b>Your 3–6 months begin once we agree together that you are ready.</span></li>
@@ -229,68 +229,24 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
   <!-- STEP 2 · Private intake -->
   <section class="step" id="s2" hidden>
    <div class="wrap narrow grain">
-    <div class="section-head"><p class="label">02 / Private intake</p><p class="label muted">Saved as you go</p></div>
-    <h2>Before we begin, tell us <span class="u">about you.<svg class="uline" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path pathLength="100" d="M1 12.4C30 6 64 10 99 3.6"/><path pathLength="100" d="M10 18.4C40 13.2 70 15.6 90 11.6"/></svg></span></h2>
-    <p class="muted" style="margin-top:20px;max-width:46ch">This stays between you and the Maktoub founder. Your answers save as you go, so you can leave and return with your invitation link.</p>
+    <div class="section-head"><p class="label">02 / Private intake</p><p class="label muted">Three details</p></div>
+    <h2>A few details <span class="u">about you.<svg class="uline" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path pathLength="100" d="M1 12.4C30 6 64 10 99 3.6"/><path pathLength="100" d="M10 18.4C40 13.2 70 15.6 90 11.6"/></svg></span></h2>
+    <p class="muted" style="margin-top:20px;max-width:46ch">So we know exactly who you are. This stays between you and Maktoub.</p>
 
     <form id="intake" novalidate>
       <div class="group">
-        <span class="kicker">The essentials</span>
-        <div class="duo">
-          <div><label class="f" for="full_name">Full name</label><input type="text" id="full_name" name="full_name" autocomplete="name"></div>
-          <div><label class="f" for="email">Email</label><input type="email" id="email" name="email" autocomplete="email"></div>
-          <div><label class="f" for="phone">Phone number</label><input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="+966 …"></div>
-          <div><label class="f" for="city">City you live in</label><input type="text" id="city" name="city" autocomplete="address-level2"></div>
-          <div><label class="f" for="nationality">Nationality</label><input type="text" id="nationality" name="nationality"></div>
-          <div><label class="f" for="dob">Date of birth</label><input type="date" id="dob" name="dob"></div>
-          <div><label class="f" for="birth_time">Time of birth <span>(if known)</span></label><input type="time" id="birth_time" name="birth_time"></div>
-          <div><label class="f" for="marital_status">Marital status</label>
-            <select id="marital_status" name="marital_status"><option value="">Select</option><option value="never_married">Never married</option><option value="divorced">Divorced</option><option value="widowed">Widowed</option><option value="prefer_to_discuss">I would prefer to discuss</option></select></div>
-          <div><label class="f" for="children">Do you have children?</label>
-            <select id="children" name="children"><option value="">Select</option><option value="no">No</option><option value="yes">Yes</option></select></div>
-          <div><label class="f" for="marriage_intention">Where are you with marriage?</label>
-            <select id="marriage_intention" name="marriage_intention"><option value="">Select</option><option value="ready_when_right">Ready when the right person appears</option><option value="within_12_months">Hoping to marry within 12 months</option><option value="serious_leading_to_marriage">Seeking something serious that leads to marriage</option><option value="exploring_readiness">Still exploring my readiness</option></select></div>
-        </div>
-        <label class="f">Preferred way to be contacted</label>
-        <div class="chips" id="preferred_contact">
-          <label><input type="checkbox" value="WhatsApp"><span>WhatsApp</span></label>
-          <label><input type="checkbox" value="Email"><span>Email</span></label>
-          <label><input type="checkbox" value="Phone"><span>Phone</span></label>
-        </div>
-        <label class="check" style="margin-top:14px"><input type="checkbox" id="wa_notify"><span>Notify me on WhatsApp when my report is ready</span></label>
-        <label class="f" for="family_involvement">How involved would you like your family to be? <span>(optional)</span></label>
-        <textarea id="family_involvement" name="family_involvement" placeholder="Who should know, and when."></textarea>
-      </div>
-
-      <div class="group">
-        <span class="kicker">Where you are right now</span>
-        <p class="muted small" style="margin-top:10px">Be honest. This shapes everything.</p>
-        <label class="f" for="how_feel">How do you feel?</label><span class="hint">The first thing that comes to mind.</span>
-        <textarea id="how_feel" name="how_feel" placeholder="No filter needed."></textarea>
-        <label class="f" for="how_want_to_feel">How do you want to feel?</label><span class="hint">The emotional state you would like to live in, day in and day out.</span>
-        <textarea id="how_want_to_feel" name="how_want_to_feel" placeholder="Not just goals. The feeling underneath."></textarea>
-        <div class="slider" data-k="mental_health_score" data-lo="Very low" data-hi="Strong" data-t="Mental health · past 3 months"></div>
-        <textarea id="mental_health_note" name="mental_health_note" placeholder="Anything you would like to add." style="min-height:64px"></textarea>
-        <div class="slider" data-k="physical_health_score" data-lo="Very low" data-hi="Olympic ready" data-t="Physical health · past 3 months" style="margin-top:14px"></div>
-        <div class="slider" data-k="spiritual_score" data-lo="None" data-hi="Deeply spiritual" data-t="Spiritual leaning"></div>
-      </div>
-
-      <div class="group">
-        <span class="kicker">Your chapter</span>
-        <p class="muted small" style="margin-top:10px">Most people live in more than one at once. Rate yourself honestly.</p>
-        <div class="slider" data-k="chapter_essentials" data-lo="Not here" data-hi="Fully here" data-t="Essentials · getting to know myself" data-sub="Understanding patterns. Finding language for what you feel but have not named yet."></div>
-        <div class="slider" data-k="chapter_dark" data-lo="Not here" data-hi="Fully here" data-t="Dark · I know the problem" data-sub="You see it clearly and still cannot move."></div>
-        <div class="slider" data-k="chapter_light" data-lo="Not here" data-hi="Fully here" data-t="Light · self-actualised" data-sub="The next version of you is already visible."></div>
-        <label class="f" for="extra_notes">What would you like us to know?</label>
-        <textarea id="extra_notes" name="extra_notes" placeholder="What you are looking for in a husband, what matters most, what has been tried before." style="min-height:120px"></textarea>
+        <span class="kicker">Your details</span>
+        <label class="f" for="full_name">Full name</label><input type="text" id="full_name" name="full_name" autocomplete="name">
+        <label class="f" for="email">Email</label><input type="email" id="email" name="email" autocomplete="email" inputmode="email">
+        <label class="f" for="dob">Date of birth</label><input type="date" id="dob" name="dob" autocomplete="bday">
       </div>
       <div class="saved" id="savedNote" aria-live="polite"></div>
       <div class="err" id="err2" role="alert"></div>
-      <button class="btn" type="submit" id="intakeBtn">Submit intake and continue →</button>
+      <button class="btn" type="submit" id="intakeBtn">Continue to your voice answer →</button>
     </form>
 
     <div id="intakeDone" class="card" hidden>
-      <div class="done-mark"><span class="tick">✓</span><div><b>Intake received</b><p class="muted small" id="intakeDoneText" style="margin:4px 0 0"></p></div></div>
+      <div class="done-mark"><span class="tick">✓</span><div><b>Details received</b><p class="muted small" id="intakeDoneText" style="margin:4px 0 0"></p></div></div>
       <button class="btn ghost" data-go="3">Continue to your voice answer →</button>
     </div>
    </div>
@@ -334,7 +290,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
 
     <div class="paybox">
       <div><p class="label muted">Founding Client rate</p><div class="amt" id="priceLabel2"></div></div>
-      <div><p class="label muted">Your reference</p><div class="amt" style="font-size:clamp(34px,6vw,48px);letter-spacing:.01em" id="refCode"></div></div>
+      <div><p class="label muted">Your reference</p><div class="amt" style="letter-spacing:.03em" id="refCode"></div></div>
     </div>
 
     <div id="bankCard" style="margin-top:34px">
@@ -519,24 +475,20 @@ document.querySelectorAll('.slider').forEach(el => {
   const upd = () => { sc.textContent = r.value; if (st) st.textContent = STATES[k][r.value]; r.setAttribute('aria-valuetext', r.value + ' of 10' + (st ? ', ' + STATES[k][r.value] : '')); };
   r.addEventListener('input', upd); upd();
 });
-const TEXT = ['full_name', 'email', 'phone', 'city', 'nationality', 'dob', 'birth_time', 'marital_status', 'children', 'marriage_intention', 'family_involvement', 'how_feel', 'how_want_to_feel', 'mental_health_note', 'extra_notes'];
-const SCORES = ['mental_health_score', 'physical_health_score', 'spiritual_score', 'chapter_essentials', 'chapter_dark', 'chapter_light'];
+const TEXT = ['full_name', 'email', 'dob'];
+const SCORES = [];
 let intakeLoaded = false, saveTimer = null, dirty = false;
 function fillIntake(i, v) {
   intakeLoaded = true;
   const pre = { full_name: v.full_name, email: v.email || '', phone: v.phone || '' };
   TEXT.forEach(k => { $(k).value = i[k] ?? pre[k] ?? ''; });
   SCORES.forEach(k => { if (i[k]) { $(k).value = i[k]; $(k).dispatchEvent(new Event('input')); } });
-  document.querySelectorAll('#preferred_contact input').forEach(c => c.checked = (i.preferred_contact || []).includes(c.value));
-  $('wa_notify').checked = !!i.wa_notify;
   if (v.intake_saved_at && !v.intake_submitted_at) $('savedNote').textContent = 'Saved ' + fmtDate(v.intake_saved_at);
 }
 function collect() {
   const o = {};
   TEXT.forEach(k => { const val = $(k).value.trim(); if (val) o[k] = val; });
   SCORES.forEach(k => o[k] = +$(k).value);
-  o.preferred_contact = [...document.querySelectorAll('#preferred_contact input:checked')].map(c => c.value);
-  o.wa_notify = $('wa_notify').checked;
   return o;
 }
 async function saveDraft() {
@@ -552,7 +504,7 @@ $('intake').addEventListener('submit', async e => {
   const b = $('intakeBtn'); b.disabled = true; b.textContent = 'Submitting…';
   try { dirty = false; apply(await call('save_intake', { intake: collect(), submit: true }), 3); }
   catch (err) { $('err2').textContent = err.message; }
-  finally { b.disabled = false; b.textContent = 'Submit intake and continue →'; }
+  finally { b.disabled = false; b.textContent = 'Continue to your voice answer →'; }
 });
 
 // ---------- Step 3: voice ----------

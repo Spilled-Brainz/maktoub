@@ -102,22 +102,15 @@ function cleanIntake(raw: unknown) {
   return out
 }
 function intakeProblems(i: Record<string, any>) {
+  // Founder decision (5 Nov 2026): the onboarding intake is full name, email and date of birth only.
   const missing: string[] = []
   if (!i.full_name) missing.push('your full name')
   if (!i.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(i.email)) missing.push('a valid email')
-  if (!i.phone) missing.push('your phone number')
   if (!i.dob) missing.push('your date of birth')
   else {
     const age = (Date.now() - Date.parse(i.dob + 'T00:00:00Z')) / (365.25 * 86400000)
     if (!(age >= 18 && age < 100)) missing.push('a date of birth showing you are 18 or over')
   }
-  if (!i.city) missing.push('your city')
-  if (!i.nationality) missing.push('your nationality')
-  if (!i.marital_status) missing.push('your marital status')
-  if (!i.children) missing.push('whether you have children')
-  if (!i.marriage_intention) missing.push('your readiness for marriage')
-  if (!i.how_feel) missing.push('how you feel right now')
-  if (!i.how_want_to_feel) missing.push('how you want to feel')
   return missing
 }
 
