@@ -179,10 +179,10 @@ async function openDetail(id) {
   const actions = el('div');
   // Payment
   if (!r.payment_verified_at && r.signed_at) {
-    const ref = el('input'); ref.placeholder = 'Bank statement reference / transaction ID';
+    const ref = el('input'); ref.placeholder = 'Transaction ID or date from your bank statement';
     const b = el('button', 'Mark payment verified', 'b');
-    b.onclick = () => act('verify_payment', { bank_reference: ref.value }, 'Confirm you have seen ' + (r.currency + ' ' + (r.price_minor / 100).toLocaleString()) + ' with reference ' + r.reference_code + ' in the corporate account statement.');
-    const w = el('div'); w.append(el('label', 'Verify transfer · expected ' + r.currency + ' ' + (r.price_minor / 100).toLocaleString() + ' · ' + r.reference_code), ref, b); actions.append(w);
+    b.onclick = () => act('verify_payment', { bank_reference: ref.value }, 'Confirm you have seen ' + (r.currency + ' ' + (r.price_minor / 100).toLocaleString()) + ' from ' + r.invited_name + (r.payment_client_note ? ' (' + r.payment_client_note + ')' : '') + ' in your bank statement.');
+    const w = el('div'); w.append(el('label', 'Verify transfer · expected ' + r.currency + ' ' + (r.price_minor / 100).toLocaleString() + ' from ' + r.invited_name + (r.payment_client_note ? ' · ' + r.payment_client_note : '')), ref, b); actions.append(w);
   }
   if (r.signed_at && !r.countersigned_at) {
     const cn = el('input'); cn.value = 'Deena Al Jassasi';

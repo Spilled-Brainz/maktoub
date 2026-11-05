@@ -114,6 +114,9 @@ input[type=range]{width:100%;accent-color:var(--red);margin:12px 0 6px;height:28
 #s3{background:var(--night);color:var(--white)}
 #s3 .muted{color:var(--grey)}
 #s3 .err{color:#e8a39f}
+.prompts{list-style:none;margin:0 0 32px;padding:0;border-top:1px solid var(--hair-night);counter-reset:q}
+.prompts li{counter-increment:q;display:grid;grid-template-columns:34px 1fr;gap:10px;padding:12px 0;border-bottom:1px solid var(--hair-night);color:#E7E2DA;font-size:16px;line-height:1.45}
+.prompts li::before{content:counter(q,decimal-leading-zero);font-size:12px;letter-spacing:.08em;color:var(--grey);padding-top:3px}
 .quote{font-family:var(--serif);font-size:clamp(28px,6vw,46px);line-height:1.15;letter-spacing:-.015em;margin:18px 0 30px;max-width:22ch}
 .rec{border-top:1px solid var(--hair-night);border-bottom:1px solid var(--hair-night);padding:34px 0 30px;text-align:center}
 .timer{font-size:64px;font-weight:500;line-height:1;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
@@ -257,9 +260,18 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
   <!-- STEP 3 · Voice -->
   <section class="step night grain" id="s3" hidden>
    <div class="wrap narrow">
-    <div class="section-head"><p class="label">03 / Your voice</p><p class="label muted">1–3 minutes · any language</p></div>
-    <p class="muted" style="max-width:44ch">Find a quiet moment and speak naturally. There is no right answer.</p>
+    <div class="section-head"><p class="label">03 / Your voice</p><p class="label muted">About 2 minutes · any language</p></div>
+    <p class="muted" style="max-width:44ch">Find a quiet moment and speak naturally for about two minutes. There is no right answer.</p>
     <p class="quote">“Describe your ideal weekend with your husband. What would you do together, and how would you like to feel?”</p>
+    <h3 style="color:var(--grey)">If it helps, you might talk about</h3>
+    <ol class="prompts">
+      <li>How the weekend begins. Where you wake up, and what the first hour together looks like.</li>
+      <li>Where you go, or whether you stay in. Who else, if anyone, is part of it.</li>
+      <li>A moment you would look forward to most, and why.</li>
+      <li>What he does, or says, that makes you feel cared for.</li>
+      <li>What the two of you talk about over a long dinner.</li>
+      <li>How you would like to feel on Sunday evening, as it ends.</li>
+    </ol>
 
     <div class="rec" id="recorder">
       <div class="timer" id="timer">0:00</div>
@@ -271,7 +283,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
         <div class="row"><button class="btn" id="redoBtn">Record again</button><button class="btn solid" id="sendBtn">Submit answer</button></div>
       </div>
     </div>
-    <p class="small muted center" id="recHint" style="margin-top:12px">Tap the button to start. Tap again to stop, listen back, then submit.</p>
+    <p class="small muted center" id="recHint" style="margin-top:12px">Tap the button to start. Aim for about two minutes, then tap again to stop, listen back and submit.</p>
     <div class="err" id="err3" role="alert"></div>
 
     <div id="voiceDone" class="card" hidden style="margin-top:20px">
@@ -288,23 +300,23 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
    <div class="wrap narrow grain">
     <div class="section-head"><p class="label">04 / Payment &amp; confirmation</p><p class="label muted">Bank transfer</p></div>
     <h2>One <span class="u">last step.<svg class="uline" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path pathLength="100" d="M1 12.4C30 6 64 10 99 3.6"/><path pathLength="100" d="M10 18.4C40 13.2 70 15.6 90 11.6"/></svg></span></h2>
-    <p class="muted" style="margin-top:20px;max-width:46ch">Please transfer the founding rate to our corporate account below and include your reference, so we can match it.</p>
+    <p class="muted" style="margin-top:20px;max-width:46ch">Please transfer the founding rate to the account below. No transfer note is needed. Once it is sent, let us know here.</p>
 
     <div class="paybox">
       <div><p class="label muted">Founding Client rate</p><div class="amt" id="priceLabel2"></div></div>
-      <div><p class="label muted">Your reference</p><div class="amt" style="letter-spacing:.03em" id="refCode"></div></div>
+      <div><p class="label muted">Payment</p><p style="margin:8px 0 0;font-size:17px">One bank transfer, paid once.</p></div>
     </div>
 
     <div id="bankCard" style="margin-top:34px">
-      <h3>Verified corporate account</h3>
+      <h3>Bank details</h3>
       <dl class="bank" id="bank"></dl>
       <p class="small muted" style="margin:14px 0 0">Only transfer to this account. Maktoub will never send different bank details by message. If anything looks different, stop and contact us.</p>
     </div>
-    <div class="card" id="bankPending" hidden style="margin-top:30px"><p style="margin:0;font-family:var(--serif);font-size:20px">Our corporate bank details are being confirmed. Please do not transfer yet. We will message you as soon as they are ready.</p></div>
+    <div class="card" id="bankPending" hidden style="margin-top:30px"><p style="margin:0;font-family:var(--serif);font-size:20px">Our bank details are being confirmed. Please do not transfer yet. We will message you as soon as they are ready.</p></div>
 
     <div id="payForm">
       <label class="f" for="transferDate">Transfer date <span>(optional)</span></label><input type="date" id="transferDate">
-      <label class="f" for="senderName">Name on the sending account <span>(optional, helps us match it)</span></label><input type="text" id="senderName" autocomplete="name">
+      <label class="f" for="senderName">Name on the sending account <span>(helps us match your transfer)</span></label><input type="text" id="senderName" autocomplete="name">
       <div class="err" id="err4" role="alert"></div>
       <button class="btn" id="payBtn">I have completed the transfer</button>
       <p class="small muted center" style="margin-top:10px">We verify every transfer by hand against our bank statement. As set out in Section 7, the fee is non-refundable once paid.</p>
@@ -387,10 +399,9 @@ function apply(v, goTo) {
   view = v;
   $('gate').hidden = true; $('rail').hidden = false; $('foot').hidden = false;
   $('testbar').hidden = !v.is_test;
-  $('ref').textContent = v.reference; $('footRef').textContent = 'Reference ' + v.reference;
+  
   $('firstName').textContent = v.first_name;
   $('priceLabel').textContent = $('priceLabel2').textContent = $('feeInline').textContent = v.price.label;
-  $('refCode').textContent = v.reference;
   const docs = Object.fromEntries(v.documents.map(d => [d.kind, d]));
   renderDoc($('docAgreement'), docs.agreement.body);
   renderDoc($('docPrivacy'), docs.privacy.body); $('privacyTitle').textContent = docs.privacy.title;
@@ -417,10 +428,10 @@ function apply(v, goTo) {
   const bank = v.payment.bank;
   $('bankCard').hidden = !bank; $('bankPending').hidden = !!bank;
   if (bank) {
-    const rows = [['Account name', bank.account_name], ['Bank', bank.bank_name], ['IBAN', bank.iban.replace(/(.{4})/g, '$1 ').trim(), bank.iban], ['SWIFT / BIC', bank.swift], ['Amount', v.price.label], ['Reference', v.reference]].filter(r => r[1]);
+    const rows = [['Account name', bank.account_name], ['Bank', bank.bank_name], ['IBAN', bank.iban.replace(/(.{4})/g, '$1 ').trim(), bank.iban], ['SWIFT / BIC', bank.swift], ['Amount', v.price.label]].filter(r => r[1]);
     $('bank').replaceChildren(...rows.map(([k, val, raw]) => {
       const d = document.createElement('div'), dt = document.createElement('dt'), dd = document.createElement('dd'), c = document.createElement('button');
-      dt.textContent = k; dd.textContent = val; if (k === 'IBAN' || k === 'Reference') dd.className = 'mono';
+      dt.textContent = k; dd.textContent = val; if (k === 'IBAN') dd.className = 'mono';
       c.className = 'copy'; c.type = 'button'; c.textContent = 'Copy';
       c.onclick = async () => { try { await navigator.clipboard.writeText(raw || val); c.textContent = 'Copied'; setTimeout(() => c.textContent = 'Copy', 1600) } catch (_) {} };
       d.append(dt, dd, c); return d;
@@ -552,11 +563,11 @@ async function startRec() {
   rec.start(250); started = Date.now(); secs = 0; $('timer').textContent = '0:00';
   tick = setInterval(() => { secs = (Date.now() - started) / 1000; $('timer').textContent = mmss(secs); if (secs >= MAX_S) stopRec(); }, 250);
   $('recBtn').classList.add('on'); $('recBtn').setAttribute('aria-label', 'Stop recording');
-  $('recStatus').textContent = 'Recording · speak naturally'; $('recHint').textContent = 'Tap again to stop. Up to five minutes.';
+  $('recStatus').textContent = 'Recording · speak naturally'; $('recHint').textContent = 'Aim for about two minutes. Tap again to stop.';
   runMeter();
 }
 function stopRec() { clearInterval(tick); secs = (Date.now() - started) / 1000; if (rec && rec.state !== 'inactive') rec.stop(); $('recBtn').classList.remove('on'); $('recBtn').setAttribute('aria-label', 'Start recording'); }
-function resetRec() { blob = null; secs = 0; $('timer').textContent = '0:00'; $('review').hidden = true; $('recBtn').hidden = false; $('recStatus').textContent = 'Ready when you are'; $('recHint').textContent = 'Tap the button to start. Tap again to stop, listen back, then submit.'; $('playback').removeAttribute('src'); }
+function resetRec() { blob = null; secs = 0; $('timer').textContent = '0:00'; $('review').hidden = true; $('recBtn').hidden = false; $('recStatus').textContent = 'Ready when you are'; $('recHint').textContent = 'Tap the button to start. Aim for about two minutes, then tap again to stop, listen back and submit.'; $('playback').removeAttribute('src'); }
 $('recBtn').addEventListener('click', () => rec && rec.state === 'recording' ? stopRec() : startRec());
 $('redoBtn').addEventListener('click', resetRec);
 $('replaceBtn').addEventListener('click', () => { $('voiceDone').hidden = true; $('recorder').hidden = false; $('recHint').hidden = false; resetRec(); });
