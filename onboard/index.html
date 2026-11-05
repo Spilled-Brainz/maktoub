@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Private onboarding | Maktoub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#f4f1ea;--paper2:#ebe6dc;--ink:#151515;--navy:#142c4b;--navy2:#1d3a5f;--line:#d0c8be;--muted:#6b665f;--soft:#d6dbe2;--ok:#2f6b4f;--err:#a3271f;
+  --sans:"Instrument Sans",Arial,sans-serif;--serif:Newsreader,Georgia,serif;color-scheme:light}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.55 var(--sans)}
+a{color:inherit}button{font:inherit}
+[hidden]{display:none!important}
+header{position:sticky;top:0;z-index:5;background:rgba(244,241,234,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar{max-width:760px;margin:0 auto;height:60px;padding:0 20px;display:flex;align-items:center;justify-content:space-between}
+.brand{letter-spacing:.16em;font-size:13px;font-weight:600}
+.ref{font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.rail{max-width:760px;margin:0 auto;padding:0 20px 12px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.rail button{all:unset;cursor:pointer;display:block;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding-top:9px;border-top:2px solid var(--line);line-height:1.3}
+.rail button[disabled]{cursor:default}
+.rail button.done{color:var(--ink);border-color:var(--navy)}
+.rail button.now{color:var(--navy);border-color:var(--navy);font-weight:600}
+.rail .n{display:block;font-family:var(--serif);font-size:15px;letter-spacing:0;text-transform:none;margin-bottom:1px}
+main{max-width:760px;margin:0 auto;padding:28px 20px 90px}
+.kicker{font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:500;color:var(--muted)}
+h1{font-weight:500;letter-spacing:-.045em;line-height:1;font-size:clamp(42px,10vw,74px);margin:14px 0 18px}
+h1 em{font-family:var(--serif);font-weight:400;letter-spacing:-.02em}
+h2{font-weight:500;letter-spacing:-.03em;font-size:clamp(26px,5.5vw,36px);line-height:1.08;margin:0 0 10px}
+h3{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin:0 0 12px}
+p{margin:0 0 14px}.lead{font-size:18px;color:#36332f;max-width:560px}.muted{color:var(--muted)}.small{font-size:13px}
+section.step{animation:in .35s ease}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.hero{background:var(--navy);color:var(--paper);margin:-28px -20px 28px;padding:40px 20px 34px}
+.hero .kicker{color:var(--soft)}.hero .lead{color:var(--soft)}
+.hero .sig{font-family:var(--serif);font-style:italic;font-size:22px;color:var(--soft);margin-top:22px}
+.card{background:#fff;border:1px solid var(--line);padding:22px 20px;margin:0 0 18px}
+.card.navy{background:var(--navy);color:var(--paper);border-color:var(--navy)}
+.price{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.price .amt{font-family:var(--serif);font-size:44px;letter-spacing:-.02em;line-height:1}
+.tag{display:inline-block;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;border:1px solid currentColor;padding:4px 8px}
+ol.path{list-style:none;margin:0;padding:0;counter-reset:p}
+ol.path li{counter-increment:p;display:grid;grid-template-columns:34px 1fr;gap:4px 10px;padding:12px 0;border-top:1px solid var(--line)}
+ol.path li:first-child{border-top:0}
+ol.path li::before{content:counter(p,decimal-leading-zero);font-family:var(--serif);font-size:17px;color:var(--navy)}
+ol.path b{font-weight:600}
+.doc{background:#fff;border:1px solid var(--line);max-height:420px;overflow:auto;padding:20px;font-size:14.5px;line-height:1.65;-webkit-overflow-scrolling:touch}
+.doc h4{font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin:18px 0 6px}.doc h4:first-child{margin-top:0}
+.doc p{margin:0 0 10px}.doc ul{margin:0 0 10px;padding-left:20px}
+details{border:1px solid var(--line);background:#fff;margin:12px 0}
+details summary{cursor:pointer;padding:16px 20px;font-weight:500;list-style:none;display:flex;justify-content:space-between;gap:10px}
+details summary::after{content:"+";font-family:var(--serif);font-size:20px;line-height:1}
+details[open] summary::after{content:"–"}
+details .doc{border:0;border-top:1px solid var(--line);max-height:340px}
+.check{display:grid;grid-template-columns:22px 1fr;gap:12px;align-items:start;padding:16px 0;border-top:1px solid var(--line);font-size:14.5px;cursor:pointer}
+.check input{width:20px;height:20px;margin:1px 0 0;accent-color:var(--navy)}
+label.f{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;margin:22px 0 6px}
+label.f span{text-transform:none;letter-spacing:0;font-weight:400;color:var(--muted)}
+.hint{display:block;font-size:13px;color:var(--muted);margin:-2px 0 6px}
+input[type=text],input[type=email],input[type=tel],input[type=date],input[type=time],select,textarea{width:100%;font:inherit;font-size:16px;color:var(--ink);background:transparent;border:0;border-bottom:1px solid #a8a39b;border-radius:0;padding:11px 0;outline-offset:4px;-webkit-appearance:none;appearance:none}
+select{background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23151515'/%3E%3C/svg%3E") no-repeat right 4px center;padding-right:24px}
+textarea{border:1px solid #bdb6ab;background:#fff;padding:12px 14px;min-height:96px;resize:vertical;line-height:1.5}
+input:focus,select:focus,textarea:focus{border-color:var(--navy)}
+.duo{display:grid;grid-template-columns:1fr;gap:0 20px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips label{cursor:pointer}.chips input{position:absolute;opacity:0;pointer-events:none}
+.chips span{display:inline-block;border:1px solid #a8a39b;padding:9px 14px;font-size:14px}
+.chips input:checked+span{background:var(--navy);border-color:var(--navy);color:var(--paper)}
+.chips input:focus-visible+span{outline:2px solid var(--navy);outline-offset:2px}
+.slider{padding:16px 0;border-top:1px solid var(--line)}
+.slider .top{display:flex;justify-content:space-between;align-items:baseline}
+.slider .score{font-family:var(--serif);font-size:28px;color:var(--navy);line-height:1}
+.slider .ends{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.slider .state{font-family:var(--serif);font-style:italic;color:#4a4640;font-size:16px;min-height:24px;margin-top:4px}
+input[type=range]{width:100%;accent-color:var(--navy);margin:12px 0 6px;height:28px}
+.group{margin-top:36px}.group:first-of-type{margin-top:8px}
+.group>.kicker{display:block;padding-bottom:10px;border-bottom:1px solid var(--ink);margin-bottom:4px}
+.btn{display:block;width:100%;border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:17px 20px;margin-top:24px;font-size:12px;font-weight:500;letter-spacing:.13em;text-transform:uppercase;cursor:pointer;text-align:center;text-decoration:none}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:10px}.row .btn{margin-top:12px}
+.sigline{border-bottom:1px solid var(--ink);margin-top:10px;min-height:66px;display:flex;align-items:flex-end;padding-bottom:6px;font-family:var(--serif);font-style:italic;font-size:34px;color:var(--navy);overflow:hidden;white-space:nowrap}
+.sigmeta{display:flex;justify-content:space-between;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.err{color:var(--err);font-size:14px;margin-top:14px;min-height:1px}
+.saved{font-size:12px;color:var(--muted);text-align:right;min-height:18px;margin-top:10px}
+.quote{font-family:var(--serif);font-size:clamp(25px,5.6vw,34px);line-height:1.22;letter-spacing:-.01em;margin:6px 0 22px;color:var(--navy)}
+.rec{background:var(--navy);color:var(--paper);padding:30px 20px 26px;text-align:center}
+.timer{font-family:var(--serif);font-size:54px;line-height:1;letter-spacing:-.01em}
+.rec .status{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);margin:10px 0 18px}
+.meter{display:flex;gap:4px;justify-content:center;align-items:center;height:46px;margin-bottom:20px}
+.meter i{display:block;width:4px;height:6px;background:var(--soft);opacity:.5;border-radius:2px;transition:height .08s}
+.recbtn{width:78px;height:78px;border-radius:50%;border:2px solid var(--paper);background:transparent;display:inline-grid;place-items:center;cursor:pointer;color:var(--paper)}
+.recbtn i{display:block;width:30px;height:30px;border-radius:50%;background:#c9483d;transition:all .2s}
+.recbtn.on i{width:24px;height:24px;border-radius:4px}
+.rec audio{width:100%;margin-top:18px}
+.rec .row .btn{border-color:var(--paper);color:var(--paper);background:transparent}
+.rec .row .btn.solid{background:var(--paper);color:var(--navy)}
+.bank{display:grid;gap:0}
+.bank div{display:grid;grid-template-columns:1fr auto;gap:2px 12px;align-items:center;padding:13px 0;border-top:1px solid var(--line)}
+.bank div:first-child{border-top:0}
+.bank dt{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);grid-column:1}
+.bank dd{margin:0;font-size:16px;word-break:break-all;grid-column:1}
+.bank .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:15px;letter-spacing:.02em}
+.copy{grid-column:2;grid-row:1/3;border:1px solid #a8a39b;background:transparent;padding:7px 10px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+.done-mark{display:flex;gap:14px;align-items:flex-start}
+.done-mark .tick{flex:none;width:34px;height:34px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;font-size:17px}
+.notice{border-left:3px solid var(--navy);padding:4px 0 4px 14px;margin:18px 0;font-size:14.5px}
+.center{text-align:center}
+.gate{min-height:60vh;display:flex;flex-direction:column;justify-content:center}
+.testbar{background:#7a4e00;color:#fff;font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-align:center;padding:6px}
+footer{max-width:760px;margin:0 auto;padding:0 20px 40px;font-size:12px;color:var(--muted)}
+@media(min-width:700px){
+  .bar,.rail,main,footer{padding-left:32px;padding-right:32px}
+  .hero{margin:-28px -32px 32px;padding:56px 32px 44px}
+  .duo{grid-template-columns:1fr 1fr}
+  .card{padding:28px}
+  .rail button{font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="testbar" id="testbar" hidden>Synthetic test record · not a real client</div>
+<header>
+  <div class="bar"><span class="brand">MAKTOUB</span><span class="ref" id="ref">Private onboarding</span></div>
+  <nav class="rail" id="rail" hidden aria-label="Onboarding steps">
+    <button data-s="1"><span class="n">01</span>Welcome &amp; sign</button>
+    <button data-s="2"><span class="n">02</span>Private intake</button>
+    <button data-s="3"><span class="n">03</span>Voice</button>
+    <button data-s="4"><span class="n">04</span>Payment</button>
+  </nav>
+</header>
+
+<main>
+  <!-- Loading / invalid -->
+  <section id="gate" class="gate">
+    <div class="kicker">Private invitation</div>
+    <h2 id="gateTitle" style="margin-top:14px">Opening your invitation…</h2>
+    <p id="gateText" class="muted"></p>
+  </section>
+
+  <!-- STEP 1 · Welcome & Sign -->
+  <section class="step" id="s1" hidden>
+    <div class="hero">
+      <div class="kicker">Founding member invitation</div>
+      <h1><span id="firstName"></span>,<br><em>you are invited.</em></h1>
+      <p class="lead">Maktoub is a private, human-led matchmaking practice. You have been personally invited to join as one of our founding members.</p>
+      <div class="sig">It’s written.</div>
+    </div>
+
+    <div class="card">
+      <div class="price"><div><div class="kicker">Founding rate</div><div class="amt" id="priceLabel"></div></div><span class="tag">Paid once · bank transfer</span></div>
+    </div>
+
+    <h3 style="margin-top:28px">What your membership includes</h3>
+    <ol class="path">
+      <li><span><b>Private intake.</b> Your written answers and one short voice recording, here, in about twenty minutes.</span></li>
+      <li><span><b>Your personal report</b>, prepared and reviewed by a person, due within seven days of your verified payment and complete submission.</span></li>
+      <li><span><b>Report-review consultation</b> with time for your questions.</span></li>
+      <li><span><b>Readiness.</b> Matchmaking begins only once we agree you are ready.</span></li>
+      <li><span><b>Active matchmaking</b> over three to six months, aiming for three curated introductions. We cannot guarantee a number of introductions or any outcome.</span></li>
+    </ol>
+    <p class="notice">No match is introduced to you, and nothing that identifies you is shared with anyone, without your explicit approval each time.</p>
+
+    <div id="signForm">
+      <h3 style="margin-top:34px">Your agreement</h3>
+      <div class="doc" id="docAgreement" tabindex="0" aria-label="Founding Member Agreement"></div>
+      <details><summary id="privacyTitle">Privacy Notice</summary><div class="doc" id="docPrivacy"></div></details>
+      <details><summary id="voiceTitle">Voice Recording Consent</summary><div class="doc" id="docVoice"></div></details>
+
+      <div style="margin-top:18px">
+        <label class="check"><input type="checkbox" id="cAgree"><span>I have read the Founding Member Agreement and agree to its terms, including the <span id="feeInline"></span> fee and that no number of introductions or outcome is guaranteed.</span></label>
+        <label class="check"><input type="checkbox" id="cPrivacy"><span>I consent to Maktoub processing my personal data as described in the Privacy Notice.</span></label>
+        <label class="check" style="border-bottom:1px solid var(--line)"><input type="checkbox" id="cVoice"><span>I consent to recording and processing my voice answer as described in the Voice Recording Consent.</span></label>
+      </div>
+
+      <label class="f" for="sigName">Type your full name to sign</label>
+      <input type="text" id="sigName" autocomplete="name" autocapitalize="words" spellcheck="false">
+      <div class="sigline" id="sigPreview" aria-hidden="true"></div>
+      <div class="sigmeta"><span>Electronic signature</span><span id="sigDate"></span></div>
+      <div class="err" id="err1" role="alert"></div>
+      <button class="btn" id="signBtn" disabled>Sign and continue →</button>
+    </div>
+
+    <div id="signedBox" class="card" hidden style="margin-top:30px">
+      <div class="done-mark"><span class="tick">✓</span><div><b>Agreement signed</b><p class="muted small" id="signedText" style="margin:4px 0 0"></p></div></div>
+      <button class="btn ghost" data-go="2">Continue to your intake →</button>
+    </div>
+  </section>
+
+  <!-- STEP 2 · Private intake -->
+  <section class="step" id="s2" hidden>
+    <div class="kicker">02 — Private intake</div>
+    <h2 style="margin-top:12px">Before we begin,<br>tell us about you.</h2>
+    <p class="muted">This stays between you and the Maktoub founder. Your answers save as you go, so you can leave and return with your invitation link.</p>
+
+    <form id="intake" novalidate>
+      <div class="group">
+        <span class="kicker">The essentials</span>
+        <div class="duo">
+          <div><label class="f" for="full_name">Full name</label><input type="text" id="full_name" name="full_name" autocomplete="name"></div>
+          <div><label class="f" for="email">Email</label><input type="email" id="email" name="email" autocomplete="email"></div>
+          <div><label class="f" for="phone">Phone number</label><input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="+966 …"></div>
+          <div><label class="f" for="city">City you live in</label><input type="text" id="city" name="city" autocomplete="address-level2"></div>
+          <div><label class="f" for="nationality">Nationality</label><input type="text" id="nationality" name="nationality"></div>
+          <div><label class="f" for="dob">Date of birth</label><input type="date" id="dob" name="dob"></div>
+          <div><label class="f" for="birth_time">Time of birth <span>(if known)</span></label><input type="time" id="birth_time" name="birth_time"></div>
+          <div><label class="f" for="marital_status">Marital status</label>
+            <select id="marital_status" name="marital_status"><option value="">Select</option><option value="never_married">Never married</option><option value="divorced">Divorced</option><option value="widowed">Widowed</option><option value="prefer_to_discuss">I would prefer to discuss</option></select></div>
+          <div><label class="f" for="children">Do you have children?</label>
+            <select id="children" name="children"><option value="">Select</option><option value="no">No</option><option value="yes">Yes</option></select></div>
+          <div><label class="f" for="marriage_intention">Where are you with marriage?</label>
+            <select id="marriage_intention" name="marriage_intention"><option value="">Select</option><option value="ready_when_right">Ready when the right person appears</option><option value="within_12_months">Hoping to marry within 12 months</option><option value="serious_leading_to_marriage">Seeking something serious that leads to marriage</option><option value="exploring_readiness">Still exploring my readiness</option></select></div>
+        </div>
+        <label class="f">Preferred way to be contacted</label>
+        <div class="chips" id="preferred_contact">
+          <label><input type="checkbox" value="WhatsApp"><span>WhatsApp</span></label>
+          <label><input type="checkbox" value="Email"><span>Email</span></label>
+          <label><input type="checkbox" value="Phone"><span>Phone</span></label>
+        </div>
+        <label class="check" style="margin-top:14px"><input type="checkbox" id="wa_notify"><span>Notify me on WhatsApp when my report is ready</span></label>
+        <label class="f" for="family_involvement">How involved would you like your family to be? <span>(optional)</span></label>
+        <textarea id="family_involvement" name="family_involvement" placeholder="Who should know, and when."></textarea>
+      </div>
+
+      <div class="group">
+        <span class="kicker">Where you are right now</span>
+        <p class="muted small" style="margin-top:10px">Be honest. This shapes everything.</p>
+        <label class="f" for="how_feel">How do you feel?</label><span class="hint">The first thing that comes to mind.</span>
+        <textarea id="how_feel" name="how_feel" placeholder="No filter needed."></textarea>
+        <label class="f" for="how_want_to_feel">How do you want to feel?</label><span class="hint">The emotional state you would like to live in, day in and day out.</span>
+        <textarea id="how_want_to_feel" name="how_want_to_feel" placeholder="Not just goals. The feeling underneath."></textarea>
+        <div class="slider" data-k="mental_health_score" data-lo="Very low" data-hi="Strong" data-t="Mental health · past 3 months"></div>
+        <textarea id="mental_health_note" name="mental_health_note" placeholder="Anything you would like to add." style="min-height:64px"></textarea>
+        <div class="slider" data-k="physical_health_score" data-lo="Very low" data-hi="Olympic ready" data-t="Physical health · past 3 months" style="margin-top:14px"></div>
+        <div class="slider" data-k="spiritual_score" data-lo="None" data-hi="Deeply spiritual" data-t="Spiritual leaning"></div>
+      </div>
+
+      <div class="group">
+        <span class="kicker">Your chapter</span>
+        <p class="muted small" style="margin-top:10px">Most people live in more than one at once. Rate yourself honestly.</p>
+        <div class="slider" data-k="chapter_essentials" data-lo="Not here" data-hi="Fully here" data-t="Essentials · getting to know myself" data-sub="Understanding patterns. Finding language for what you feel but have not named yet."></div>
+        <div class="slider" data-k="chapter_dark" data-lo="Not here" data-hi="Fully here" data-t="Dark · I know the problem" data-sub="You see it clearly and still cannot move."></div>
+        <div class="slider" data-k="chapter_light" data-lo="Not here" data-hi="Fully here" data-t="Light · self-actualised" data-sub="The next version of you is already visible."></div>
+        <label class="f" for="extra_notes">What would you like us to know?</label>
+        <textarea id="extra_notes" name="extra_notes" placeholder="What you are looking for in a husband, what matters most, what has been tried before." style="min-height:120px"></textarea>
+      </div>
+      <div class="saved" id="savedNote" aria-live="polite"></div>
+      <div class="err" id="err2" role="alert"></div>
+      <button class="btn" type="submit" id="intakeBtn">Submit intake and continue →</button>
+    </form>
+
+    <div id="intakeDone" class="card" hidden>
+      <div class="done-mark"><span class="tick">✓</span><div><b>Intake received</b><p class="muted small" id="intakeDoneText" style="margin:4px 0 0"></p></div></div>
+      <button class="btn ghost" data-go="3">Continue to your voice answer →</button>
+    </div>
+  </section>
+
+  <!-- STEP 3 · Voice -->
+  <section class="step" id="s3" hidden>
+    <div class="kicker">03 — Your voice</div>
+    <p class="muted" style="margin-top:12px">Find a quiet moment. Speak naturally, in any language, for one to three minutes. There is no right answer.</p>
+    <p class="quote">“Describe your ideal weekend with your husband. What would you do together, and how would you like to feel?”</p>
+
+    <div class="rec" id="recorder">
+      <div class="timer" id="timer">0:00</div>
+      <div class="status" id="recStatus">Ready when you are</div>
+      <div class="meter" id="meter" aria-hidden="true"></div>
+      <button class="recbtn" id="recBtn" aria-label="Start recording"><i></i></button>
+      <div id="review" hidden>
+        <audio id="playback" controls preload="metadata"></audio>
+        <div class="row"><button class="btn" id="redoBtn">Record again</button><button class="btn solid" id="sendBtn">Submit answer</button></div>
+      </div>
+    </div>
+    <p class="small muted center" id="recHint" style="margin-top:12px">Tap the button to start. Tap again to stop, listen back, then submit.</p>
+    <div class="err" id="err3" role="alert"></div>
+
+    <div id="voiceDone" class="card" hidden style="margin-top:20px">
+      <div class="done-mark"><span class="tick">✓</span><div><b>Voice answer received</b><p class="muted small" id="voiceDoneText" style="margin:4px 0 0"></p></div></div>
+      <button class="btn" data-go="4">Continue to payment →</button>
+      <button class="btn ghost" id="replaceBtn" style="margin-top:10px">Replace my recording</button>
+    </div>
+  </section>
+
+  <!-- STEP 4 · Payment & confirmation -->
+  <section class="step" id="s4" hidden>
+    <div class="kicker">04 — Payment &amp; confirmation</div>
+    <h2 style="margin-top:12px">One last step.</h2>
+    <p class="muted">Please transfer the founding rate to our corporate account below and include your reference, so we can match it.</p>
+
+    <div class="card navy">
+      <div class="price"><div><div class="kicker" style="color:var(--soft)">Founding rate</div><div class="amt" id="priceLabel2"></div></div><div style="text-align:right"><div class="kicker" style="color:var(--soft)">Your reference</div><div style="font-size:20px;letter-spacing:.06em;margin-top:4px" id="refCode"></div></div></div>
+    </div>
+
+    <div class="card" id="bankCard">
+      <h3>Verified corporate account</h3>
+      <dl class="bank" id="bank"></dl>
+      <p class="small muted" style="margin:12px 0 0">Only transfer to this account. Maktoub will never send different bank details by message. If anything looks different, stop and contact us.</p>
+    </div>
+    <div class="card" id="bankPending" hidden><p style="margin:0">Our corporate bank details are being confirmed. Please do not transfer yet. We will message you as soon as they are ready.</p></div>
+
+    <div id="payForm">
+      <label class="f" for="transferDate">Transfer date <span>(optional)</span></label><input type="date" id="transferDate">
+      <label class="f" for="senderName">Name on the sending account <span>(optional, helps us match it)</span></label><input type="text" id="senderName" autocomplete="name">
+      <div class="err" id="err4" role="alert"></div>
+      <button class="btn" id="payBtn">I have completed the transfer</button>
+      <p class="small muted center" style="margin-top:10px">We verify every transfer by hand against our bank statement.</p>
+    </div>
+
+    <div id="payState" class="card" hidden>
+      <div class="done-mark"><span class="tick" id="payTick">✓</span><div><b id="payTitle"></b><p class="muted small" id="payText" style="margin:4px 0 0"></p></div></div>
+    </div>
+
+    <h3 style="margin-top:34px">What happens next</h3>
+    <ol class="path">
+      <li><span><b>We verify your transfer</b> manually, usually within one working day, and confirm on your preferred channel.</span></li>
+      <li><span><b>Your personal report</b> is prepared and reviewed by a person, and is due within seven days of verification and your complete submission. <span id="dueText"></span></span></li>
+      <li><span><b>Report-review consultation and Q&amp;A.</b> We walk through your report together and answer your questions.</span></li>
+      <li><span><b>Readiness.</b> Active matchmaking begins only after we agree you are ready. If not yet, we will tell you honestly why.</span></li>
+      <li><span><b>Curated introductions.</b> Over three to six months of active matchmaking we aim for three introductions. No one is introduced, and nothing identifying is shared, without your explicit approval each time.</span></li>
+    </ol>
+  </section>
+</main>
+<footer id="foot" hidden>Questions at any point? Reply to the message that brought you here. · <span id="footRef"></span></footer>
+
+<script>
+(() => {
+'use strict';
+const API = 'https://pmjvpnqmklxxpswwvbmv.supabase.co/functions/v1/maktoub-onboard';
+const $ = id => document.getElementById(id);
+const KEY = 'maktoub_invite';
+let token = null, view = null, current = 1;
+
+// Move the invite token out of the address bar (no history, no referrer).
+try {
+  const q = new URLSearchParams(location.search).get('invite');
+  if (q) { sessionStorage.setItem(KEY, q.trim().toLowerCase()); history.replaceState(null, '', location.pathname); }
+  token = sessionStorage.getItem(KEY);
+} catch (_) { token = new URLSearchParams(location.search).get('invite'); }
+
+async function call(action, extra) {
+  const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action, token, ...extra }) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) { const e = new Error(j.error || 'Something went wrong. Please try again.'); e.status = r.status; throw e; }
+  return j;
+}
+const fmtDate = iso => new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Riyadh' }) + ' (Riyadh)';
+const fmtDay = iso => new Date(iso).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Asia/Riyadh' });
+
+function gate(title, text) { $('gate').hidden = false; $('gateTitle').textContent = title; $('gateText').textContent = text || ''; }
+
+// Render plain legal text: numbered headings, "- " bullets, paragraphs. Built with DOM nodes (no innerHTML).
+function renderDoc(el, body) {
+  el.replaceChildren();
+  let list = null;
+  for (const raw of body.split('\n')) {
+    const line = raw.trim();
+    if (!line) { list = null; continue; }
+    if (/^\d+\.\s/.test(line) && line.length < 70) { list = null; const h = document.createElement('h4'); h.textContent = line; el.append(h); continue; }
+    if (line.startsWith('- ')) { if (!list) { list = document.createElement('ul'); el.append(list); } const li = document.createElement('li'); li.textContent = line.slice(2); list.append(li); continue; }
+    list = null;
+    const p = document.createElement('p');
+    const m = line.match(/^([A-Z][^.]{2,40}\.)\s(.*)$/);
+    if (m && el.id !== 'docAgreement') { const b = document.createElement('b'); b.textContent = m[1] + ' '; p.append(b, m[2]); } else p.textContent = line;
+    el.append(p);
+  }
+}
+
+function show(step) {
+  current = step;
+  for (let i = 1; i <= 4; i++) $('s' + i).hidden = i !== step;
+  document.querySelectorAll('#rail button').forEach(b => {
+    const s = +b.dataset.s;
+    b.className = s === step ? 'now' : (s < view.step ? 'done' : '');
+    b.disabled = s > view.step;
+    if (s === step) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
+  });
+  window.scrollTo({ top: 0 });
+}
+
+function apply(v, goTo) {
+  view = v;
+  $('gate').hidden = true; $('rail').hidden = false; $('foot').hidden = false;
+  $('testbar').hidden = !v.is_test;
+  $('ref').textContent = v.reference; $('footRef').textContent = 'Reference ' + v.reference;
+  $('firstName').textContent = v.first_name;
+  $('priceLabel').textContent = $('priceLabel2').textContent = $('feeInline').textContent = v.price.label;
+  $('refCode').textContent = v.reference;
+  const docs = Object.fromEntries(v.documents.map(d => [d.kind, d]));
+  renderDoc($('docAgreement'), docs.agreement.body);
+  renderDoc($('docPrivacy'), docs.privacy.body); $('privacyTitle').textContent = docs.privacy.title;
+  renderDoc($('docVoice'), docs.voice_processing.body); $('voiceTitle').textContent = docs.voice_processing.title;
+
+  // Step 1
+  $('signForm').hidden = !!v.signed; $('signedBox').hidden = !v.signed;
+  if (v.signed) $('signedText').textContent = 'Signed by ' + v.signed.name + ' on ' + fmtDate(v.signed.at) + '. Version ' + v.signed.version + '.';
+  else if (!$('sigName').value) { $('sigName').value = ''; $('sigName').placeholder = v.full_name; }
+  // Step 2
+  if (!intakeLoaded) fillIntake(v.intake, v);
+  const intakeDone = !!v.intake_submitted_at;
+  $('intake').hidden = intakeDone; $('intakeDone').hidden = !intakeDone;
+  if (intakeDone) $('intakeDoneText').textContent = 'Submitted ' + fmtDate(v.intake_submitted_at) + '.';
+  // Step 3
+  const voiceDone = !!v.voice;
+  $('voiceDone').hidden = !voiceDone;
+  $('recorder').hidden = voiceDone; $('recHint').hidden = voiceDone;
+  $('replaceBtn').hidden = !voiceDone || v.voice_locked;
+  if (voiceDone) $('voiceDoneText').textContent = mmss(v.voice.duration_seconds) + ' recorded · received ' + fmtDate(v.voice.at) + '. Stored privately.';
+  // Step 4
+  const bank = v.payment.bank;
+  $('bankCard').hidden = !bank; $('bankPending').hidden = !!bank;
+  if (bank) {
+    const rows = [['Account name', bank.account_name], ['Bank', bank.bank_name], ['IBAN', bank.iban.replace(/(.{4})/g, '$1 ').trim(), bank.iban], ['SWIFT / BIC', bank.swift], ['Amount', v.price.label], ['Reference', v.reference]].filter(r => r[1]);
+    $('bank').replaceChildren(...rows.map(([k, val, raw]) => {
+      const d = document.createElement('div'), dt = document.createElement('dt'), dd = document.createElement('dd'), c = document.createElement('button');
+      dt.textContent = k; dd.textContent = val; if (k === 'IBAN' || k === 'Reference') dd.className = 'mono';
+      c.className = 'copy'; c.type = 'button'; c.textContent = 'Copy';
+      c.onclick = async () => { try { await navigator.clipboard.writeText(raw || val); c.textContent = 'Copied'; setTimeout(() => c.textContent = 'Copy', 1600) } catch (_) {} };
+      d.append(dt, dd, c); return d;
+    }));
+  }
+  const p = v.payment;
+  $('payForm').hidden = !!p.reported_at || !!p.verified_at || !bank;
+  $('payState').hidden = !(p.reported_at || p.verified_at);
+  if (p.verified_at) {
+    $('payTitle').textContent = 'Payment verified. Thank you.';
+    $('payText').textContent = v.report_due_at ? 'Your report is due by ' + fmtDay(v.report_due_at) + '. We will contact you to arrange your consultation.' : 'We will be in touch about your report.';
+    $('payTick').style.background = 'var(--ok)';
+  } else if (p.reported_at) {
+    $('payTitle').textContent = 'Transfer noted. We are verifying it.';
+    $('payText').textContent = 'You told us on ' + fmtDate(p.reported_at) + '. We will confirm once it appears in our account. Your onboarding is complete; there is nothing else you need to do.';
+    $('payTick').style.background = 'var(--navy)';
+  }
+  $('dueText').textContent = v.report_due_at ? 'Yours is due by ' + fmtDay(v.report_due_at) + '.' : '';
+  show(goTo || current);
+}
+
+// ---------- Step 1: sign ----------
+const sigDate = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Riyadh' });
+$('sigDate').textContent = sigDate;
+function signReady() {
+  const n = $('sigName').value.trim();
+  $('sigPreview').textContent = n;
+  $('signBtn').disabled = !($('cAgree').checked && $('cPrivacy').checked && $('cVoice').checked && n.length >= 3 && /\s/.test(n));
+}
+['cAgree', 'cPrivacy', 'cVoice'].forEach(id => $(id).addEventListener('change', signReady));
+$('sigName').addEventListener('input', signReady);
+$('signBtn').addEventListener('click', async () => {
+  $('err1').textContent = ''; const b = $('signBtn'); b.disabled = true; b.textContent = 'Recording your signature…';
+  try {
+    const docs = Object.fromEntries(view.documents.map(d => [d.kind, d.sha256]));
+    apply(await call('sign', { signature_name: $('sigName').value.trim(), accept_agreement: $('cAgree').checked, consent_privacy: $('cPrivacy').checked, consent_voice: $('cVoice').checked, documents: docs }), 2);
+  } catch (e) { $('err1').textContent = e.message; if (e.status === 409) load(); }
+  finally { b.textContent = 'Sign and continue →'; signReady(); }
+});
+
+// ---------- Step 2: intake ----------
+const STATES = {
+  chapter_essentials: { 1: 'Just the start of the journey.', 2: 'The first signs are surfacing.', 3: 'Some patterns are beginning to show.', 4: 'More visible than before, not yet clear.', 5: 'Half in the knowing, half still in the fog.', 6: 'More clear than unclear.', 7: 'The pattern is visible. The language is coming.', 8: 'Seeing it from the inside now.', 9: 'Almost fully mapped.', 10: 'You see the whole architecture.' },
+  chapter_dark: { 1: 'Not here.', 2: 'A quiet undercurrent.', 3: 'Occasional friction.', 4: 'The tension is noticeable.', 5: 'Aware of the weight, not consumed by it.', 6: 'In it more than out of it.', 7: 'The struggle is loud and ongoing.', 8: 'Deeply stuck.', 9: 'Consuming most of the bandwidth.', 10: 'All-consuming.' },
+  chapter_light: { 1: 'Not here yet.', 2: 'A faint signal.', 3: 'The possibility is real.', 4: 'The vision is forming.', 5: 'Half the vision has landed.', 6: 'More light than dark.', 7: 'Clarity and direction are there.', 8: 'Direction is solid.', 9: 'Nearly there.', 10: 'Fully lived.' },
+};
+document.querySelectorAll('.slider').forEach(el => {
+  const k = el.dataset.k;
+  el.innerHTML = '<div class="top"><label class="f" style="margin:0" for="' + k + '"></label><span class="score">5</span></div>' + (el.dataset.sub ? '<span class="hint" style="margin-top:6px"></span>' : '') + '<input type="range" min="1" max="10" step="1" value="5" id="' + k + '" name="' + k + '"><div class="ends"><span></span><span></span></div>' + (STATES[k] ? '<div class="state"></div>' : '');
+  el.querySelector('label').textContent = el.dataset.t;
+  if (el.dataset.sub) el.querySelector('.hint').textContent = el.dataset.sub;
+  const ends = el.querySelectorAll('.ends span'); ends[0].textContent = el.dataset.lo; ends[1].textContent = el.dataset.hi;
+  const r = el.querySelector('input'), sc = el.querySelector('.score'), st = el.querySelector('.state');
+  const upd = () => { sc.textContent = r.value; if (st) st.textContent = STATES[k][r.value]; r.setAttribute('aria-valuetext', r.value + ' of 10' + (st ? ', ' + STATES[k][r.value] : '')); };
+  r.addEventListener('input', upd); upd();
+});
+const TEXT = ['full_name', 'email', 'phone', 'city', 'nationality', 'dob', 'birth_time', 'marital_status', 'children', 'marriage_intention', 'family_involvement', 'how_feel', 'how_want_to_feel', 'mental_health_note', 'extra_notes'];
+const SCORES = ['mental_health_score', 'physical_health_score', 'spiritual_score', 'chapter_essentials', 'chapter_dark', 'chapter_light'];
+let intakeLoaded = false, saveTimer = null, dirty = false;
+function fillIntake(i, v) {
+  intakeLoaded = true;
+  const pre = { full_name: v.full_name, email: v.email || '', phone: v.phone || '' };
+  TEXT.forEach(k => { $(k).value = i[k] ?? pre[k] ?? ''; });
+  SCORES.forEach(k => { if (i[k]) { $(k).value = i[k]; $(k).dispatchEvent(new Event('input')); } });
+  document.querySelectorAll('#preferred_contact input').forEach(c => c.checked = (i.preferred_contact || []).includes(c.value));
+  $('wa_notify').checked = !!i.wa_notify;
+  if (v.intake_saved_at && !v.intake_submitted_at) $('savedNote').textContent = 'Saved ' + fmtDate(v.intake_saved_at);
+}
+function collect() {
+  const o = {};
+  TEXT.forEach(k => { const val = $(k).value.trim(); if (val) o[k] = val; });
+  SCORES.forEach(k => o[k] = +$(k).value);
+  o.preferred_contact = [...document.querySelectorAll('#preferred_contact input:checked')].map(c => c.value);
+  o.wa_notify = $('wa_notify').checked;
+  return o;
+}
+async function saveDraft() {
+  if (!dirty || !view || view.intake_submitted_at) return;
+  dirty = false; $('savedNote').textContent = 'Saving…';
+  try { const r = await call('save_intake', { intake: collect() }); $('savedNote').textContent = 'Saved ' + fmtDate(r.saved_at); }
+  catch (e) { dirty = true; $('savedNote').textContent = 'Not saved yet. We will retry.'; }
+}
+$('intake').addEventListener('input', () => { dirty = true; $('savedNote').textContent = ''; clearTimeout(saveTimer); saveTimer = setTimeout(saveDraft, 1500); });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveDraft(); });
+$('intake').addEventListener('submit', async e => {
+  e.preventDefault(); clearTimeout(saveTimer); $('err2').textContent = '';
+  const b = $('intakeBtn'); b.disabled = true; b.textContent = 'Submitting…';
+  try { dirty = false; apply(await call('save_intake', { intake: collect(), submit: true }), 3); }
+  catch (err) { $('err2').textContent = err.message; }
+  finally { b.disabled = false; b.textContent = 'Submit intake and continue →'; }
+});
+
+// ---------- Step 3: voice ----------
+const MAX_S = 300, MIN_S = 15;
+const mmss = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+const meter = $('meter'); for (let i = 0; i < 24; i++) meter.append(document.createElement('i'));
+let rec = null, stream = null, chunks = [], blob = null, secs = 0, tick = null, actx = null, raf = null, started = 0;
+function pickMime() {
+  if (!window.MediaRecorder) return null;
+  for (const m of ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus']) if (MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) return m;
+  return '';
+}
+function stopMeter() { cancelAnimationFrame(raf); meter.querySelectorAll('i').forEach(b => b.style.height = '6px'); if (actx) { actx.close().catch(() => {}); actx = null; } }
+function runMeter() {
+  try {
+    actx = new (window.AudioContext || window.webkitAudioContext)();
+    const an = actx.createAnalyser(); an.fftSize = 64; actx.createMediaStreamSource(stream).connect(an);
+    const data = new Uint8Array(an.frequencyBinCount), bars = meter.querySelectorAll('i');
+    const loop = () => { an.getByteFrequencyData(data); bars.forEach((b, i) => b.style.height = (6 + (data[i % data.length] / 255) * 40) + 'px'); raf = requestAnimationFrame(loop); };
+    loop();
+  } catch (_) {}
+}
+async function startRec() {
+  $('err3').textContent = '';
+  const mime = pickMime();
+  if (mime === null || !navigator.mediaDevices?.getUserMedia) { $('err3').textContent = 'This browser cannot record audio. Please open your invitation link in Safari or Chrome.'; return; }
+  try { stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); }
+  catch (_) { $('recStatus').textContent = 'Microphone access needed'; $('err3').textContent = 'Please allow microphone access for this page, then try again.'; return; }
+  chunks = []; blob = null;
+  rec = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+  rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+  rec.onstop = () => {
+    stream.getTracks().forEach(t => t.stop()); stopMeter();
+    const type = (rec.mimeType || mime || 'audio/webm').split(';')[0];
+    blob = new Blob(chunks, { type });
+    $('playback').src = URL.createObjectURL(blob);
+    $('review').hidden = false; $('recBtn').hidden = true;
+    const short = secs < MIN_S;
+    $('recStatus').textContent = short ? 'A little short. Please aim for at least ' + MIN_S + ' seconds.' : 'Listen back, then submit';
+    $('sendBtn').disabled = short;
+    $('recHint').textContent = 'Happy with it? Submit. Otherwise, record again.';
+  };
+  rec.start(250); started = Date.now(); secs = 0; $('timer').textContent = '0:00';
+  tick = setInterval(() => { secs = (Date.now() - started) / 1000; $('timer').textContent = mmss(secs); if (secs >= MAX_S) stopRec(); }, 250);
+  $('recBtn').classList.add('on'); $('recBtn').setAttribute('aria-label', 'Stop recording');
+  $('recStatus').textContent = 'Recording · speak naturally'; $('recHint').textContent = 'Tap again to stop. Up to five minutes.';
+  runMeter();
+}
+function stopRec() { clearInterval(tick); secs = (Date.now() - started) / 1000; if (rec && rec.state !== 'inactive') rec.stop(); $('recBtn').classList.remove('on'); $('recBtn').setAttribute('aria-label', 'Start recording'); }
+function resetRec() { blob = null; secs = 0; $('timer').textContent = '0:00'; $('review').hidden = true; $('recBtn').hidden = false; $('recStatus').textContent = 'Ready when you are'; $('recHint').textContent = 'Tap the button to start. Tap again to stop, listen back, then submit.'; $('playback').removeAttribute('src'); }
+$('recBtn').addEventListener('click', () => rec && rec.state === 'recording' ? stopRec() : startRec());
+$('redoBtn').addEventListener('click', resetRec);
+$('replaceBtn').addEventListener('click', () => { $('voiceDone').hidden = true; $('recorder').hidden = false; $('recHint').hidden = false; resetRec(); });
+$('sendBtn').addEventListener('click', async () => {
+  if (!blob) return;
+  $('err3').textContent = ''; const b = $('sendBtn'); b.disabled = true; b.textContent = 'Uploading…';
+  try {
+    const fd = new FormData();
+    fd.append('token', token); fd.append('duration_seconds', String(Math.round(secs)));
+    const ext = { 'audio/mp4': 'm4a', 'audio/ogg': 'ogg' }[blob.type] || 'webm';
+    fd.append('audio', new File([blob], 'answer.' + ext, { type: blob.type }));
+    const r = await fetch(API, { method: 'POST', body: fd });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || 'The upload did not finish. Please try again.');
+    resetRec(); apply(j, 3);
+  } catch (e) { $('err3').textContent = e.message + ' Your recording is still here; you can try again.'; }
+  finally { b.disabled = false; b.textContent = 'Submit answer'; }
+});
+
+// ---------- Step 4: payment ----------
+$('payBtn').addEventListener('click', async () => {
+  $('err4').textContent = ''; const b = $('payBtn'); b.disabled = true; b.textContent = 'Sending…';
+  try { apply(await call('report_payment', { transfer_date: $('transferDate').value, sender_name: $('senderName').value.trim() }), 4); }
+  catch (e) { $('err4').textContent = e.message; }
+  finally { b.disabled = false; b.textContent = 'I have completed the transfer'; }
+});
+
+// ---------- Navigation ----------
+document.querySelectorAll('#rail button').forEach(b => b.addEventListener('click', () => { if (!b.disabled) show(+b.dataset.s); }));
+document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => show(+b.dataset.go)));
+window.addEventListener('beforeunload', e => { if (rec && rec.state === 'recording') { e.preventDefault(); e.returnValue = ''; } });
+
+async function load() {
+  if (!token) { gate('Please open your invitation link.', 'This page opens only from the private link Maktoub sent you. If you no longer have it, reply to our message and we will send it again.'); return; }
+  try { const v = await call('load'); apply(v, v.step); }
+  catch (e) { gate(e.status === 401 ? 'This link is no longer active.' : 'We could not open your invitation.', e.message); }
+}
+load();
+})();
+</script>
+</body>
+</html>

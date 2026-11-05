@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Onboarding console | Maktoub</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#f4f1ea;--ink:#151515;--navy:#142c4b;--line:#d0c8be;--muted:#6b665f;--ok:#2f6b4f;--warn:#8a5a00;--err:#a3271f}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:400 15px/1.5 "Instrument Sans",Arial,sans-serif}
+[hidden]{display:none!important}a{color:inherit}
+header{border-bottom:1px solid var(--line);padding:0 20px;height:58px;display:flex;align-items:center;justify-content:space-between;letter-spacing:.14em;font-size:13px;font-weight:600}
+header button{all:unset;cursor:pointer;font-size:11px;letter-spacing:.1em}
+main{max-width:1080px;margin:0 auto;padding:24px 20px 80px}
+h1{font-weight:500;letter-spacing:-.04em;font-size:34px;margin:0 0 4px}h2{font-size:12px;letter-spacing:.14em;text-transform:uppercase;margin:0 0 12px}
+.card{background:#fff;border:1px solid var(--line);padding:18px;margin:0 0 16px}
+.grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:900px){.grid{grid-template-columns:380px 1fr}}
+label{display:block;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin:12px 0 4px;color:var(--muted)}
+input,select,textarea{width:100%;font:inherit;border:1px solid #bdb6ab;background:#fff;padding:9px 10px;border-radius:0}
+textarea{min-height:70px}
+button.b{border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:10px 14px;font-size:11px;letter-spacing:.11em;text-transform:uppercase;cursor:pointer;margin:10px 8px 0 0}
+button.g{background:transparent;color:var(--ink)}button.d{background:var(--err);border-color:var(--err)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.msg{min-height:20px;font-size:13px;margin:8px 0;color:var(--navy)}.msg.e{color:var(--err)}
+.checks div{padding:6px 0;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;font-size:14px}
+.ok{color:var(--ok)}.no{color:var(--warn)}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;border-bottom:1px solid var(--ink);padding:6px 6px}
+td{border-bottom:1px solid var(--line);padding:9px 6px;vertical-align:top}
+tr.r{cursor:pointer}tr.r:hover{background:#faf8f3}tr.sel{background:#eef1f5}
+.chip{display:inline-block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border:1px solid currentColor;white-space:nowrap}
+.kv{display:grid;grid-template-columns:170px 1fr;gap:4px 12px;font-size:14px}.kv dt{color:var(--muted)}.kv dd{margin:0;white-space:pre-wrap;word-break:break-word}
+.url{font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all;background:#f7f5f0;border:1px solid var(--line);padding:10px;margin-top:8px}
+details{margin-top:8px}summary{cursor:pointer;font-weight:500}
+pre{white-space:pre-wrap;font:13px/1.55 "Instrument Sans",sans-serif;background:#faf8f3;padding:12px;border:1px solid var(--line);max-height:320px;overflow:auto}
+.test{color:var(--warn)}
+</style>
+</head>
+<body>
+<header><span>MAKTOUB · ONBOARDING</span><span><a href="/login/" style="font-size:11px;letter-spacing:.1em;margin-right:16px">CRM</a><button id="out" hidden>SIGN OUT</button></span></header>
+<main>
+  <section id="auth" hidden class="card" style="max-width:420px">
+    <h2>Founder sign-in</h2>
+    <form id="signin"><label for="em">Email</label><input id="em" type="email" autocomplete="username" required><label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password" required><button class="b">Sign in</button></form>
+    <p class="msg" id="authMsg"></p>
+    <p style="font-size:13px;color:var(--muted)">Prefer an email link? Sign in at <a href="/login/">/login/</a> in this tab, then return here.</p>
+  </section>
+
+  <section id="app" hidden>
+    <h1>Client onboarding</h1>
+    <p style="color:var(--muted);margin:0 0 20px">Invitations, signed agreements, intakes, recordings and manual payment verification.</p>
+    <div class="grid">
+      <div>
+        <div class="card">
+          <h2>Before real invitations</h2>
+          <div class="checks" id="checks"></div>
+          <details id="setDetails"><summary>Company, bank details and agreement</summary>
+            <form id="settings">
+              <label for="provider_legal_name">Legal entity name</label><input id="provider_legal_name">
+              <label for="provider_registration">CR / registration number</label><input id="provider_registration">
+              <label for="bank_account_name">Account name</label><input id="bank_account_name">
+              <label for="bank_name">Bank</label><input id="bank_name">
+              <label for="bank_iban">IBAN</label><input id="bank_iban" placeholder="SA…" autocomplete="off">
+              <label for="bank_swift">SWIFT / BIC</label><input id="bank_swift" autocomplete="off">
+              <button class="b">Save</button>
+            </form>
+            <p style="font-size:12.5px;color:var(--muted);margin-top:10px">Verify only after checking each character against an official bank letter or statement. Editing any bank field clears verification.</p>
+            <button class="b g" id="verifyBank">Mark bank details verified</button>
+            <details><summary>Read the agreement and consents clients will sign</summary><div id="docs"></div></details>
+            <button class="b g" id="approveDoc">Approve agreement for use</button>
+          </details>
+          <p class="msg" id="setMsg"></p>
+        </div>
+
+        <div class="card">
+          <h2>Invite a client</h2>
+          <form id="invite">
+            <label for="iname">Full name</label><input id="iname" required>
+            <label for="iphone">WhatsApp number</label><input id="iphone" type="tel" placeholder="+966 5…" required>
+            <label for="iemail">Email (optional)</label><input id="iemail" type="email">
+            <label style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink)"><input type="checkbox" id="itest" style="width:auto"> Synthetic test (fictional number +44 7700 900xxx, no alerts)</label>
+            <button class="b">Create private link</button>
+          </form>
+          <p class="msg" id="invMsg"></p>
+          <div id="invOut" hidden><div class="url" id="invUrl"></div><button class="b g" id="copyUrl">Copy link</button><a class="b g" id="waUrl" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none;border:1px solid var(--ink);padding:10px 14px;font-size:11px;letter-spacing:.11em;text-transform:uppercase;margin-top:10px">Send on WhatsApp</a>
+            <p style="font-size:12.5px;color:var(--muted)">Shown once. Only its fingerprint is stored; use “Reissue link” if it is lost.</p></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card"><h2>Clients</h2><table><thead><tr><th>Client</th><th>Ref</th><th>Stage</th><th>Report due</th></tr></thead><tbody id="rows"></tbody></table></div>
+        <div class="card" id="detail" hidden></div>
+      </div>
+    </div>
+  </section>
+</main>
+<script>
+(() => {
+'use strict';
+const BASE = 'https://pmjvpnqmklxxpswwvbmv.supabase.co', KEY = 'sb_publishable_1prLuRU6balRnnMUWkMTtA_KITZXKQe';
+const API = BASE + '/functions/v1/maktoub-onboard';
+const $ = id => document.getElementById(id);
+const el = (t, txt, cls) => { const x = document.createElement(t); if (txt != null) x.textContent = String(txt); if (cls) x.className = cls; return x; };
+const when = iso => iso ? new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Riyadh' }) : '—';
+const day = iso => iso ? new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'Asia/Riyadh' }) : '—';
+let session = null, data = null, openId = null;
+
+function readSession() { try { return JSON.parse(sessionStorage.getItem('maktoub_session') || 'null'); } catch (_) { return null; } }
+function saveSession(s) { session = { ...s, expires_at: s.expires_at || Math.floor(Date.now() / 1000) + (s.expires_in || 3600) }; sessionStorage.setItem('maktoub_session', JSON.stringify(session)); }
+async function auth(path, body) {
+  const r = await fetch(BASE + '/auth/v1/' + path, { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: KEY }, body: JSON.stringify(body) });
+  const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error_description || j.msg || 'Sign-in failed'); return j;
+}
+async function fresh() {
+  if (session && session.expires_at - 60 < Date.now() / 1000 && session.refresh_token) saveSession(await auth('token?grant_type=refresh_token', { refresh_token: session.refresh_token }));
+  return session.access_token;
+}
+async function api(action, extra) {
+  const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + await fresh() }, body: JSON.stringify({ action, ...extra }) });
+  const j = await r.json().catch(() => ({}));
+  if (r.status === 401) { signOut(); throw new Error('Please sign in again.'); }
+  if (!r.ok) throw new Error(j.error || 'Request failed');
+  return j;
+}
+const say = (id, t, err) => { $(id).textContent = t || ''; $(id).className = 'msg' + (err ? ' e' : ''); };
+
+function stage(r) {
+  if (r.revoked_at) return ['Revoked', 'var(--muted)'];
+  if (r.matchmaking_started_at) return ['Matchmaking', 'var(--ok)'];
+  if (r.readiness_status === 'approved') return ['Ready', 'var(--ok)'];
+  if (r.readiness_status === 'not_yet') return ['Not yet ready', 'var(--warn)'];
+  if (r.consultation_completed_at) return ['Consulted', 'var(--navy)'];
+  if (r.report_delivered_at) return ['Report delivered', 'var(--navy)'];
+  if (r.payment_verified_at && r.voice_submitted_at) return ['Report in progress', 'var(--navy)'];
+  if (r.payment_reported_at) return ['Verify transfer', 'var(--warn)'];
+  if (r.voice_submitted_at) return ['Awaiting transfer', 'var(--muted)'];
+  if (r.intake_submitted_at) return ['Voice pending', 'var(--muted)'];
+  if (r.signed_at) return ['Intake pending', 'var(--muted)'];
+  if (r.first_opened_at) return ['Opened', 'var(--muted)'];
+  return ['Invited', 'var(--muted)'];
+}
+
+function render() {
+  const s = data.settings;
+  const items = [['Legal entity name', !!s.provider_legal_name], ['Bank details verified', !!s.bank_verified_at], ['Agreement approved (' + s.agreement_version + ')', !!s.agreement_approved_at]];
+  $('checks').replaceChildren(...items.map(([t, ok]) => { const d = el('div'); d.append(el('span', t), el('span', ok ? 'Done' : 'Needed', ok ? 'ok' : 'no')); return d; }));
+  $('setDetails').open = !s.ready_for_real_invites;
+  for (const k of ['provider_legal_name', 'provider_registration', 'bank_account_name', 'bank_name', 'bank_iban', 'bank_swift']) if (document.activeElement !== $(k)) $(k).value = s[k] || '';
+  $('verifyBank').disabled = !!s.bank_verified_at; $('verifyBank').textContent = s.bank_verified_at ? 'Bank verified ' + day(s.bank_verified_at) : 'Mark bank details verified';
+  $('approveDoc').disabled = !!s.agreement_approved_at; $('approveDoc').textContent = s.agreement_approved_at ? 'Agreement approved ' + day(s.agreement_approved_at) : 'Approve agreement for use';
+  $('docs').replaceChildren(...data.documents.map(d => { const w = el('div'); w.append(el('p', d.title + ' · ' + d.version, ''), el('pre', d.body)); return w; }));
+  $('rows').replaceChildren(...data.records.map(r => {
+    const tr = el('tr', null, 'r' + (r.id === openId ? ' sel' : '')); const [st, col] = stage(r);
+    const n = el('td'); n.append(el('div', r.invited_name)); if (r.is_test) n.append(el('div', 'TEST', 'test'));
+    const c = el('span', st, 'chip'); c.style.color = col; const sc = el('td'); sc.append(c);
+    tr.append(n, el('td', r.reference_code), sc, el('td', r.report_due_at ? day(r.report_due_at) + (r.report_delivered_at ? ' ✓' : '') : '—'));
+    tr.onclick = () => { location.hash = r.id; }; return tr;
+  }));
+  if (!data.records.length) { const tr = el('tr'); const td = el('td', 'No invitations yet.'); td.colSpan = 4; tr.append(td); $('rows').append(tr); }
+}
+
+const LABELS = { full_name: 'Full name', email: 'Email', phone: 'Phone', city: 'City', nationality: 'Nationality', dob: 'Date of birth', birth_time: 'Time of birth', marital_status: 'Marital status', children: 'Children', marriage_intention: 'Marriage', preferred_contact: 'Contact via', wa_notify: 'WhatsApp when report ready', family_involvement: 'Family involvement', how_feel: 'How she feels', how_want_to_feel: 'How she wants to feel', mental_health_score: 'Mental health (1–10)', mental_health_note: 'Mental health note', physical_health_score: 'Physical health (1–10)', spiritual_score: 'Spiritual leaning (1–10)', chapter_essentials: 'Chapter · Essentials', chapter_dark: 'Chapter · Dark', chapter_light: 'Chapter · Light', extra_notes: 'What she wants us to know' };
+function kv(pairs) { const dl = el('dl', null, 'kv'); for (const [k, v] of pairs) dl.append(el('dt', k), el('dd', v == null || v === '' ? '—' : v)); return dl; }
+
+async function openDetail(id) {
+  openId = id; const box = $('detail'); box.hidden = false; box.replaceChildren(el('p', 'Loading…'));
+  render();
+  let d; try { d = await api('admin_get', { id }); } catch (e) { box.replaceChildren(el('p', e.message, 'msg e')); return; }
+  const r = d.record; const [st] = stage(r);
+  const head = el('div'); head.append(el('h1', r.invited_name), el('p', r.reference_code + ' · ' + st + (r.is_test ? ' · TEST' : '') + ' · ' + (r.invited_phone || '') + (r.invited_email ? ' · ' + r.invited_email : '')));
+  const msg = el('p', '', 'msg');
+  const act = async (op, extra, confirmText) => {
+    if (confirmText && !confirm(confirmText)) return;
+    try { const res = await api('admin_update', { id, op, ...extra }); if (res.url) { showUrl(res.url, r); } await refresh(); openDetail(id); } catch (e) { msg.textContent = e.message; msg.className = 'msg e'; }
+  };
+  const actions = el('div');
+  // Payment
+  if (!r.payment_verified_at && r.signed_at) {
+    const ref = el('input'); ref.placeholder = 'Bank statement reference / transaction ID';
+    const b = el('button', 'Mark payment verified', 'b');
+    b.onclick = () => act('verify_payment', { bank_reference: ref.value }, 'Confirm you have seen ' + (r.currency + ' ' + (r.price_minor / 100).toLocaleString()) + ' with reference ' + r.reference_code + ' in the corporate account statement.');
+    const w = el('div'); w.append(el('label', 'Verify transfer · expected ' + r.currency + ' ' + (r.price_minor / 100).toLocaleString() + ' · ' + r.reference_code), ref, b); actions.append(w);
+  }
+  const btn = (t, op, extra, conf, cls) => { const b = el('button', t, 'b ' + (cls || 'g')); b.onclick = () => act(op, extra, conf); actions.append(b); };
+  if (r.report_due_at && !r.report_delivered_at) btn('Report delivered', 'report_delivered', {}, 'Mark the report as delivered to the client?');
+  if (r.report_delivered_at && !r.consultation_completed_at) btn('Consultation & Q&A done', 'consultation_completed', {}, 'Mark the report-review consultation as completed?');
+  if (r.consultation_completed_at && !r.matchmaking_started_at) { btn('Approve readiness', 'readiness', { status: 'approved' }, 'Approve readiness? Matchmaking may then start.'); btn('Not yet ready', 'readiness', { status: 'not_yet' }); }
+  if (r.readiness_status === 'approved' && !r.matchmaking_started_at) btn('Start active matchmaking', 'start_matchmaking', {}, 'Start the 3–6 month active matchmaking period now?', '');
+  if (!r.revoked_at) { btn('Reissue link', 'reissue', {}, 'Issue a new private link? The old one stops working.'); btn('Revoke invitation', 'revoke', {}, 'Revoke this invitation? The client will no longer be able to open it.'); }
+  if (r.is_test) { const b = el('button', 'Purge test record', 'b d'); b.onclick = async () => { if (!confirm('Delete this synthetic record and its recording?')) return; try { await api('admin_purge_test', { id }); location.hash = ''; $('detail').hidden = true; refresh(); } catch (e) { msg.textContent = e.message; } }; actions.append(b); }
+
+  const timeline = kv([['Invited', when(r.created_at)], ['Link expires', when(r.invite_expires_at)], ['First opened', when(r.first_opened_at)], ['Signed', r.signed_at ? when(r.signed_at) + ' · “' + r.signature_name + '”' : '—'], ['Intake submitted', when(r.intake_submitted_at)], ['Voice submitted', r.voice_submitted_at ? when(r.voice_submitted_at) + ' · ' + r.voice_duration_seconds + 's' : '—'], ['Transfer reported', r.payment_reported_at ? when(r.payment_reported_at) + (r.payment_client_note ? ' · ' + r.payment_client_note : '') : '—'], ['Payment verified', r.payment_verified_at ? when(r.payment_verified_at) + ' · ' + r.payment_bank_reference : '—'], ['Report due', when(r.report_due_at)], ['Report delivered', when(r.report_delivered_at)], ['Consultation', when(r.consultation_completed_at)], ['Readiness', r.readiness_status + (r.readiness_decided_at ? ' · ' + when(r.readiness_decided_at) : '')], ['Matchmaking started', when(r.matchmaking_started_at)]]);
+
+  const voice = el('div'); voice.append(el('h2', 'Voice answer'));
+  if (d.voice_url) { const a = el('audio'); a.controls = true; a.src = d.voice_url; a.style.width = '100%'; voice.append(a, el('p', 'Private link valid for 10 minutes.', 'msg')); } else voice.append(el('p', 'Not yet recorded.'));
+
+  const i = r.intake || {};
+  const intake = el('div'); intake.append(el('h2', r.intake_submitted_at ? 'Intake' : 'Intake (draft, not submitted)'));
+  intake.append(kv(Object.keys(LABELS).filter(k => k in i).map(k => [LABELS[k], Array.isArray(i[k]) ? i[k].join(', ') : typeof i[k] === 'boolean' ? (i[k] ? 'Yes' : 'No') : String(i[k]).replace(/_/g, ' ')])));
+
+  const cons = el('div'); cons.append(el('h2', 'Signed agreement & consents'));
+  if (!d.consents.length) cons.append(el('p', 'Not signed yet.'));
+  for (const c of d.consents) { const det = el('details'); det.append(el('summary', c.kind.replace('_', ' ') + ' · ' + c.document_version + ' · ' + when(c.created_at) + (c.withdrawn_at ? ' · WITHDRAWN' : '')), el('p', 'Signed as “' + c.signature_name + '” · SHA-256 ' + c.document_sha256, 'msg'), el('pre', c.document_snapshot)); cons.append(det); }
+
+  const note = el('textarea'); note.value = r.founder_note || ''; const nb = el('button', 'Save note', 'b g'); nb.onclick = () => act('note', { note: note.value });
+  const notes = el('div'); notes.append(el('h2', 'Private note'), note, nb);
+
+  const log = el('details'); log.append(el('summary', 'Activity log (' + d.events.length + ')'), el('pre', d.events.map(e => when(e.created_at) + ' · ' + e.actor + ' · ' + e.action).join('\n')));
+  const sep = () => el('hr', null);
+  box.replaceChildren(head, actions, msg, sep(), timeline, sep(), voice, sep(), intake, sep(), cons, sep(), notes, log);
+}
+
+function showUrl(url, r) {
+  $('invOut').hidden = false; $('invUrl').textContent = url;
+  const first = String(r?.invited_name || $('iname').value).trim().split(/\s+/)[0];
+  const digits = String(r?.invited_phone || '').replace(/\D/g, '');
+  const text = 'Assalamu alaikum ' + first + ', here is your private Maktoub invitation. Please keep this link to yourself: ' + url;
+  $('waUrl').href = 'https://wa.me/' + digits + '?text=' + encodeURIComponent(text);
+  $('waUrl').hidden = !digits || !!r?.is_test;
+  $('invOut').scrollIntoView({ block: 'nearest' });
+}
+$('copyUrl').onclick = async () => { try { await navigator.clipboard.writeText($('invUrl').textContent); $('copyUrl').textContent = 'Copied'; setTimeout(() => $('copyUrl').textContent = 'Copy link', 1500); } catch (_) {} };
+
+$('invite').onsubmit = async e => {
+  e.preventDefault(); say('invMsg', 'Creating…'); $('invOut').hidden = true;
+  try {
+    const test = $('itest').checked;
+    const res = await api('admin_invite', { full_name: $('iname').value, phone: $('iphone').value, email: $('iemail').value, test });
+    say('invMsg', 'Link created for ' + res.reference + '.');
+    await refresh(); const r = data.records.find(x => x.id === res.id); showUrl(res.url, r);
+    $('invite').reset();
+  } catch (err) { say('invMsg', err.message, true); }
+};
+$('settings').onsubmit = async e => {
+  e.preventDefault();
+  const body = {}; for (const k of ['provider_legal_name', 'provider_registration', 'bank_account_name', 'bank_name', 'bank_iban', 'bank_swift']) body[k] = $(k).value;
+  try { await api('admin_settings', body); say('setMsg', 'Saved.'); await refresh(); } catch (err) { say('setMsg', err.message, true); }
+};
+$('verifyBank').onclick = async () => {
+  const s = data.settings;
+  if (!confirm('Confirm these are the verified corporate details:\n\n' + s.bank_account_name + '\n' + s.bank_name + '\n' + s.bank_iban + '\n' + (s.bank_swift || ''))) return;
+  try { await api('admin_settings', { verify_bank: true }); say('setMsg', 'Bank details marked verified.'); await refresh(); } catch (err) { say('setMsg', err.message, true); }
+};
+$('approveDoc').onclick = async () => {
+  if (!confirm('Approve ' + data.settings.agreement_version + ' and its privacy and voice consents for real clients? To change the wording later, a new version must be added.')) return;
+  try { await api('admin_settings', { approve_agreement: true }); say('setMsg', 'Agreement approved.'); await refresh(); } catch (err) { say('setMsg', err.message, true); }
+};
+
+async function refresh() { data = await api('admin_overview'); render(); }
+function signOut() { sessionStorage.removeItem('maktoub_session'); session = null; $('app').hidden = true; $('auth').hidden = false; $('out').hidden = true; }
+$('out').onclick = signOut;
+$('signin').onsubmit = async e => {
+  e.preventDefault(); say('authMsg', 'Signing in…');
+  try { saveSession(await auth('token?grant_type=password', { email: $('em').value.trim(), password: $('pw').value })); $('pw').value = ''; await start(); }
+  catch (err) { say('authMsg', err.message, true); }
+};
+window.addEventListener('hashchange', () => { const id = location.hash.slice(1); if (/^[0-9a-f-]{36}$/.test(id)) openDetail(id); });
+async function start() {
+  try { await refresh(); $('auth').hidden = true; $('app').hidden = false; $('out').hidden = false; say('authMsg', ''); const id = location.hash.slice(1); if (/^[0-9a-f-]{36}$/.test(id)) openDetail(id); }
+  catch (e) { $('auth').hidden = false; $('app').hidden = true; say('authMsg', e.message, true); }
+}
+session = readSession();
+if (session?.access_token) start(); else $('auth').hidden = false;
+})();
+</script>
+</body>
+</html>
