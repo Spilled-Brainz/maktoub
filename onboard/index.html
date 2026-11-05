@@ -378,11 +378,12 @@ const KEY = 'maktoub_invite';
 let token = null, view = null, current = 1;
 
 // Move the invite token out of the address bar (no history, no referrer).
+// The code is kept on her device so reopening maktoub.app/onboard/ (new tab, refresh, home-screen) still works.
+const q = (new URLSearchParams(location.search).get('invite') || '').trim().toLowerCase();
 try {
-  const q = new URLSearchParams(location.search).get('invite');
-  if (q) { sessionStorage.setItem(KEY, q.trim().toLowerCase()); history.replaceState(null, '', location.pathname); }
-  token = sessionStorage.getItem(KEY);
-} catch (_) { token = new URLSearchParams(location.search).get('invite'); }
+  if (q) { localStorage.setItem(KEY, q); sessionStorage.setItem(KEY, q); history.replaceState(null, '', location.pathname); }
+  token = q || sessionStorage.getItem(KEY) || localStorage.getItem(KEY);
+} catch (_) { token = q || null; }
 
 async function call(action, extra) {
   const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action, token, ...extra }) });
