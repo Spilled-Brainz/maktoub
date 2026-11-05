@@ -147,7 +147,7 @@ footer{max-width:760px;margin:0 auto;padding:0 20px 40px;font-size:12px;color:va
     <div class="hero">
       <div class="kicker">Founding member invitation</div>
       <h1><span id="firstName"></span>,<br><em>you are invited.</em></h1>
-      <p class="lead">Maktoub is a private, human-led matchmaking practice. You have been personally invited to join as one of our founding members.</p>
+      <p class="lead">Thank you for choosing to begin a private, personalised matchmaking journey with Maktoub. As a Founding Client, this rate holds for your full programme, with early access to new Maktoub services as they launch.</p>
       <div class="sig">It’s written.</div>
     </div>
 
@@ -155,26 +155,28 @@ footer{max-width:760px;margin:0 auto;padding:0 20px 40px;font-size:12px;color:va
       <div class="price"><div><div class="kicker">Founding rate</div><div class="amt" id="priceLabel"></div></div><span class="tag">Paid once · bank transfer</span></div>
     </div>
 
-    <h3 style="margin-top:28px">What your membership includes</h3>
+    <h3 style="margin-top:28px">Your membership</h3>
     <ol class="path">
-      <li><span><b>Private intake.</b> Your written answers and one short voice recording, here, in about twenty minutes.</span></li>
-      <li><span><b>Your personal report</b>, prepared and reviewed by a person, due within seven days of your verified payment and complete submission.</span></li>
-      <li><span><b>Report-review consultation</b> with time for your questions.</span></li>
-      <li><span><b>Readiness.</b> Matchmaking begins only once we agree you are ready.</span></li>
-      <li><span><b>Active matchmaking</b> over three to six months, aiming for three curated introductions. We cannot guarantee a number of introductions or any outcome.</span></li>
+      <li><span><b>Confidential intake and voice assessment</b>, here, in about twenty minutes.</span></li>
+      <li><span><b>Your personalised voice analysis report</b>, delivered within seven days of your payment and complete intake.</span></li>
+      <li><span><b>Report review consultation</b> to discuss recommendations and answer your questions.</span></li>
+      <li><span><b>Relationship readiness.</b> Your 3–6 months of matchmaking begin once we agree together that you are ready.</span></li>
+      <li><span><b>Three introductions</b> to screened, identity-verified, potentially compatible individuals, with personal guidance throughout. If fewer than three happen in your programme period, we extend it at no extra cost.</span></li>
     </ol>
-    <p class="notice">No match is introduced to you, and nothing that identifies you is shared with anyone, without your explicit approval each time.</p>
+    <p class="notice">Your identity will never be disclosed, and no introduction will be arranged, without your explicit prior approval.</p>
 
     <div id="signForm">
       <h3 style="margin-top:34px">Your agreement</h3>
       <div class="doc" id="docAgreement" tabindex="0" aria-label="Founding Member Agreement"></div>
       <details><summary id="privacyTitle">Privacy Notice</summary><div class="doc" id="docPrivacy"></div></details>
       <details><summary id="voiceTitle">Voice Recording Consent</summary><div class="doc" id="docVoice"></div></details>
+      <details id="researchBox"><summary id="researchTitle">Anonymised Improvement Consent (optional)</summary><div class="doc" id="docResearch"></div></details>
 
       <div style="margin-top:18px">
-        <label class="check"><input type="checkbox" id="cAgree"><span>I have read the Founding Member Agreement and agree to its terms, including the <span id="feeInline"></span> fee and that no number of introductions or outcome is guaranteed.</span></label>
-        <label class="check"><input type="checkbox" id="cPrivacy"><span>I consent to Maktoub processing my personal data as described in the Privacy Notice.</span></label>
-        <label class="check" style="border-bottom:1px solid var(--line)"><input type="checkbox" id="cVoice"><span>I consent to recording and processing my voice answer as described in the Voice Recording Consent.</span></label>
+        <label class="check"><input type="checkbox" id="cAgree"><span>I have read and agree to this Agreement, including the <span id="feeInline"></span> programme fee.</span></label>
+        <label class="check"><input type="checkbox" id="cPrivacy"><span>I consent to Maktoub processing my personal information as described in the Privacy Notice.</span></label>
+        <label class="check"><input type="checkbox" id="cVoice"><span>I consent to my voice recording being processed by a third-party provider, as described in Section 8.</span></label>
+        <label class="check" id="researchCheck" style="border-bottom:1px solid var(--line)"><input type="checkbox" id="cResearch"><span>I consent to my voice recording and report being kept in anonymised form to improve Maktoub's services, as described in Section 8. <i class="muted">(optional)</i></span></label>
       </div>
 
       <label class="f" for="sigName">Type your full name to sign</label>
@@ -307,7 +309,7 @@ footer{max-width:760px;margin:0 auto;padding:0 20px 40px;font-size:12px;color:va
       <label class="f" for="senderName">Name on the sending account <span>(optional, helps us match it)</span></label><input type="text" id="senderName" autocomplete="name">
       <div class="err" id="err4" role="alert"></div>
       <button class="btn" id="payBtn">I have completed the transfer</button>
-      <p class="small muted center" style="margin-top:10px">We verify every transfer by hand against our bank statement.</p>
+      <p class="small muted center" style="margin-top:10px">We verify every transfer by hand against our bank statement. As set out in Section 7, the fee is non-refundable once paid.</p>
     </div>
 
     <div id="payState" class="card" hidden>
@@ -317,10 +319,10 @@ footer{max-width:760px;margin:0 auto;padding:0 20px 40px;font-size:12px;color:va
     <h3 style="margin-top:34px">What happens next</h3>
     <ol class="path">
       <li><span><b>We verify your transfer</b> manually, usually within one working day, and confirm on your preferred channel.</span></li>
-      <li><span><b>Your personal report</b> is prepared and reviewed by a person, and is due within seven days of verification and your complete submission. <span id="dueText"></span></span></li>
-      <li><span><b>Report-review consultation and Q&amp;A.</b> We walk through your report together and answer your questions.</span></li>
-      <li><span><b>Readiness.</b> Active matchmaking begins only after we agree you are ready. If not yet, we will tell you honestly why.</span></li>
-      <li><span><b>Curated introductions.</b> Over three to six months of active matchmaking we aim for three introductions. No one is introduced, and nothing identifying is shared, without your explicit approval each time.</span></li>
+      <li><span><b>Your personalised voice analysis report</b> is delivered within seven days of your payment and complete intake. <span id="dueText"></span></span></li>
+      <li><span><b>Report review consultation and Q&amp;A.</b> We walk through your report and recommendations together and answer your questions.</span></li>
+      <li><span><b>Relationship readiness.</b> Your 3–6 months of matchmaking begin on the day of your report review, once we agree you are ready. If more preparation is recommended, we guide you and your place is held for up to 12 months.</span></li>
+      <li><span><b>Three introductions.</b> Each is to a screened, identity-verified person, and none is arranged without your explicit prior approval. If fewer than three take place in your programme period, we extend it at no extra cost.</span></li>
     </ol>
   </section>
 </main>
@@ -393,10 +395,12 @@ function apply(v, goTo) {
   renderDoc($('docAgreement'), docs.agreement.body);
   renderDoc($('docPrivacy'), docs.privacy.body); $('privacyTitle').textContent = docs.privacy.title;
   renderDoc($('docVoice'), docs.voice_processing.body); $('voiceTitle').textContent = docs.voice_processing.title;
+  $('researchBox').hidden = $('researchCheck').hidden = !docs.voice_research;
+  if (docs.voice_research) { renderDoc($('docResearch'), docs.voice_research.body); $('researchTitle').textContent = docs.voice_research.title; }
 
   // Step 1
   $('signForm').hidden = !!v.signed; $('signedBox').hidden = !v.signed;
-  if (v.signed) $('signedText').textContent = 'Signed by ' + v.signed.name + ' on ' + fmtDate(v.signed.at) + '. Version ' + v.signed.version + '.';
+  if (v.signed) $('signedText').textContent = 'Signed by ' + v.signed.name + ' on ' + fmtDate(v.signed.at) + '. Version ' + v.signed.version + '.' + (v.signed.countersigned_at ? ' Countersigned for Maktoub by ' + v.signed.countersigned_name + ' on ' + fmtDate(v.signed.countersigned_at) + '.' : ' Maktoub will countersign on receipt.');
   else if (!$('sigName').value) { $('sigName').value = ''; $('sigName').placeholder = v.full_name; }
   // Step 2
   if (!intakeLoaded) fillIntake(v.intake, v);
@@ -452,7 +456,7 @@ $('signBtn').addEventListener('click', async () => {
   $('err1').textContent = ''; const b = $('signBtn'); b.disabled = true; b.textContent = 'Recording your signature…';
   try {
     const docs = Object.fromEntries(view.documents.map(d => [d.kind, d.sha256]));
-    apply(await call('sign', { signature_name: $('sigName').value.trim(), accept_agreement: $('cAgree').checked, consent_privacy: $('cPrivacy').checked, consent_voice: $('cVoice').checked, documents: docs }), 2);
+    apply(await call('sign', { signature_name: $('sigName').value.trim(), accept_agreement: $('cAgree').checked, consent_privacy: $('cPrivacy').checked, consent_voice: $('cVoice').checked, consent_research: $('cResearch').checked, documents: docs }), 2);
   } catch (e) { $('err1').textContent = e.message; if (e.status === 409) load(); }
   finally { b.textContent = 'Sign and continue →'; signReady(); }
 });

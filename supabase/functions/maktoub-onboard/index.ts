@@ -55,11 +55,11 @@ async function settings() {
 
 // Render the immutable legal texts for one client. The exact rendered text is what is hashed and signed.
 async function documents(s: Record<string, any>, ob: { price_minor: number; currency: string }) {
-  const versions = [s.agreement_version, s.privacy_version, s.voice_version]
+  const versions = [s.agreement_version, s.privacy_version, s.voice_version, s.research_version].filter(Boolean)
   const { data, error } = await db.from('maktoub_legal_documents').select('version,kind,title,body').in('version', versions)
-  if (error || !data || data.length !== 3) throw new Error('legal documents unavailable')
+  if (error || !data || data.length !== versions.length) throw new Error('legal documents unavailable')
   const provider = s.provider_legal_name || 'Maktoub'
-  const order = ['agreement', 'privacy', 'voice_processing']
+  const order = ['agreement', 'privacy', 'voice_processing', 'voice_research']
   return Promise.all(data.sort((a, b) => order.indexOf(a.kind) - order.indexOf(b.kind)).map(async d => {
     const body = d.body.replaceAll('{{PROVIDER}}', provider).replaceAll('{{FEE}}', money(ob.price_minor, ob.currency)).trim()
     return { kind: d.kind, version: d.version, title: d.title, body, sha256: await sha256(d.version + '\n' + d.title + '\n' + body) }
@@ -131,7 +131,7 @@ async function clientView(ob: Record<string, any>, s: Record<string, any>) {
     price: { minor: ob.price_minor, currency: ob.currency, label: money(ob.price_minor, ob.currency) },
     documents: docs,
     step: stepOf(ob),
-    signed: ob.signed_at ? { at: ob.signed_at, name: ob.signature_name, version: ob.agreement_version } : null,
+    signed: ob.signed_at ? { at: ob.signed_at, name: ob.signature_name, version: ob.agreement_version, countersigned_at: ob.countersigned_at, countersigned_name: ob.countersigned_name } : null,
     intake: ob.intake || {}, intake_saved_at: ob.intake_saved_at, intake_submitted_at: ob.intake_submitted_at,
     voice: ob.voice_submitted_at ? { at: ob.voice_submitted_at, duration_seconds: ob.voice_duration_seconds } : null,
     voice_locked: !!ob.payment_verified_at,
@@ -188,14 +188,16 @@ async function clientAction(req: Request, origin: string, ip: string) {
     if (docs.some(d => sent[d.kind] !== d.sha256)) throw new HttpError(409, 'The agreement was updated while you were reading. Please review it again.')
     const ipHash = await sha256('ip:' + ip)
     const ua = (req.headers.get('user-agent') || '').slice(0, 400)
+    // Agreement, privacy and voice processing are required; anonymised retention (voice_research) is optional and recorded either way.
     const { error: cErr } = await db.from('maktoub_onboarding_consents').insert(docs.map(d => ({
       onboarding_id: ob.id, person_id: ob.person_id, kind: d.kind, document_version: d.version, document_sha256: d.sha256,
-      document_snapshot: d.title + '\n\n' + d.body, granted: true, signature_name: name, ip_hash: ipHash, user_agent: ua,
+      document_snapshot: d.title + '\n\n' + d.body, granted: d.kind === 'voice_research' ? body.consent_research === true : true,
+      signature_name: name, ip_hash: ipHash, user_agent: ua,
     })))
     if (cErr) throw cErr
     const agreement = docs.find(d => d.kind === 'agreement')!
     const fresh = await update({ signed_at: now, signature_name: name, agreement_version: agreement.version, agreement_sha256: agreement.sha256 })
-    logEvent(ob.id, 'client', 'signed', { versions: docs.map(d => d.version) })
+    logEvent(ob.id, 'client', 'signed', { versions: docs.map(d => d.version), research_consent: body.consent_research === true })
     return json(await clientView(fresh, s), 200, origin)
   }
 
@@ -259,7 +261,7 @@ async function clientAction(req: Request, origin: string, ip: string) {
 }
 
 // ---------- Founder console ----------
-const LIST_COLS = 'id,person_id,reference_code,invited_name,invited_phone,invited_email,is_test,revoked_at,invite_expires_at,created_at,first_opened_at,last_seen_at,signed_at,intake_submitted_at,voice_submitted_at,payment_reported_at,payment_verified_at,report_due_at,report_delivered_at,consultation_completed_at,readiness_status,matchmaking_started_at,price_minor,currency'
+const LIST_COLS = 'id,person_id,reference_code,invited_name,invited_phone,invited_email,is_test,revoked_at,invite_expires_at,created_at,first_opened_at,last_seen_at,signed_at,intake_submitted_at,voice_submitted_at,payment_reported_at,payment_verified_at,report_due_at,report_delivered_at,consultation_completed_at,readiness_status,matchmaking_started_at,countersigned_at,price_minor,currency'
 
 async function founderAction(req: Request, origin: string, ip: string, jwt: string) {
   const { data: identity, error: authErr } = await db.auth.getUser(jwt)
@@ -391,6 +393,12 @@ async function founderAction(req: Request, origin: string, ip: string, jwt: stri
       if (!ref) throw new HttpError(400, 'Enter the bank reference you matched in the statement.')
       if (!ob.signed_at) throw new HttpError(409, 'The agreement has not been signed.')
       Object.assign(changes, { payment_verified_at: now, payment_verified_by: uid, payment_bank_reference: ref })
+    } else if (op === 'countersign') {
+      if (!ob.signed_at) throw new HttpError(409, 'The client has not signed yet.')
+      if (ob.countersigned_at) throw new HttpError(409, 'Already countersigned.')
+      const name = str(body.name, 150)
+      if (!name) throw new HttpError(400, 'Type your name to countersign.')
+      Object.assign(changes, { countersigned_at: now, countersigned_by: uid, countersigned_name: name })
     } else if (op === 'report_delivered') {
       if (!ob.report_due_at) throw new HttpError(409, 'The report clock has not started (payment and full submission needed).')
       changes.report_delivered_at = now
@@ -422,7 +430,7 @@ async function founderAction(req: Request, origin: string, ip: string, jwt: stri
     } else throw new HttpError(400, 'Invalid update.')
     const { error } = await db.from('maktoub_onboarding').update(changes).eq('id', ob.id)
     if (error) throw error
-    logEvent(ob.id, 'founder', op, op === 'note' ? {} : { ...changes, payment_verified_by: undefined, readiness_decided_by: undefined })
+    logEvent(ob.id, 'founder', op, op === 'note' ? {} : { ...changes, payment_verified_by: undefined, readiness_decided_by: undefined, countersigned_by: undefined })
     return json({ success: true }, 200, origin)
   }
 

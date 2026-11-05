@@ -184,6 +184,12 @@ async function openDetail(id) {
     b.onclick = () => act('verify_payment', { bank_reference: ref.value }, 'Confirm you have seen ' + (r.currency + ' ' + (r.price_minor / 100).toLocaleString()) + ' with reference ' + r.reference_code + ' in the corporate account statement.');
     const w = el('div'); w.append(el('label', 'Verify transfer · expected ' + r.currency + ' ' + (r.price_minor / 100).toLocaleString() + ' · ' + r.reference_code), ref, b); actions.append(w);
   }
+  if (r.signed_at && !r.countersigned_at) {
+    const cn = el('input'); cn.value = 'Deena Al Jassasi';
+    const cb = el('button', 'Countersign for Maktoub', 'b');
+    cb.onclick = () => act('countersign', { name: cn.value }, 'Countersign the agreement signed by ' + r.signature_name + '?');
+    const w = el('div'); w.append(el('label', 'Countersign agreement (your typed signature)'), cn, cb); actions.append(w);
+  }
   const btn = (t, op, extra, conf, cls) => { const b = el('button', t, 'b ' + (cls || 'g')); b.onclick = () => act(op, extra, conf); actions.append(b); };
   if (r.report_due_at && !r.report_delivered_at) btn('Report delivered', 'report_delivered', {}, 'Mark the report as delivered to the client?');
   if (r.report_delivered_at && !r.consultation_completed_at) btn('Consultation & Q&A done', 'consultation_completed', {}, 'Mark the report-review consultation as completed?');
@@ -192,7 +198,7 @@ async function openDetail(id) {
   if (!r.revoked_at) { btn('Reissue link', 'reissue', {}, 'Issue a new private link? The old one stops working.'); btn('Revoke invitation', 'revoke', {}, 'Revoke this invitation? The client will no longer be able to open it.'); }
   if (r.is_test) { const b = el('button', 'Purge test record', 'b d'); b.onclick = async () => { if (!confirm('Delete this synthetic record and its recording?')) return; try { await api('admin_purge_test', { id }); location.hash = ''; $('detail').hidden = true; refresh(); } catch (e) { msg.textContent = e.message; } }; actions.append(b); }
 
-  const timeline = kv([['Invited', when(r.created_at)], ['Link expires', when(r.invite_expires_at)], ['First opened', when(r.first_opened_at)], ['Signed', r.signed_at ? when(r.signed_at) + ' · “' + r.signature_name + '”' : '—'], ['Intake submitted', when(r.intake_submitted_at)], ['Voice submitted', r.voice_submitted_at ? when(r.voice_submitted_at) + ' · ' + r.voice_duration_seconds + 's' : '—'], ['Transfer reported', r.payment_reported_at ? when(r.payment_reported_at) + (r.payment_client_note ? ' · ' + r.payment_client_note : '') : '—'], ['Payment verified', r.payment_verified_at ? when(r.payment_verified_at) + ' · ' + r.payment_bank_reference : '—'], ['Report due', when(r.report_due_at)], ['Report delivered', when(r.report_delivered_at)], ['Consultation', when(r.consultation_completed_at)], ['Readiness', r.readiness_status + (r.readiness_decided_at ? ' · ' + when(r.readiness_decided_at) : '')], ['Matchmaking started', when(r.matchmaking_started_at)]]);
+  const timeline = kv([['Invited', when(r.created_at)], ['Link expires', when(r.invite_expires_at)], ['First opened', when(r.first_opened_at)], ['Signed', r.signed_at ? when(r.signed_at) + ' · “' + r.signature_name + '”' : '—'], ['Countersigned', r.countersigned_at ? when(r.countersigned_at) + ' · “' + r.countersigned_name + '”' : '—'], ['Intake submitted', when(r.intake_submitted_at)], ['Voice submitted', r.voice_submitted_at ? when(r.voice_submitted_at) + ' · ' + r.voice_duration_seconds + 's' : '—'], ['Transfer reported', r.payment_reported_at ? when(r.payment_reported_at) + (r.payment_client_note ? ' · ' + r.payment_client_note : '') : '—'], ['Payment verified', r.payment_verified_at ? when(r.payment_verified_at) + ' · ' + r.payment_bank_reference : '—'], ['Report due', when(r.report_due_at)], ['Report delivered', when(r.report_delivered_at)], ['Consultation', when(r.consultation_completed_at)], ['Readiness', r.readiness_status + (r.readiness_decided_at ? ' · ' + when(r.readiness_decided_at) : '')], ['Matchmaking started', when(r.matchmaking_started_at)]]);
 
   const voice = el('div'); voice.append(el('h2', 'Voice answer'));
   if (d.voice_url) { const a = el('audio'); a.controls = true; a.src = d.voice_url; a.style.width = '100%'; voice.append(a, el('p', 'Private link valid for 10 minutes.', 'msg')); } else voice.append(el('p', 'Not yet recorded.'));
@@ -203,7 +209,8 @@ async function openDetail(id) {
 
   const cons = el('div'); cons.append(el('h2', 'Signed agreement & consents'));
   if (!d.consents.length) cons.append(el('p', 'Not signed yet.'));
-  for (const c of d.consents) { const det = el('details'); det.append(el('summary', c.kind.replace('_', ' ') + ' · ' + c.document_version + ' · ' + when(c.created_at) + (c.withdrawn_at ? ' · WITHDRAWN' : '')), el('p', 'Signed as “' + c.signature_name + '” · SHA-256 ' + c.document_sha256, 'msg'), el('pre', c.document_snapshot)); cons.append(det); }
+  for (const c of d.consents) { const det = el('details'); det.append(el('summary', c.kind.replace('_', ' ') + (c.granted ? '' : ' (declined)') + ' · ' + c.document_version + ' · ' + when(c.created_at) + (c.withdrawn_at ? ' · WITHDRAWN' : '')), el('p', 'Signed as “' + c.signature_name + '” · SHA-256 ' + c.document_sha256, 'msg'), el('pre', c.document_snapshot)); cons.append(det); }
+  const research = d.consents.find(c => c.kind === 'voice_research'); if (research) cons.append(el('p', 'Optional anonymised retention: ' + (research.granted ? 'GRANTED' : 'declined'), 'msg'));
 
   const note = el('textarea'); note.value = r.founder_note || ''; const nb = el('button', 'Save note', 'b g'); nb.onclick = () => act('note', { note: note.value });
   const notes = el('div'); notes.append(el('h2', 'Private note'), note, nb);
