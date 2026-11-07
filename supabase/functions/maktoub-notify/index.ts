@@ -8,7 +8,9 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 const db = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, {
   auth: { autoRefreshToken: false, persistSession: false },
 })
-const BOT = Deno.env.get('MAKTOUB_TELEGRAM_BOT_TOKEN') || ''
+// Accept the bot token under any of the names it may already be stored as.
+const TOKEN_NAMES = ['MAKTOUB_TELEGRAM_BOT_TOKEN', 'TELEGRAM_BOT_TOKEN', 'TELEGRAM_TOKEN', 'TG_BOT_TOKEN', 'BOT_TOKEN']
+const BOT = TOKEN_NAMES.map(n => Deno.env.get(n)).find(Boolean) || ''
 const CHAT = Deno.env.get('MAKTOUB_TELEGRAM_CHAT_ID') || '970663486'
 const esc = (s: unknown) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 const riyadh = (iso: string) => new Date(iso).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Riyadh' })
@@ -29,7 +31,11 @@ async function send(text: string, url: string, label: string) {
 Deno.serve(async (req) => {
   const { data: cfg } = await db.from('maktoub_internal_config').select('value').eq('key', 'notify_secret').maybeSingle()
   if (!cfg?.value || req.headers.get('x-notify-secret') !== cfg.value) return new Response('forbidden', { status: 403 })
-  if (!BOT) return Response.json({ ok: false, reason: 'MAKTOUB_TELEGRAM_BOT_TOKEN is not set' }, { status: 503 })
+  if (!BOT) {
+    // Names only (never values), so the founder can see which secrets exist.
+    const names = Object.keys(Deno.env.toObject()).filter(n => /TELEGRAM|BOT|TG_/i.test(n))
+    return Response.json({ ok: false, reason: 'no Telegram bot token secret', telegram_like_secret_names: names }, { status: 503 })
+  }
   const { data: rows, error } = await db.from('maktoub_notification_outbox').select('id,kind,event_id,created_at,person_id')
     .like('kind', 'onboarding_%').is('sent_at', null).order('created_at').limit(20)
   if (error) return Response.json({ ok: false, error: error.message }, { status: 500 })

@@ -25,3 +25,8 @@ create trigger maktoub_outbox_push_onboarding after insert on public.maktoub_not
 -- maktoub_next_notification() (n8n) now selects `sent_at is null and kind not like 'onboarding_%'`
 -- so the two senders never handle the same alert. See the live definition for the full body.
 -- The edge function needs the secret MAKTOUB_TELEGRAM_BOT_TOKEN (Supabase → Edge Functions → Secrets).
+
+-- Later the same day: maktoub_next_notification() handles onboarding_* again as a fallback (selects any unsent row),
+-- so whichever sender is available delivers the alert. maktoub-notify marks rows sent immediately, so n8n
+-- only sees them if the direct sender has no bot token. maktoub-notify accepts the token as
+-- MAKTOUB_TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_TOKEN, TELEGRAM_TOKEN, TG_BOT_TOKEN or BOT_TOKEN.
