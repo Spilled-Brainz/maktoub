@@ -154,6 +154,26 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
   .rail button{font-size:12px;padding:12px 16px}
   .narrow{max-width:760px}
 }
+.invoice{border:1px solid var(--ink);background:var(--white);padding:22px;margin:24px 0}
+.inv-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding-bottom:16px;border-bottom:1px solid var(--ink)}
+.inv-no{font-size:26px;font-weight:500;letter-spacing:-.01em;text-transform:none;margin:6px 0 0}
+.inv-paid{border:1px solid var(--ok);color:var(--ok);padding:6px 12px;font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase}
+.inv-parties{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:16px 0;border-bottom:1px solid var(--hair)}
+.inv-parties p{margin:0 0 4px;font-size:15px}
+.inv-meta{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:16px 0;font-size:15px}
+.inv-meta dt{color:var(--smoke);font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding-top:2px}.inv-meta dd{margin:0}
+.inv-lines{width:100%;border-collapse:collapse;font-size:15px}
+.inv-lines th{text-align:left;font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--smoke);border-bottom:1px solid var(--ink);padding:8px 0}
+.inv-lines td{padding:12px 0;border-bottom:1px solid var(--hair);vertical-align:top}
+.inv-lines tfoot td{font-weight:500;font-size:17px;border-bottom:1px solid var(--ink)}
+.inv-lines .num{text-align:right;white-space:nowrap;padding-left:16px}
+@media print{
+  body *{visibility:hidden}
+  #invoice,#invoice *{visibility:visible}
+  #invoice{position:absolute;left:0;top:0;width:100%;margin:0;border:0;padding:24px}
+  .noprint{display:none!important}
+  .testbar{display:none}
+}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -326,6 +346,25 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
       <div class="done-mark"><span class="tick" id="payTick">✓</span><div><b id="payTitle"></b><p class="muted small" id="payText" style="margin:4px 0 0"></p></div></div>
     </div>
 
+    <article id="invoice" class="invoice" hidden aria-labelledby="invTitle">
+      <div class="inv-head">
+        <div><p class="label muted">Invoice</p><h3 id="invTitle" class="inv-no"></h3></div>
+        <div class="inv-paid">Paid</div>
+      </div>
+      <div class="inv-parties">
+        <div><p class="label muted">From</p><p id="invSeller"></p></div>
+        <div><p class="label muted">Billed to</p><p id="invBuyer"></p></div>
+      </div>
+      <dl class="inv-meta" id="invMeta"></dl>
+      <table class="inv-lines">
+        <thead><tr><th>Description</th><th class="num">Amount</th></tr></thead>
+        <tbody><tr><td id="invDesc"></td><td class="num" id="invAmt"></td></tr></tbody>
+        <tfoot><tr><td>Total paid</td><td class="num" id="invTotal"></td></tr></tfoot>
+      </table>
+      <p class="small muted" style="margin:16px 0 0">Thank you. This invoice confirms your payment in full for the Maktoub Founding Client Programme.</p>
+      <button class="btn ghost noprint" id="invPrint" type="button">Save or print invoice</button>
+    </article>
+
     <h3 style="margin-top:56px">What happens next</h3>
     <ol class="steps">
       <li><span class="label">01</span><span><b>We verify your transfer</b> manually, usually within one working day, and confirm on your preferred channel.</span></li>
@@ -440,6 +479,21 @@ function apply(v, goTo) {
   const p = v.payment;
   $('payForm').hidden = !!p.reported_at || !!p.verified_at || !bank;
   $('payState').hidden = !(p.reported_at || p.verified_at);
+  const inv = v.invoice;
+  $('invoice').hidden = !inv;
+  if (inv) {
+    const d = iso => new Date(iso + (iso.length === 10 ? 'T12:00:00+03:00' : '')).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Riyadh' });
+    $('invTitle').textContent = inv.number;
+    const seller = $('invSeller'); seller.replaceChildren(document.createTextNode(inv.seller));
+    if (inv.seller_registration) { seller.append(document.createElement('br'), 'CR ' + inv.seller_registration); }
+    seller.append(document.createElement('br'), 'Deena Al Jassasi, Founder');
+    const buyer = $('invBuyer'); buyer.replaceChildren(document.createTextNode(inv.billed_to));
+    if (inv.billed_email) buyer.append(document.createElement('br'), inv.billed_email);
+    const meta = [['Invoice date', d(inv.issued_at)], ['Payment received', inv.paid_on ? d(inv.paid_on) : d(inv.issued_at)], ['Method', inv.method], ['Client reference', v.reference]];
+    $('invMeta').replaceChildren(...meta.flatMap(([k, val]) => { const dt = document.createElement('dt'), dd = document.createElement('dd'); dt.textContent = k; dd.textContent = val; return [dt, dd]; }));
+    $('invDesc').textContent = inv.description;
+    $('invAmt').textContent = $('invTotal').textContent = inv.label;
+  }
   if (p.verified_at) {
     $('payTitle').textContent = 'Payment verified. Thank you.';
     $('payText').textContent = v.report_due_at ? 'Your report is due by ' + fmtDay(v.report_due_at) + '. We will contact you to arrange your consultation.' : 'We will be in touch about your report.';
@@ -594,6 +648,8 @@ $('payBtn').addEventListener('click', async () => {
   catch (e) { $('err4').textContent = e.message; }
   finally { b.disabled = false; b.textContent = 'I have completed the transfer'; }
 });
+
+$('invPrint').addEventListener('click', () => { const t = document.title; document.title = 'Maktoub invoice ' + (view?.invoice?.number || ''); window.print(); document.title = t; });
 
 // ---------- Navigation ----------
 document.querySelectorAll('#rail button').forEach(b => b.addEventListener('click', () => { if (!b.disabled) show(+b.dataset.s); }));
