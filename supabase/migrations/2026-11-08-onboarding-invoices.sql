@@ -24,3 +24,6 @@ begin
 end $$;
 -- Data step applied at the same time: the first client's payment was verified from the founder's SNB alert
 -- (SAR 2,500, 08/11/2026 00:29) and received invoice MKT-2026-0001.
+
+-- Optional legal name override for the invoice (e.g. the full name on the client's bank transfer).
+alter table public.maktoub_onboarding add column invoice_billed_to text;

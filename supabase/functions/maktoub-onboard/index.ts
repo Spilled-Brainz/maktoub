@@ -138,7 +138,7 @@ async function clientView(ob: Record<string, any>, s: Record<string, any>) {
     invoice: ob.invoice_number && ob.payment_verified_at ? {
       number: ob.invoice_number, issued_at: ob.invoice_issued_at, paid_on: ob.payment_received_on,
       seller: s.provider_legal_name || 'Maktoub', seller_registration: s.provider_registration || null,
-      billed_to: (ob.intake && ob.intake.full_name) || ob.signature_name || ob.invited_name,
+      billed_to: ob.invoice_billed_to || (ob.intake && ob.intake.full_name) || ob.signature_name || ob.invited_name,
       billed_email: (ob.intake && ob.intake.email) || ob.invited_email || null,
       description: 'Maktoub Founding Client Programme: private matchmaking (founding rate)',
       amount_minor: ob.price_minor, currency: ob.currency, label: money(ob.price_minor, ob.currency),
