@@ -32,9 +32,13 @@ Deno.serve(async (req) => {
   const { data: cfg } = await db.from('maktoub_internal_config').select('value').eq('key', 'notify_secret').maybeSingle()
   if (!cfg?.value || req.headers.get('x-notify-secret') !== cfg.value) return new Response('forbidden', { status: 403 })
   if (!BOT) {
-    // Names only (never values), so the founder can see which secrets exist.
-    const names = Object.keys(Deno.env.toObject()).filter(n => /TELEGRAM|BOT|TG_/i.test(n))
-    return Response.json({ ok: false, reason: 'no Telegram bot token secret', telegram_like_secret_names: names }, { status: 503 })
+    // No bot token here: hand over to n8n, which holds the Telegram credential and sends the oldest unsent alert.
+    const { data: hook } = await db.from('maktoub_internal_config').select('value').eq('key', 'n8n_outbox_webhook').maybeSingle()
+    let handedOver = false
+    if (hook?.value) {
+      try { handedOver = (await fetch(hook.value, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"kind":"onboarding"}' })).ok } catch (e) { console.error('n8n handover failed', e) }
+    }
+    return Response.json({ ok: false, reason: 'no Telegram bot token secret; handed over to n8n', handed_over: handedOver }, { status: 202 })
   }
   const { data: rows, error } = await db.from('maktoub_notification_outbox').select('id,kind,event_id,created_at,person_id')
     .like('kind', 'onboarding_%').is('sent_at', null).order('created_at').limit(20)

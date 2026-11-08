@@ -30,3 +30,9 @@ create trigger maktoub_outbox_push_onboarding after insert on public.maktoub_not
 -- so whichever sender is available delivers the alert. maktoub-notify marks rows sent immediately, so n8n
 -- only sees them if the direct sender has no bot token. maktoub-notify accepts the token as
 -- MAKTOUB_TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_TOKEN, TELEGRAM_TOKEN, TG_BOT_TOKEN or BOT_TOKEN.
+
+-- n8n usage fix (8 Nov 2026): alerts are event-driven instead of polled every 5 minutes.
+-- maktoub_internal_config('n8n_outbox_webhook') holds the n8n webhook URL ("Alert queued (Supabase)" node).
+-- maktoub_outbox_push_onboarding() now also POSTs that webhook for every non-onboarding alert;
+-- maktoub-notify hands over to it when it has no bot token. n8n keeps a 6-hourly safety-net schedule,
+-- and the calendar busy-time sync runs hourly. Expected usage ~900 runs/month (was ~11,000).
