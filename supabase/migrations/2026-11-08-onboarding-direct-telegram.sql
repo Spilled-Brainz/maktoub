@@ -36,3 +36,9 @@ create trigger maktoub_outbox_push_onboarding after insert on public.maktoub_not
 -- maktoub_outbox_push_onboarding() now also POSTs that webhook for every non-onboarding alert;
 -- maktoub-notify hands over to it when it has no bot token. n8n keeps a 6-hourly safety-net schedule,
 -- and the calendar busy-time sync runs hourly. Expected usage ~900 runs/month (was ~11,000).
+
+-- 9 Nov 2026: voice-note alerts include a private listen link.
+-- maktoub_onboarding.voice_share_url / voice_share_expires_at hold a 7-day signed URL that maktoub-notify
+-- issues when a voice-note alert is queued; maktoub_next_notification() returns it as voice_url (+ voice_seconds)
+-- and the n8n Compose node adds "Listen to her voice note" to the Telegram message.
+alter table public.maktoub_onboarding add column voice_share_url text, add column voice_share_expires_at timestamptz;

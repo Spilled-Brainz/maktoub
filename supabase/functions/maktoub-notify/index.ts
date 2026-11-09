@@ -20,6 +20,18 @@ const TITLES: Record<string, string> = {
   onboarding_payment_reported: 'Transfer reported 💳 check your bank',
 }
 
+const WEEK = 7 * 24 * 3600
+// Private listen link for a client's voice note (signed, expires in 7 days); stored so n8n can include it too.
+async function voiceLink(onboardingId: string) {
+  const { data: ob } = await db.from('maktoub_onboarding').select('id,voice_storage_path').eq('id', onboardingId).maybeSingle()
+  if (!ob?.voice_storage_path) return null
+  const { data } = await db.storage.from('maktoub-onboarding').createSignedUrl(ob.voice_storage_path, WEEK)
+  if (!data?.signedUrl) return null
+  await db.from('maktoub_onboarding').update({ voice_share_url: data.signedUrl, voice_share_expires_at: new Date(Date.now() + WEEK * 1000).toISOString() }).eq('id', ob.id)
+  await db.from('maktoub_onboarding_events').insert({ onboarding_id: ob.id, actor: 'system', action: 'voice_link_issued', detail: { days: 7 } })
+  return data.signedUrl
+}
+
 async function send(text: string, url: string, label: string) {
   const r = await fetch(`https://api.telegram.org/bot${BOT}/sendMessage`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -31,6 +43,13 @@ async function send(text: string, url: string, label: string) {
 Deno.serve(async (req) => {
   const { data: cfg } = await db.from('maktoub_internal_config').select('value').eq('key', 'notify_secret').maybeSingle()
   if (!cfg?.value || req.headers.get('x-notify-secret') !== cfg.value) return new Response('forbidden', { status: 403 })
+  const body = await req.json().catch(() => ({}))
+  if (body?.action === 'voice_link' && typeof body.onboarding_id === 'string') {
+    return Response.json({ url: await voiceLink(body.onboarding_id) })
+  }
+  // Attach listen links to any voice-note alerts before anyone sends them (direct or via n8n).
+  const { data: pendingVoice } = await db.from('maktoub_notification_outbox').select('event_id').eq('kind', 'onboarding_submitted').is('sent_at', null)
+  for (const v of pendingVoice ?? []) await voiceLink(v.event_id)
   if (!BOT) {
     // No bot token here: hand over to n8n, which holds the Telegram credential and sends the oldest unsent alert.
     const { data: hook } = await db.from('maktoub_internal_config').select('value').eq('key', 'n8n_outbox_webhook').maybeSingle()
@@ -46,11 +65,12 @@ Deno.serve(async (req) => {
   const results: unknown[] = []
   for (const o of rows ?? []) {
     try {
-      const { data: ob } = await db.from('maktoub_onboarding').select('id,reference_code,invited_name,invited_phone,signature_name,intake,is_test,payment_client_note').eq('id', o.event_id).maybeSingle()
+      const { data: ob } = await db.from('maktoub_onboarding').select('id,reference_code,invited_name,invited_phone,signature_name,intake,is_test,payment_client_note,voice_share_url,voice_duration_seconds').eq('id', o.event_id).maybeSingle()
       if (!ob || ob.is_test) { await db.from('maktoub_notification_outbox').update({ sent_at: new Date().toISOString() }).eq('id', o.id); continue }
       const name = ob.intake?.full_name || ob.signature_name || ob.invited_name
       let text = `<b>${TITLES[o.kind] || o.kind}</b>\n${esc(name)}\n📱 ${esc(ob.invited_phone)}\n🕒 ${esc(riyadh(o.created_at))} (Riyadh)`
       if (o.kind === 'onboarding_payment_reported' && ob.payment_client_note) text += `\n${esc(ob.payment_client_note)}`
+      if (o.kind === 'onboarding_submitted' && ob.voice_share_url) text += `\n🎧 <a href="${esc(ob.voice_share_url)}">Listen to her voice note</a> (${Math.floor((ob.voice_duration_seconds || 0) / 60)}:${String((ob.voice_duration_seconds || 0) % 60).padStart(2, '0')}, link valid 7 days)`
       const label = o.kind === 'onboarding_payment_reported' ? 'Open · verify payment' : 'Open her record'
       await send(text, `https://maktoub.app/onboard/admin/#${ob.id}`, label)
       await db.from('maktoub_notification_outbox').update({ sent_at: new Date().toISOString() }).eq('id', o.id).is('sent_at', null)
