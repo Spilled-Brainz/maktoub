@@ -81,6 +81,7 @@ pre{white-space:pre-wrap;font:13px/1.55 "Instrument Sans",sans-serif;background:
             <label for="iname">Full name</label><input id="iname" required>
             <label for="iphone">WhatsApp number</label><input id="iphone" type="tel" placeholder="+966 5…" required>
             <label for="iemail">Email (optional)</label><input id="iemail" type="email">
+            <label for="iwho">Client is</label><select id="iwho"><option value="woman">A woman (voice prompt: “your husband”)</option><option value="man">A man (voice prompt: “your wife”)</option></select>
             <label style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink)"><input type="checkbox" id="itest" style="width:auto"> Synthetic test (fictional number +44 7700 900xxx, no alerts)</label>
             <button class="b">Create private link</button>
           </form>
@@ -235,7 +236,7 @@ $('invite').onsubmit = async e => {
   e.preventDefault(); say('invMsg', 'Creating…'); $('invOut').hidden = true;
   try {
     const test = $('itest').checked;
-    const res = await api('admin_invite', { full_name: $('iname').value, phone: $('iphone').value, email: $('iemail').value, test });
+    const res = await api('admin_invite', { full_name: $('iname').value, phone: $('iphone').value, email: $('iemail').value, test, addressed_as: $('iwho').value });
     say('invMsg', 'Link created for ' + res.reference + '.');
     await refresh(); const r = data.records.find(x => x.id === res.id); showUrl(res.url, r);
     $('invite').reset();

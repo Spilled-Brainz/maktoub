@@ -282,13 +282,13 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
    <div class="wrap narrow">
     <div class="section-head"><p class="label">03 / Your voice</p><p class="label muted">About 2 minutes · any language</p></div>
     <p class="muted" style="max-width:44ch">Find a quiet moment and speak naturally for about two minutes. There is no right answer.</p>
-    <p class="quote">“Describe your ideal weekend with your husband. What would you do together, and how would you like to feel?”</p>
+    <p class="quote">“Describe your ideal weekend with your <span data-spouse>husband</span>. What would you do together, and how would you like to feel?”</p>
     <h3 style="color:var(--grey)">If it helps, you might talk about</h3>
     <ol class="prompts">
       <li>How the weekend begins. Where you wake up, and what the first hour together looks like.</li>
       <li>Where you go, or whether you stay in. Who else, if anyone, is part of it.</li>
       <li>A moment you would look forward to most, and why.</li>
-      <li>What he does, or says, that makes you feel cared for.</li>
+      <li>What <span data-pronoun>he</span> does, or says, that makes you feel cared for.</li>
       <li>What the two of you talk about over a long dinner.</li>
       <li>How you would like to feel on Sunday evening, as it ends.</li>
     </ol>
@@ -440,6 +440,9 @@ function apply(v, goTo) {
   $('testbar').hidden = !v.is_test;
   
   $('firstName').textContent = v.first_name;
+  const man = v.addressed_as === 'man';
+  document.querySelectorAll('[data-spouse]').forEach(e => e.textContent = man ? 'wife' : 'husband');
+  document.querySelectorAll('[data-pronoun]').forEach(e => e.textContent = man ? 'she' : 'he');
   $('priceLabel').textContent = $('priceLabel2').textContent = $('feeInline').textContent = v.price.label;
   const docs = Object.fromEntries(v.documents.map(d => [d.kind, d]));
   renderDoc($('docAgreement'), docs.agreement.body);

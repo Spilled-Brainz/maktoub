@@ -27,3 +27,6 @@ end $$;
 
 -- Optional legal name override for the invoice (e.g. the full name on the client's bank transfer).
 alter table public.maktoub_onboarding add column invoice_billed_to text;
+
+-- 10 Nov 2026: onboarding wording follows the client (voice prompt 'your husband' / 'your wife').
+alter table public.maktoub_onboarding add column client_addressed_as text not null default 'woman' check (client_addressed_as in ('woman','man'));

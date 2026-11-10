@@ -120,7 +120,7 @@ async function clientView(ob: Record<string, any>, s: Record<string, any>) {
   return {
     first_name: String(ob.invited_name).trim().split(/\s+/)[0],
     full_name: ob.invited_name, email: ob.invited_email, phone: ob.invited_phone,
-    reference: ob.reference_code, is_test: ob.is_test,
+    reference: ob.reference_code, is_test: ob.is_test, addressed_as: ob.client_addressed_as || 'woman',
     price: { minor: ob.price_minor, currency: ob.currency, label: money(ob.price_minor, ob.currency) },
     documents: docs,
     step: stepOf(ob),
@@ -358,6 +358,7 @@ async function founderAction(req: Request, origin: string, ip: string, jwt: stri
         person_id: personId, reference_code: ref, invite_token_hash: await sha256(token),
         invite_expires_at: new Date(Date.now() + s.invite_valid_days * 86400000).toISOString(),
         is_test: test, invited_name: name, invited_phone: phone, invited_email: email,
+        client_addressed_as: body.addressed_as === 'man' ? 'man' : 'woman',
         price_minor: s.price_minor, currency: s.currency, created_by: uid,
       }).select('id,reference_code').single()
       if (!error) {
