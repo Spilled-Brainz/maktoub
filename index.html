@@ -466,12 +466,12 @@ button{cursor:pointer}
 <header class="header">
   <a class="wordmark" href="#top">MAKTOUB</a>
   <nav class="nav" aria-label="Primary">
-    <a href="#about">About</a><a href="#matchmaking">Matchmaking</a><a href="#social">Social club</a><a href="/events/wellness-and-connection/">Events</a><a href="/technology/">Technology</a><a href="#how">How it works</a><a class="nav-login" href="/login" data-portal-link>Log in</a><a class="btn" href="#join">Join Maktoub</a>
+    <a href="#about">About</a><a href="#matchmaking">Matchmaking</a><a href="#social">Social club</a><a href="/events/wellness-and-connection/">Events</a><a href="/technology/">Technology</a><a href="#how">How it works</a><a href="/book/">Book a call</a><a class="nav-login" href="/login" data-portal-link>Log in</a><a class="btn" href="#join">Join Maktoub</a>
   </nav>
   <button class="menu-button" type="button" aria-expanded="false" aria-controls="mobileMenu">Menu</button>
 </header>
 <nav id="mobileMenu" class="mobile-menu" aria-label="Mobile">
-  <a href="#about">About</a><a href="#matchmaking">Matchmaking</a><a href="#social">Social club</a><a href="/events/wellness-and-connection/">Events</a><a href="/technology/">Technology</a><a href="#how">How it works</a>
+  <a href="#about">About</a><a href="#matchmaking">Matchmaking</a><a href="#social">Social club</a><a href="/events/wellness-and-connection/">Events</a><a href="/technology/">Technology</a><a href="#how">How it works</a><a href="/book/">Book a call</a>
   <div class="mm-actions"><a class="btn btn-solid" href="#join" style="background:var(--white);color:var(--ink);border-color:var(--white)">Join Maktoub →</a><a class="btn btn-line" href="/login" data-portal-link>Log in →</a></div>
 </nav>
 
@@ -572,7 +572,7 @@ button{cursor:pointer}
 <li class="step"><p class="label">01</p><div><h3>Are you ready?</h3><p>Start with where you are, what you want and whether a relationship fits this stage of your life. There’s room to grow before you take the next step.</p></div></li>
 <li class="step"><p class="label">02</p><div><h3>Who are you?</h3><p>Through your intake, we explore your values, emotional needs, relationship patterns and the life you want to build.</p></div></li>
 <li class="step"><p class="label">03</p><div><h3>Who are you compatible with?</h3><p>We look at shared values, communication, expectations and possible friction—not just a list of preferences.</p></div></li></ol>
-<p class="lead" style="max-width:45ch;margin:32px 0">Then we find a comfortable way for you to meet: at one of our events or in a place of your choice.</p><h3 class="display h-md">We turn the process into a safe, respectful experience.</h3><p class="body" style="max-width:65ch;margin:24px 0">Not ready for matchmaking? You’re welcome and encouraged to evolve with us through our events. Explore new interests, connect with others and make room for the person you’re becoming.</p><div class="cta-row"><button class="btn btn-solid" type="button" data-open-apply="matchmaking">Begin your journey →</button><a class="btn btn-line" href="/events/wellness-and-connection/">Explore our next event →</a></div></section>
+<p class="lead" style="max-width:45ch;margin:32px 0">Then we find a comfortable way for you to meet: at one of our events or in a place of your choice.</p><h3 class="display h-md">We turn the process into a safe, respectful experience.</h3><p class="body" style="max-width:65ch;margin:24px 0">Not ready for matchmaking? You’re welcome and encouraged to evolve with us through our events. Explore new interests, connect with others and make room for the person you’re becoming.</p><div class="cta-row"><button class="btn btn-solid" type="button" data-open-apply="matchmaking">Begin your journey →</button><a class="btn btn-line" href="/book/">Book an introductory call →</a><a class="btn btn-line" href="/events/wellness-and-connection/">Explore our next event →</a></div></section>
 
 <section id="screening" class="section night grain-night screen"><div class="section-grid"><p class="label">The technology · Lumiora</p><h2 class="display h-xl">Better questions.<br>More informed choices.</h2><div class="side-copy"><p class="lead">The relationship-intelligence system we’re building underneath Maktoub.</p></div></div><div class="voice"><p class="display h-md voice-caption">The question tells us what to look for. The voice tells us where to look closer.</p><p class="lead" style="max-width:65ch;margin-top:28px">Lumiora brings together structured interviews, contextual voice signals and human review. A change in pace or a pause is a reason to ask another question—not a verdict about who someone is.</p><p class="body" style="max-width:65ch;margin:24px 0">Our long-term aim is to connect these inputs with what happens in real relationships, so we can test what is useful and improve over time. The core architecture is in development; predictive performance is not yet established.</p><a class="btn btn-line" href="/technology/">Explore Lumiora: technology &amp; investment thesis →</a></div></section>
 <section class="section night grain-night bridge" style="border-top:1px solid rgba(255,255,255,.12)">
@@ -886,17 +886,16 @@ button{cursor:pointer}
 
   // Show the calendar immediately after signup; keep verification before a booking write.
   var signupEmail='';
+  // Live free times from maktoub-book: the founder's Google Calendar busy times, blocked days and existing bookings are already removed.
+  var BOOK_ENDPOINT='https://pmjvpnqmklxxpswwvbmv.supabase.co/functions/v1/maktoub-book', liveSlots=null;
+  function loadLiveSlots(){return fetch(BOOK_ENDPOINT).then(function(r){return r.ok?r.json():Promise.reject()}).then(function(j){liveSlots={};(j.slots||[]).forEach(function(x){(liveSlots[x.slice(0,10)]=liveSlots[x.slice(0,10)]||[]).push(x.slice(11,16))});return liveSlots})}
   function refreshSignupTimes(){
     var date=$('signupDate'), time=$('signupTime'), previous=time.value;
     time.replaceChildren();
-    INTAKE.times.forEach(function(t){
-      var ms=Date.parse(date.value+'T'+t+':00+03:00');
-      if(ms>=Date.now()+48*3600000&&ms<=Date.now()+30*86400000){
-        var option=document.createElement('option');option.value=t;option.textContent=t+' Riyadh';time.appendChild(option);
-      }
-    });
+    var list=liveSlots?(liveSlots[date.value]||[]):[];
+    list.forEach(function(t){var option=document.createElement('option');option.value=t;option.textContent=t+' Riyadh';time.appendChild(option)});
     if([].some.call(time.options,function(o){return o.value===previous}))time.value=previous;
-    if(!time.options.length){var empty=document.createElement('option');empty.value='';empty.textContent='Choose another date';time.appendChild(empty)}
+    if(!time.options.length){var empty=document.createElement('option');empty.value='';empty.textContent=liveSlots?'No free times this day':'Loading times…';time.appendChild(empty)}
   }
   function showSignupCalendar(email){
     signupEmail=email;$('signupBooking').hidden=false;$('signupBookingMessage').textContent='';
@@ -904,20 +903,21 @@ button{cursor:pointer}
     date.min=new Date(now+51*3600000).toISOString().slice(0,10);
     date.max=new Date(now+30*86400000+3*3600000).toISOString().slice(0,10);
     date.value=date.min;refreshSignupTimes();
-    if(!$('signupTime').value){date.value=new Date(now+75*3600000).toISOString().slice(0,10);refreshSignupTimes()}
+    loadLiveSlots().then(function(slots){var days=Object.keys(slots).sort();if(days.length){date.min=days[0];date.max=days[days.length-1];date.value=days[0]}else{$('signupBookingMessage').textContent='No times are open right now. We will contact you on WhatsApp.'}refreshSignupTimes()})
+    .catch(function(){$('signupBookingMessage').innerHTML='We could not load available times. Please use <a href="/book/">maktoub.app/book</a>.'});
   }
   $('signupDate').addEventListener('change',refreshSignupTimes);
   $('signupBooking').addEventListener('submit',function(e){
     e.preventDefault();if(!this.reportValidity())return;
     var starts=$('signupDate').value+'T'+$('signupTime').value+':00+03:00', ms=Date.parse(starts);
-    if(ms<Date.now()+48*3600000||ms>Date.now()+30*86400000){refreshSignupTimes();$('signupBookingMessage').textContent='Please choose another time, at least 48 hours ahead.';return}
+    if(!$('signupTime').value){$('signupBookingMessage').textContent='Please choose a date with free times.';return}
     // Submit the request directly; no account step. Founder approval follows via Telegram.
     var form=this, btn=form.querySelector('button[type=submit]'), msg=$('signupBookingMessage');
     if(btn){btn.disabled=true}msg.textContent='Sending your request…';
     fetch('https://pmjvpnqmklxxpswwvbmv.supabase.co/functions/v1/maktoub-book',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'request',full_name:applyForm.elements.name.value.trim(),phone:applyForm.elements.phone.value.trim(),country_iso2:applyForm.elements.country_iso2.value,email:signupEmail||'',starts_at:starts,consent:true})})
     .then(function(r){return r.json().catch(function(){return {}}).then(function(j){if(!r.ok||!j.success)throw new Error(j.error||'We could not send your request. Please try again.');return j})})
     .then(function(){form.querySelectorAll('input,select,button').forEach(function(el){el.disabled=true});msg.textContent='Thank you. Your request for '+new Date(starts).toLocaleString('en-GB',{weekday:'long',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Riyadh'})+' (Riyadh time) is awaiting founder approval. Once approved, you will receive your confirmation and video link on WhatsApp.'})
-    .catch(function(err){msg.textContent=err.message;if(btn){btn.disabled=false}});
+    .catch(function(err){msg.textContent=err.message;if(btn){btn.disabled=false}loadLiveSlots().then(refreshSignupTimes).catch(function(){})});
   });
 
   /* ---------------- Referral modal ---------------- */
