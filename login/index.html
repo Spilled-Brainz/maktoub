@@ -26,6 +26,8 @@ button{display:inline-flex;align-items:center;justify-content:center;gap:10px;mi
 button.secondary{background:transparent;color:var(--ink)}
 button:hover{border-color:var(--red);background:var(--red);color:#fff}
 button:disabled{opacity:.45;cursor:wait}
+button.textlink{min-height:0;padding:4px 0;background:none;border:0;color:var(--smoke);justify-content:flex-start;text-decoration:underline;text-underline-offset:5px;letter-spacing:.06em}
+button.textlink:hover{background:none;color:var(--red)}
 .card{background:var(--white);border:1px solid var(--line);padding:clamp(20px,3vw,32px);margin:20px 0}
 #auth{display:grid;grid-template-columns:1fr;gap:clamp(24px,5vw,80px);align-items:end}
 #auth .card{border:0;border-top:1px solid var(--ink);background:transparent;padding:22px 0 0;margin:0;max-width:440px}
@@ -36,7 +38,7 @@ button:disabled{opacity:.45;cursor:wait}
 .uline{position:absolute;left:-1%;width:102%;bottom:-.16em;height:.36em;overflow:visible;pointer-events:none}
 .uline path{fill:none;stroke:var(--red);stroke-linecap:round;stroke-width:2.6;stroke-dasharray:100;animation:draw .8s cubic-bezier(.2,.72,.2,1) .2s both}.uline path+path{animation-delay:.4s}
 @keyframes draw{from{stroke-dashoffset:100}to{stroke-dashoffset:0}}
-.signoff{font-family:var(--serif);font-style:italic;font-size:22px;color:var(--smoke);margin-top:26px}
+.signoff{font-family:var(--serif);font-style:italic;font-size:22px;line-height:1.35;color:var(--smoke);margin-top:26px;max-width:30ch}
 .ar{font-family:"Noto Sans Arabic",sans-serif;font-style:normal}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}.stack{display:grid;gap:16px;max-width:460px}
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:30px 0 15px}.tabs button.active{background:var(--red);border-color:var(--red);color:#fff}
@@ -48,11 +50,13 @@ table{width:100%;border-collapse:collapse;background:#fff}td,th{text-align:left;
 @media(max-width:650px){td,th{padding:10px} .hide-mobile{display:none}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
+<script src="/assets/love-lines.js" defer></script>
 <header><a class="brand" href="/">MAKTOUB</a><button id="logout" class="secondary" hidden>Sign out</button></header>
 <main>
-<section id="auth"><div><p class="label">Private access · Maktoub</p><h1>Welcome to your <span class="u">next step.<svg class="uline" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M1 12.4C30 6 64 10 99 3.6"/><path pathLength="100" d="M10 18.4C40 13.2 70 15.6 90 11.6"/></svg></span></h1><p class="lead">Sign in with the email you used with Maktoub.</p><p class="signoff">It’s written. <span class="ar" lang="ar">مكتوب</span></p></div>
+<section id="auth"><div><p class="label">Private access · Maktoub</p><h1>Welcome to your <span class="u">next step.<svg class="uline" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M1 12.4C30 6 64 10 99 3.6"/><path pathLength="100" d="M10 18.4C40 13.2 70 15.6 90 11.6"/></svg></span></h1><p class="lead">Sign in with the email you used with Maktoub.</p><p class="signoff" data-love-line>Being seen is rarer than being wanted.</p></div>
 <div class="card stack"><label>Email<input id="email" type="email" autocomplete="email" placeholder="you@example.com"></label>
-<button id="link">Email me a sign-in link</button><details><summary>Use a password instead</summary><div class="stack" style="margin-top:14px"><label>Password<input id="password" type="password" autocomplete="current-password"></label><button id="passwordLogin" class="secondary">Sign in with password</button></div></details></div></section>
+<button id="link">Email me a sign-in link</button><details><summary>Use a password instead</summary><div class="stack" style="margin-top:14px"><label>Password<input id="password" type="password" autocomplete="current-password"></label><button id="passwordLogin" class="secondary">Sign in with password</button><button id="forgotPw" class="textlink" type="button">Forgot your password?</button></div></details></div></section>
+<section id="recover" hidden><p class="label">Private access · Maktoub</p><h1>Choose a new password.</h1><div class="card stack" style="border:0;border-top:1px solid var(--ink);background:transparent;padding:22px 0 0;max-width:440px"><label>New password<input id="recPw" type="password" autocomplete="new-password" minlength="10"></label><label>Repeat it<input id="recPw2" type="password" autocomplete="new-password"></label><button id="recSave">Save and continue</button><p id="recMsg" class="muted"></p></div></section>
 <section id="member" hidden><p class="label">Your Maktoub</p><h1>Your profile is being built.</h1><div class="card" id="memberDetails"></div></section>
 <section id="board" hidden><p class="label">Maktoub / team</p><h1>People & events.</h1><p id="role" class="muted"></p><p><a class="secondary" href="/onboard/admin/" style="display:inline-block;padding:10px 14px;border:1px solid currentColor;text-decoration:none">Onboarding clients →</a></p>
 <details id="pwBox" style="margin:10px 0 18px"><summary>Set a new password</summary><div class="stack" style="margin-top:12px;max-width:360px"><label>New password<input id="newPw" type="password" autocomplete="new-password" minlength="10"></label><label>Repeat it<input id="newPw2" type="password" autocomplete="new-password"></label><button id="savePw" class="secondary">Save password</button><p id="pwMsg" class="muted"></p></div></details>
@@ -92,8 +96,8 @@ async function authFetch(path,body){const r=await fetch(BASE+'/auth/v1/'+path,{m
 async function api(method,body){let r=await fetch(OPS,{method,headers:{'Authorization':'Bearer '+session.access_token,...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined});let j=await r.json();if(!r.ok)throw Error(j.error||'Request failed');return j}
 try{const email=sessionStorage.getItem('maktoub_booking_email');if(email&&preferredSlot)$('email').value=email}catch(e){}
 if(validPreferredSlot(preferredSlot)){$('auth').querySelector('.muted').textContent='Your preferred time: '+new Date(preferredSlot).toLocaleString('en-GB',{timeZone:'Asia/Riyadh',dateStyle:'full',timeStyle:'short'})+' Riyadh. Verify your email below, then submit your free call request for founder approval.'}
-function showBoard(){ $('auth').hidden=true;$('board').hidden=false;$('logout').hidden=false }
-function showAuth(){ $('auth').hidden=false;$('board').hidden=true;$('member').hidden=true;$('logout').hidden=true }
+function showBoard(){ $('recover').hidden=true;$('auth').hidden=true;$('board').hidden=false;$('logout').hidden=false }
+function showAuth(){ $('recover').hidden=true;$('auth').hidden=false;$('board').hidden=true;$('member').hidden=true;$('logout').hidden=true }
 function addCell(tr,content){const td=document.createElement('td');if(content instanceof Node)td.append(content);else td.textContent=content==null?'':String(content);tr.append(td);return td}
 function personName(p){return p?.full_name||'Unknown'}
 function render(){
@@ -144,6 +148,10 @@ if(j.person.interest_matchmaking){
 msg('')}catch(e){msg(e.message);showAuth()}}
 $('link').onclick=async()=>{const button=$('link');try{const email=$('email').value.trim();if(!email||!$('email').checkValidity())throw Error('Enter a valid email address first');button.disabled=true;if(validPreferredSlot(preferredSlot)){try{localStorage.setItem(draftKey(email),preferredSlot)}catch(e){}}await authFetch('otp?redirect_to='+encodeURIComponent(AUTH_REDIRECT),{email,create_user:true});msg('Your private sign-in link is on its way. Please open the newest email from Maktoub.')}catch(e){msg(e.message)}finally{button.disabled=false}}
 $('passwordLogin').onclick=async()=>{try{const s=await authFetch('token?grant_type=password',{email:$('email').value.trim(),password:$('password').value});await signedIn(s)}catch(e){msg(e.message)}}
+$('forgotPw').onclick=async()=>{const b=$('forgotPw');try{const email=$('email').value.trim();if(!email||!$('email').checkValidity())throw Error('Enter your email above first, then tap “Forgot your password?”');b.disabled=true;await authFetch('recover?redirect_to='+encodeURIComponent(AUTH_REDIRECT),{email});msg('If that email belongs to a Maktoub account, a password reset link is on its way. Open the newest email from Maktoub.')}catch(e){msg(e.message)}finally{b.disabled=false}};
+$('recSave').onclick=async()=>{const a=$('recPw').value,b2=$('recPw2').value,m=$('recMsg'),btn=$('recSave');if(a.length<10){m.textContent='Use at least 10 characters.';return}if(a!==b2){m.textContent='The two passwords do not match.';return}
+try{btn.disabled=true;const r=await fetch(BASE+'/auth/v1/user',{method:'PUT',headers:{'Content-Type':'application/json',apikey:KEY,Authorization:'Bearer '+session.access_token},body:JSON.stringify({password:a})});const j=await r.json().catch(()=>({}));
+if(!r.ok)throw Error(j.msg||j.error_description||j.message||'Could not save the password');$('recPw').value=$('recPw2').value='';$('recover').hidden=true;await signedIn(session);msg('Your new password is saved. Next time, sign in with your email and this password.')}catch(e){m.textContent=e.message}finally{btn.disabled=false}};
 $('savePw').onclick=async()=>{const a=$('newPw').value,b2=$('newPw2').value,m=$('pwMsg');if(a.length<10){m.textContent='Use at least 10 characters.';return}if(a!==b2){m.textContent='The two passwords do not match.';return}
 try{const r=await fetch(BASE+'/auth/v1/user',{method:'PUT',headers:{'Content-Type':'application/json',apikey:KEY,Authorization:'Bearer '+session.access_token},body:JSON.stringify({password:a})});const j=await r.json().catch(()=>({}));
 if(!r.ok)throw Error(j.msg||j.error_description||j.message||'Could not save the password');$('newPw').value=$('newPw2').value='';m.textContent='Saved. Next time, open “Use a password instead” and sign in with your email and this password.'}catch(e){m.textContent=e.message}};
@@ -162,6 +170,7 @@ document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.query
   sessionStorage.removeItem('maktoub_session');history.replaceState(null,'',location.pathname);showAuth();
   msg('This sign-in link has expired or has already been used. Enter your email to request a fresh link.');return;
  }
+ if(hash.get('access_token')&&hash.get('type')==='recovery'){history.replaceState(null,'',location.pathname);session={access_token:hash.get('access_token'),refresh_token:hash.get('refresh_token'),expires_at:Math.floor(Date.now()/1000)+Number(hash.get('expires_in')||3600)};session.user=await fetch(BASE+'/auth/v1/user',{headers:{apikey:KEY,Authorization:'Bearer '+session.access_token}}).then(r=>r.json());sessionStorage.setItem('maktoub_session',JSON.stringify(session));$('auth').hidden=true;$('recover').hidden=false;$('logout').hidden=false;$('recPw').focus();return}
  if(hash.get('access_token')){history.replaceState(null,'',location.pathname);await signedIn({access_token:hash.get('access_token'),refresh_token:hash.get('refresh_token'),expires_in:Number(hash.get('expires_in')||3600),user:await fetch(BASE+'/auth/v1/user',{headers:{apikey:KEY,Authorization:'Bearer '+hash.get('access_token')}}).then(r=>r.json())});return}
  const saved=JSON.parse(sessionStorage.getItem('maktoub_session')||'null');
  if(saved?.access_token){
