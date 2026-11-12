@@ -481,7 +481,7 @@ button{cursor:pointer}
 <section class="section paper grain hero">
   <div class="hero-top">
     <p class="label">Private matchmaking + social club / Riyadh</p>
-    <a class="hero-event" href="/events/wellness-and-connection/" data-event-teaser><span class="label">Our upcoming event</span><span class="he-title"><span data-event="date">17/10/2026</span> <span data-event="title">Wellness and Connection</span></span><span class="label he-go">See the event →</span></a>
+    <a class="hero-event" href="#events" data-event-teaser><span class="label">Our upcoming event</span><span class="he-title">New Year</span><span class="label he-go">Find out more →</span></a>
     <p class="label hero-written">It’s written. <span class="ar" lang="ar">مكتوب</span></p>
   </div>
   <div class="hero-brand" aria-hidden="true">MAKTOUB</div>
@@ -506,14 +506,23 @@ button{cursor:pointer}
 <section id="events" class="section paper event-sec" data-event-module>
   <div class="events-head"><p class="label">Our upcoming event</p><a class="btn-text" href="#social">The social club →</a></div>
   <article class="event">
-    <div class="event-date"><div><p class="event-day" data-event="date_display">17 OCT</p><p class="event-year">2026</p></div><p class="label" data-event="city"></p></div>
+    <div class="event-date"><div><p class="event-day">NEW YEAR</p></div><p class="label">Details coming soon</p></div>
     <div class="event-copy">
-      <div><p class="label muted" data-event="kicker">Rooftop Wellness & Connection</p><h3 data-event="title">Wellness and Connection</h3></div>
-      <p class="desc" data-event="description">An afternoon into evening of wellness, music and meaningful connection on the Stella Stays rooftop in Riyadh. Hosted by Maktoub, Stella Stays and RawEscapes for Rooftop Wellness & Connection.</p>
-      <p class="desc"><strong>Saturday 17 October 2026</strong><br>3:00–9:30 PM · Stella Stays rooftop, Riyadh</p>
-      <div><a class="btn btn-solid" href="/events/wellness-and-connection/#tickets">Explore tickets →</a></div>
+      <div><p class="label muted">Coming next</p><h3 data-event="title">New Year</h3></div>
+      <p class="desc" data-event="description">Our next gathering is for New Year. Date, venue and details to be announced.</p>
+      <div><button class="btn btn-solid" type="button" data-open-apply="event">Register interest →</button></div>
     </div>
-    <figure class="img-slot" data-need="Image needed · 3:2 horizontal · yoga or wellness session, people together, candid · black &amp; white"><img alt="Wellness and Connection" data-event="image"></figure>
+  </article>
+  <div class="events-head" style="margin-top:48px"><p class="label">Past event</p></div>
+  <article class="event">
+    <div class="event-date"><div><p class="event-day">17 OCT</p><p class="event-year">2026</p></div><p class="label">Riyadh</p></div>
+    <div class="event-copy">
+      <div><p class="label muted">Rooftop Wellness &amp; Connection</p><h3>Above the City</h3></div>
+      <p class="desc">An afternoon into evening of wellness, music and meaningful connection on the Stella Stays rooftop in Riyadh. Hosted by Maktoub, Stella Stays and RawEscapes.</p>
+      <p class="desc"><strong>Saturday 17 October 2026</strong><br>3:00–9:30 PM · Stella Stays rooftop, Riyadh</p>
+      <p class="label muted">This event has ended</p>
+    </div>
+    <figure class="img-slot"><img src="/images/event-wellness.webp" alt="Rooftop Wellness and Connection"></figure>
   </article>
 </section>
 
@@ -752,14 +761,14 @@ button{cursor:pointer}
   // Upcoming event. Set enabled:false to hide the section.
   var MAKTOUB_EVENT = {
     enabled: true,
-    id: 'wellness-connection-1010-2026',
-    date: '17/10/2026',
-    date_display: '17 OCT',
-    city: 'Riyadh',
-    kicker: 'Rooftop Wellness & Connection',
-    title: 'Above the City',
-    description: 'An afternoon into evening of wellness, music and meaningful connection on the Stella Stays rooftop in Riyadh. Hosted by Maktoub, Stella Stays and RawEscapes for Rooftop Wellness & Connection.',
-    image: '/images/event-wellness.webp'
+    id: 'new-year-2027',
+    date: '',
+    date_display: '',
+    city: '',
+    kicker: 'Coming next',
+    title: 'New Year',
+    description: 'Our next gathering is for New Year. Date, venue and details to be announced.',
+    image: ''
   };
 
   // Intake preview (the real booking happens inside the portal after login). Riyadh time.
