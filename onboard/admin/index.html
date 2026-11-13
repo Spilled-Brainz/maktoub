@@ -37,6 +37,12 @@ tr.r{cursor:pointer}tr.r:hover{background:#faf8f3}tr.sel{background:#eef1f5}
 details{margin-top:8px}summary{cursor:pointer;font-weight:500}
 pre{white-space:pre-wrap;font:13px/1.55 "Instrument Sans",sans-serif;background:#faf8f3;padding:12px;border:1px solid var(--line);max-height:320px;overflow:auto}
 .test{color:var(--warn)}
+.feed{max-height:340px;overflow:auto;border:1px solid var(--line);background:#faf8f3;padding:4px 12px}
+.feed div{padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px;white-space:pre-wrap}.feed div:last-child{border-bottom:0}
+.feed .who{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+.feed .client{border-left:3px solid var(--navy);padding-left:9px}
+.stats{display:flex;gap:22px;flex-wrap:wrap;margin:6px 0 4px}.stats b{display:block;font-size:22px;font-weight:500}.stats span{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.code{font:600 24px/1 ui-monospace,Menlo,monospace;letter-spacing:.12em;margin:8px 0}
 </style>
 </head>
 <body>
@@ -138,6 +144,7 @@ function stage(r) {
   if (r.payment_verified_at && r.voice_submitted_at) return ['Report in progress', 'var(--navy)'];
   if (r.payment_reported_at) return ['Verify transfer', 'var(--warn)'];
   if (r.voice_submitted_at) return ['Awaiting transfer', 'var(--muted)'];
+  if (r.voice_deferred_at && r.intake_submitted_at) return ['Voice deferred', 'var(--warn)'];
   if (r.intake_submitted_at) return ['Voice pending', 'var(--muted)'];
   if (r.signed_at) return ['Intake pending', 'var(--muted)'];
   if (r.first_opened_at) return ['Opened', 'var(--muted)'];
@@ -157,6 +164,7 @@ function render() {
     const tr = el('tr', null, 'r' + (r.id === openId ? ' sel' : '')); const [st, col] = stage(r);
     const n = el('td'); n.append(el('div', r.invited_name)); if (r.is_test) n.append(el('div', 'TEST', 'test'));
     const c = el('span', st, 'chip'); c.style.color = col; const sc = el('td'); sc.append(c);
+    if (r.companion_chat_id) { const bot = el('div', '● Bot day ' + r.companion_day + ' · streak ' + r.companion_streak, 'msg'); bot.style.margin = '4px 0 0'; bot.style.color = r.companion_paused_at ? 'var(--muted)' : 'var(--ok)'; sc.append(bot); }
     tr.append(n, el('td', r.reference_code), sc, el('td', r.report_due_at ? day(r.report_due_at) + (r.report_delivered_at ? ' ✓' : '') : '—'));
     tr.onclick = () => { location.hash = r.id; }; return tr;
   }));
@@ -192,6 +200,8 @@ async function openDetail(id) {
     const w = el('div'); w.append(el('label', 'Countersign agreement (your typed signature)'), cn, cb); actions.append(w);
   }
   const btn = (t, op, extra, conf, cls) => { const b = el('button', t, 'b ' + (cls || 'g')); b.onclick = () => act(op, extra, conf); actions.append(b); };
+  if (r.intake_submitted_at && !r.voice_submitted_at && !r.voice_deferred_at) btn('Voice can come later', 'defer_voice', {}, 'Let ' + r.invited_name + ' continue without the voice answer for now? She can still record it on her portal or send it in her Telegram group.');
+  if (r.voice_deferred_at && !r.voice_submitted_at && !r.payment_reported_at) btn('Require voice again', 'undefer_voice', {});
   if (r.report_due_at && !r.report_delivered_at) btn('Report delivered', 'report_delivered', {}, 'Mark the report as delivered to the client?');
   if (r.report_delivered_at && !r.consultation_completed_at) btn('Consultation & Q&A done', 'consultation_completed', {}, 'Mark the report-review consultation as completed?');
   if (r.consultation_completed_at && !r.matchmaking_started_at) { btn('Approve readiness', 'readiness', { status: 'approved' }, 'Approve readiness? Matchmaking may then start.'); btn('Not yet ready', 'readiness', { status: 'not_yet' }); }
@@ -199,7 +209,7 @@ async function openDetail(id) {
   if (!r.revoked_at) { btn('Reissue link', 'reissue', {}, 'Issue a new private link? The old one stops working.'); btn('Revoke invitation', 'revoke', {}, 'Revoke this invitation? The client will no longer be able to open it.'); }
   if (r.is_test) { const b = el('button', 'Purge test record', 'b d'); b.onclick = async () => { if (!confirm('Delete this synthetic record and its recording?')) return; try { await api('admin_purge_test', { id }); location.hash = ''; $('detail').hidden = true; refresh(); } catch (e) { msg.textContent = e.message; } }; actions.append(b); }
 
-  const timeline = kv([['Invited', when(r.created_at)], ['Link expires', when(r.invite_expires_at)], ['First opened', when(r.first_opened_at)], ['Signed', r.signed_at ? when(r.signed_at) + ' · “' + r.signature_name + '”' : '—'], ['Countersigned', r.countersigned_at ? when(r.countersigned_at) + ' · “' + r.countersigned_name + '”' : '—'], ['Intake submitted', when(r.intake_submitted_at)], ['Voice submitted', r.voice_submitted_at ? when(r.voice_submitted_at) + ' · ' + r.voice_duration_seconds + 's' : '—'], ['Transfer reported', r.payment_reported_at ? when(r.payment_reported_at) + (r.payment_client_note ? ' · ' + r.payment_client_note : '') : '—'], ['Payment verified', r.payment_verified_at ? when(r.payment_verified_at) + ' · ' + r.payment_bank_reference : '—'], ['Report due', when(r.report_due_at)], ['Report delivered', when(r.report_delivered_at)], ['Consultation', when(r.consultation_completed_at)], ['Readiness', r.readiness_status + (r.readiness_decided_at ? ' · ' + when(r.readiness_decided_at) : '')], ['Matchmaking started', when(r.matchmaking_started_at)]]);
+  const timeline = kv([['Invited', when(r.created_at)], ['Link expires', when(r.invite_expires_at)], ['First opened', when(r.first_opened_at)], ['Signed', r.signed_at ? when(r.signed_at) + ' · “' + r.signature_name + '”' : '—'], ['Countersigned', r.countersigned_at ? when(r.countersigned_at) + ' · “' + r.countersigned_name + '”' : '—'], ['Intake submitted', when(r.intake_submitted_at)], ['Voice submitted', r.voice_submitted_at ? when(r.voice_submitted_at) + ' · ' + r.voice_duration_seconds + 's' + (r.voice_source === 'telegram' ? ' · via Telegram' : '') : r.voice_deferred_at ? 'Deferred ' + when(r.voice_deferred_at) : '—'], ['Transfer reported', r.payment_reported_at ? when(r.payment_reported_at) + (r.payment_client_note ? ' · ' + r.payment_client_note : '') : '—'], ['Payment verified', r.payment_verified_at ? when(r.payment_verified_at) + ' · ' + r.payment_bank_reference : '—'], ['Report due', when(r.report_due_at)], ['Report delivered', when(r.report_delivered_at)], ['Consultation', when(r.consultation_completed_at)], ['Readiness', r.readiness_status + (r.readiness_decided_at ? ' · ' + when(r.readiness_decided_at) : '')], ['Matchmaking started', when(r.matchmaking_started_at)]]);
 
   const voice = el('div'); voice.append(el('h2', 'Voice answer'));
   if (d.voice_url) { const a = el('audio'); a.controls = true; a.src = d.voice_url; a.style.width = '100%'; voice.append(a, el('p', 'Private link valid for 10 minutes.', 'msg')); } else voice.append(el('p', 'Not yet recorded.'));
@@ -216,9 +226,70 @@ async function openDetail(id) {
   const note = el('textarea'); note.value = r.founder_note || ''; const nb = el('button', 'Save note', 'b g'); nb.onclick = () => act('note', { note: note.value });
   const notes = el('div'); notes.append(el('h2', 'Private note'), note, nb);
 
+  // ----- Portal message -----
+  const first = String(r.invited_name).trim().split(/\s+/)[0];
+  const portal = el('div'); portal.append(el('h2', 'Message on her portal'));
+  const mt = el('input'); mt.placeholder = 'Headline (optional), e.g. “An update on your next steps”'; mt.maxLength = 140;
+  const mb = el('textarea'); mb.style.minHeight = '140px'; mb.placeholder = 'Write to ' + first + '. She sees this at the top of her portal.';
+  const mtg = el('label'); mtg.style.cssText = 'display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink)';
+  const mtgBox = el('input'); mtgBox.type = 'checkbox'; mtgBox.style.width = 'auto'; mtgBox.checked = !!r.companion_chat_id; mtgBox.disabled = !r.companion_chat_id;
+  mtg.append(mtgBox, document.createTextNode(r.companion_chat_id ? 'Notify her in her Telegram group' : 'Telegram: link her group below to notify there'));
+  const pm = el('p', '', 'msg'); const wa = el('a', 'Notify on WhatsApp', 'b g'); wa.target = '_blank'; wa.rel = 'noopener'; wa.hidden = true;
+  wa.style.cssText = 'display:inline-block;text-decoration:none;border:1px solid var(--ink);padding:10px 14px;font-size:11px;letter-spacing:.11em;text-transform:uppercase;margin-top:10px';
+  const pb = el('button', 'Publish to her portal', 'b');
+  pb.onclick = async () => {
+    if (!mb.value.trim()) { pm.textContent = 'Write the message first.'; pm.className = 'msg e'; return; }
+    if (!confirm('Publish this message to ' + r.invited_name + '’s portal' + (mtgBox.checked ? ' and notify her on Telegram' : '') + '?')) return;
+    pb.disabled = true;
+    try {
+      const res = await api('admin_message', { id, title: mt.value, body: mb.value, notify_telegram: mtgBox.checked });
+      const digits = String(r.invited_phone || '').replace(/\D/g, '');
+      const text = 'Assalamu alaikum ' + first + ', there is a new message for you on your Maktoub portal' + (mt.value.trim() ? ': “' + mt.value.trim() + '”' : '') + '. Open it here: https://maktoub.app/onboard/ (on the same phone you used before). If it asks for your invitation, use your original private link.';
+      wa.href = 'https://wa.me/' + digits + '?text=' + encodeURIComponent(text); wa.hidden = !digits || r.is_test;
+      pm.className = 'msg'; pm.textContent = 'Published.' + (mtgBox.checked ? (res.telegram?.ok ? ' Telegram notified.' : ' Telegram not sent: ' + (res.telegram?.reason || 'unknown') + '.') : '') + (wa.hidden ? '' : ' Now tap “Notify on WhatsApp”.');
+      mt.value = ''; mb.value = '';
+    } catch (e) { pm.textContent = e.message; pm.className = 'msg e'; }
+    pb.disabled = false;
+  };
+  const sent = el('div');
+  if (d.messages.length) {
+    const det = el('details'); det.append(el('summary', 'Published messages (' + d.messages.length + ')'));
+    for (const m of d.messages) det.append(el('pre', when(m.created_at) + (m.read_at ? ' · read ' + when(m.read_at) : ' · not yet read') + (m.telegram_sent_at ? ' · Telegram ✓' : m.telegram_error ? ' · Telegram failed' : '') + '\n\n' + (m.title ? m.title + '\n\n' : '') + m.body));
+    sent.append(det);
+  }
+  portal.append(el('label', 'Headline'), mt, el('label', 'Message'), mb, mtg, pb, wa, pm, sent);
+
+  // ----- Accountability bot -----
+  const bot = el('div'); bot.append(el('h2', 'Accountability bot · Telegram'));
+  const bm = el('p', '', 'msg');
+  const botAct = async (op, conf) => {
+    if (conf && !confirm(conf)) return null;
+    try { const res = await api('admin_companion', { id, op }); return res; } catch (e) { bm.textContent = e.message; bm.className = 'msg e'; return null; }
+  };
+  const bbtn = (t, fn, cls) => { const b = el('button', t, 'b ' + (cls || 'g')); b.onclick = fn; bot.append(b); return b; };
+  if (r.companion_chat_id) {
+    const st = el('div', null, 'stats');
+    for (const [k, v] of [['Process day', r.companion_day], ['Streak', r.companion_streak], ['Last prompt', r.companion_last_prompt_at ? day(r.companion_last_prompt_at) : '—'], ['Last reply', r.companion_last_reply_at ? day(r.companion_last_reply_at) : '—']]) { const x = el('div'); x.append(el('b', v), el('span', k)); st.append(x); }
+    bot.append(el('p', 'Linked ' + when(r.companion_linked_at) + (r.companion_client_tg_name ? ' · her Telegram: ' + r.companion_client_tg_name : ' · waiting for her to join or write') + (r.companion_paused_at ? ' · PAUSED' : ''), 'msg'), st);
+    bbtn('Send next reflection now', async () => { const res = await botAct('nudge', 'Send the next reflection to the group now?'); if (res) { bm.textContent = res.ok ? 'Sent.' : res.reason; await refresh(); openDetail(id); } });
+    bbtn(r.companion_paused_at ? 'Resume' : 'Pause', async () => { if (await botAct(r.companion_paused_at ? 'resume' : 'pause')) { await refresh(); openDetail(id); } });
+    bbtn('Unlink group', async () => { if (await botAct('unlink', 'Unlink her Telegram group? The bot stops posting there.')) { await refresh(); openDetail(id); } });
+    const feed = el('div', null, 'feed');
+    if (!d.companion_log.length) feed.append(el('div', 'Nothing yet.'));
+    for (const l of d.companion_log) { const row = el('div', null, l.from_role === 'client' ? 'client' : ''); row.append(el('span', when(l.created_at) + ' · ' + (l.from_role === 'client' ? first : l.from_role) + (l.kind === 'reply' ? ' · reply' : l.kind === 'prompt' ? ' · day ' + l.day : ''), 'who'), document.createTextNode(l.text || '')); feed.append(row); }
+    bot.append(el('label', 'Group record (latest first)'), feed);
+  } else {
+    bot.append(el('p', '1. In Telegram, create a group with ' + first + ' and add the Maktoub bot (make it an admin so it can read replies). 2. Create a code here. 3. Send /link CODE in the group. Her process starts immediately with Day 1.', 'msg'));
+    const codeBox = el('div');
+    bbtn('Create link code', async () => { const res = await botAct('code'); if (res?.code) { codeBox.replaceChildren(el('div', res.code, 'code'), el('p', 'In the group, send:  /link ' + res.code + '   (valid 48 hours, single use)', 'msg')); } }, '');
+    bot.append(codeBox);
+  }
+  bbtn('Connect bot webhook', async () => { const res = await botAct('setup'); if (res) { bm.className = 'msg' + (res.ok ? '' : ' e'); bm.textContent = res.ok ? 'Connected: @' + res.bot_username + (res.can_read_all_group_messages ? '' : ' · Privacy mode is ON: make the bot a group admin, or turn privacy off in BotFather, so it can read her replies.') : (res.reason || res.error || 'Failed'); } });
+  bot.append(bm);
+
   const log = el('details'); log.append(el('summary', 'Activity log (' + d.events.length + ')'), el('pre', d.events.map(e => when(e.created_at) + ' · ' + e.actor + ' · ' + e.action).join('\n')));
   const sep = () => el('hr', null);
-  box.replaceChildren(head, actions, msg, sep(), timeline, sep(), voice, sep(), intake, sep(), cons, sep(), notes, log);
+  box.replaceChildren(head, actions, msg, sep(), portal, sep(), bot, sep(), timeline, sep(), voice, sep(), intake, sep(), cons, sep(), notes, log);
 }
 
 function showUrl(url, r) {

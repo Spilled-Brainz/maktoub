@@ -72,7 +72,7 @@ const readyForRealInvites = (s: Record<string, any>) => bankReady(s) && !!s.prov
 function stepOf(ob: Record<string, any>) {
   if (!ob.signed_at) return 1
   if (!ob.intake_submitted_at) return 2
-  if (!ob.voice_submitted_at) return 3
+  if (!ob.voice_submitted_at && !ob.voice_deferred_at) return 3
   return 4
 }
 
@@ -114,10 +114,32 @@ function intakeProblems(i: Record<string, any>) {
   return missing
 }
 
+// Internal call to the accountability bot (maktoub-companion), authenticated with the notify secret.
+async function companion(body: Record<string, unknown>) {
+  const { data: cfg } = await db.from('maktoub_internal_config').select('value').eq('key', 'notify_secret').maybeSingle()
+  if (!cfg?.value) return { ok: false, reason: 'notify secret missing' }
+  try {
+    const r = await fetch(Deno.env.get('SUPABASE_URL') + '/functions/v1/maktoub-companion', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-notify-secret': cfg.value }, body: JSON.stringify(body),
+    })
+    return await r.json().catch(() => ({ ok: false, reason: 'companion ' + r.status }))
+  } catch (e) { console.error('companion call failed', e); return { ok: false, reason: 'companion unreachable' } }
+}
+
+async function portalMessages(onboardingId: string) {
+  const { data } = await db.from('maktoub_onboarding_messages').select('id,title,body,created_at,read_at,telegram_sent_at,telegram_error')
+    .eq('onboarding_id', onboardingId).order('created_at', { ascending: false }).limit(50)
+  return data ?? []
+}
+
 // ---------- Client view ----------
 async function clientView(ob: Record<string, any>, s: Record<string, any>) {
   const docs = await documents(s, ob)
+  const messages = (await portalMessages(ob.id)).map(m => ({ id: m.id, title: m.title, body: m.body, at: m.created_at, unread: !m.read_at }))
   return {
+    messages,
+    voice_deferred: !!ob.voice_deferred_at && !ob.voice_submitted_at,
+    companion_linked: !!ob.companion_chat_id,
     first_name: String(ob.invited_name).trim().split(/\s+/)[0],
     full_name: ob.invited_name, email: ob.invited_email, phone: ob.invited_phone,
     reference: ob.reference_code, is_test: ob.is_test, addressed_as: ob.client_addressed_as || 'woman',
@@ -126,8 +148,8 @@ async function clientView(ob: Record<string, any>, s: Record<string, any>) {
     step: stepOf(ob),
     signed: ob.signed_at ? { at: ob.signed_at, name: ob.signature_name, version: ob.agreement_version, countersigned_at: ob.countersigned_at, countersigned_name: ob.countersigned_name } : null,
     intake: ob.intake || {}, intake_saved_at: ob.intake_saved_at, intake_submitted_at: ob.intake_submitted_at,
-    voice: ob.voice_submitted_at ? { at: ob.voice_submitted_at, duration_seconds: ob.voice_duration_seconds } : null,
-    voice_locked: !!ob.payment_verified_at,
+    voice: ob.voice_submitted_at ? { at: ob.voice_submitted_at, duration_seconds: ob.voice_duration_seconds, via: ob.voice_source || 'portal' } : null,
+    voice_locked: !!ob.payment_verified_at && !!ob.voice_submitted_at,
     payment: {
       reported_at: ob.payment_reported_at, verified_at: ob.payment_verified_at,
       bank: bankReady(s) ? { account_name: s.bank_account_name, bank_name: s.bank_name, iban: s.bank_iban, swift: s.bank_swift } : null,
@@ -176,7 +198,13 @@ async function clientAction(req: Request, origin: string, ip: string) {
   if (action === 'load') {
     const fresh = await update({ last_seen_at: now, ...(ob.first_opened_at ? {} : { first_opened_at: now }) })
     if (!ob.first_opened_at) logEvent(ob.id, 'client', 'opened')
-    return json(await clientView(fresh, s), 200, origin)
+    const view = await clientView(fresh, s)
+    // Opening the portal counts as reading its messages; the view still flags them as new this time.
+    if (view.messages.some((m: { unread: boolean }) => m.unread)) {
+      await db.from('maktoub_onboarding_messages').update({ read_at: now }).eq('onboarding_id', ob.id).is('read_at', null)
+      logEvent(ob.id, 'client', 'messages_read')
+    }
+    return json(view, 200, origin)
   }
 
   if (action === 'sign') {
@@ -221,7 +249,7 @@ async function clientAction(req: Request, origin: string, ip: string) {
 
   if (action === 'voice') {
     if (!ob.intake_submitted_at) throw new HttpError(409, 'Please complete your intake first.')
-    if (ob.payment_verified_at) throw new HttpError(409, 'Your recording is already with the team.')
+    if (ob.payment_verified_at && ob.voice_submitted_at) throw new HttpError(409, 'Your recording is already with the team.')
     if (await limited('onb-voice:' + ob.id, 12, 86400)) throw new HttpError(429, 'Too many uploads today. Please try again tomorrow.')
     const audio = form?.get('audio')
     if (!(audio instanceof File) || audio.size < 1000 || audio.size > MAX_AUDIO) throw new HttpError(400, 'The recording could not be read. Please record again.')
@@ -236,7 +264,7 @@ async function clientAction(req: Request, origin: string, ip: string) {
     const previous = ob.voice_storage_path
     let fresh
     try {
-      fresh = await update({ voice_storage_path: path, voice_mime: mime, voice_duration_seconds: duration, voice_submitted_at: ob.voice_submitted_at || now })
+      fresh = await update({ voice_storage_path: path, voice_mime: mime, voice_duration_seconds: duration, voice_submitted_at: ob.voice_submitted_at || now, voice_source: 'portal' })
     } catch (e) {
       await db.storage.from(BUCKET).remove([path])
       throw e
@@ -250,7 +278,7 @@ async function clientAction(req: Request, origin: string, ip: string) {
   }
 
   if (action === 'report_payment') {
-    if (!ob.voice_submitted_at) throw new HttpError(409, 'Please complete the earlier steps first.')
+    if (!ob.voice_submitted_at && !ob.voice_deferred_at) throw new HttpError(409, 'Please complete the earlier steps first.')
     if (!bankReady(s)) throw new HttpError(409, 'Bank details are being confirmed. Please wait for our message before transferring.')
     if (ob.payment_reported_at) return json(await clientView(ob, s), 200, origin)
     const note = [str(body.transfer_date, 20) && 'Date: ' + str(body.transfer_date, 20), str(body.sender_name, 150) && 'Sender: ' + str(body.sender_name, 150)]
@@ -264,7 +292,7 @@ async function clientAction(req: Request, origin: string, ip: string) {
 }
 
 // ---------- Founder console ----------
-const LIST_COLS = 'id,person_id,reference_code,invited_name,invited_phone,invited_email,is_test,revoked_at,invite_expires_at,created_at,first_opened_at,last_seen_at,signed_at,intake_submitted_at,voice_submitted_at,payment_reported_at,payment_verified_at,report_due_at,report_delivered_at,consultation_completed_at,readiness_status,matchmaking_started_at,countersigned_at,price_minor,currency'
+const LIST_COLS = 'id,person_id,reference_code,invited_name,invited_phone,invited_email,is_test,revoked_at,invite_expires_at,created_at,first_opened_at,last_seen_at,signed_at,intake_submitted_at,voice_submitted_at,payment_reported_at,payment_verified_at,report_due_at,report_delivered_at,consultation_completed_at,readiness_status,matchmaking_started_at,countersigned_at,price_minor,currency,voice_deferred_at,companion_chat_id,companion_linked_at,companion_paused_at,companion_day,companion_streak,companion_last_prompt_at,companion_last_reply_at'
 
 async function founderAction(req: Request, origin: string, ip: string, jwt: string) {
   const { data: identity, error: authErr } = await db.auth.getUser(jwt)
@@ -383,8 +411,61 @@ async function founderAction(req: Request, origin: string, ip: string, jwt: stri
       voice_url = data?.signedUrl ?? null
       logEvent(ob.id, 'founder', 'voice_url_issued')
     }
-    const { invite_token_hash: _h, ...safe } = ob
-    return json({ record: safe, consents, events, voice_url }, 200, origin)
+    const { invite_token_hash: _h, companion_link_code_hash: _c, ...safe } = ob
+    const [messages, { data: companion_log }] = await Promise.all([
+      portalMessages(ob.id),
+      db.from('maktoub_companion_log').select('from_role,kind,day,text,created_at').eq('onboarding_id', ob.id).order('created_at', { ascending: false }).limit(60),
+    ])
+    return json({ record: safe, consents, events, voice_url, messages, companion_log: companion_log ?? [] }, 200, origin)
+  }
+
+  // Publish a message to the client's portal, then tell her in her Telegram group (if linked).
+  // WhatsApp is sent by the founder from the console (one-tap wa.me link with the text prefilled).
+  if (action === 'admin_message') {
+    const ob = await getOne(body.id)
+    if (ob.revoked_at) throw new HttpError(409, 'This invitation was revoked.')
+    const text = str(body.body, 6000)
+    if (!text) throw new HttpError(400, 'Write the message first.')
+    const { data: m, error } = await db.from('maktoub_onboarding_messages').insert({
+      onboarding_id: ob.id, title: str(body.title, 140), body: text, created_by: uid,
+    }).select('id').single()
+    if (error) throw error
+    logEvent(ob.id, 'founder', 'portal_message', { message_id: m.id })
+    const telegram = ob.companion_chat_id && body.notify_telegram !== false ? await companion({ action: 'portal_message', message_id: m.id }) : { ok: false, reason: 'no linked Telegram group' }
+    return json({ id: m.id, telegram }, 200, origin)
+  }
+
+  if (action === 'admin_companion') {
+    const ob = await getOne(body.id)
+    const op = String(body.op || '')
+    if (op === 'code') {
+      if (ob.revoked_at) throw new HttpError(409, 'This invitation was revoked.')
+      const alphabet = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ'
+      const code = [...crypto.getRandomValues(new Uint8Array(6))].map(b => alphabet[b % alphabet.length]).join('')
+      const expires = new Date(Date.now() + 48 * 3600000).toISOString()
+      const { error } = await db.from('maktoub_onboarding').update({ companion_link_code_hash: await sha256('link:' + code), companion_link_expires_at: expires }).eq('id', ob.id)
+      if (error) throw error
+      logEvent(ob.id, 'founder', 'companion_code_issued')
+      return json({ code, expires_at: expires }, 200, origin)
+    }
+    if (op === 'setup') return json(await companion({ action: 'setup' }), 200, origin)
+    if (op === 'nudge') {
+      if (!ob.companion_chat_id) throw new HttpError(409, 'Link her Telegram group first.')
+      return json(await companion({ action: 'nudge', onboarding_id: ob.id }), 200, origin)
+    }
+    if (op === 'pause' || op === 'resume') {
+      const { error } = await db.from('maktoub_onboarding').update({ companion_paused_at: op === 'pause' ? now : null }).eq('id', ob.id)
+      if (error) throw error
+      logEvent(ob.id, 'founder', 'companion_' + op)
+      return json({ success: true }, 200, origin)
+    }
+    if (op === 'unlink') {
+      const { error } = await db.from('maktoub_onboarding').update({ companion_chat_id: null, companion_paused_at: null }).eq('id', ob.id)
+      if (error) throw error
+      logEvent(ob.id, 'founder', 'companion_unlinked')
+      return json({ success: true }, 200, origin)
+    }
+    throw new HttpError(400, 'Invalid request.')
   }
 
   if (action === 'admin_update') {
@@ -418,6 +499,13 @@ async function founderAction(req: Request, origin: string, ip: string, jwt: stri
       if (ob.readiness_status !== 'approved') throw new HttpError(409, 'Matchmaking starts only after readiness approval.')
       if (!ob.payment_verified_at) throw new HttpError(409, 'Payment has not been verified.')
       changes.matchmaking_started_at = ob.matchmaking_started_at || now
+    } else if (op === 'defer_voice') {
+      if (!ob.intake_submitted_at) throw new HttpError(409, 'The intake has not been submitted yet.')
+      if (ob.voice_submitted_at) throw new HttpError(409, 'The voice answer is already in.')
+      Object.assign(changes, { voice_deferred_at: ob.voice_deferred_at || now, voice_deferred_by: uid })
+    } else if (op === 'undefer_voice') {
+      if (ob.payment_reported_at && !ob.voice_submitted_at) throw new HttpError(409, 'She has already moved on to payment.')
+      Object.assign(changes, { voice_deferred_at: null, voice_deferred_by: null })
     } else if (op === 'note') {
       changes.founder_note = str(body.note, 3000)
     } else if (op === 'revoke') {
@@ -434,7 +522,7 @@ async function founderAction(req: Request, origin: string, ip: string, jwt: stri
     } else throw new HttpError(400, 'Invalid update.')
     const { error } = await db.from('maktoub_onboarding').update(changes).eq('id', ob.id)
     if (error) throw error
-    logEvent(ob.id, 'founder', op, op === 'note' ? {} : { ...changes, payment_verified_by: undefined, readiness_decided_by: undefined, countersigned_by: undefined })
+    logEvent(ob.id, 'founder', op, op === 'note' ? {} : { ...changes, payment_verified_by: undefined, readiness_decided_by: undefined, countersigned_by: undefined, voice_deferred_by: undefined })
     return json({ success: true }, 200, origin)
   }
 
@@ -443,7 +531,7 @@ async function founderAction(req: Request, origin: string, ip: string, jwt: stri
     if (!ob.is_test) throw new HttpError(403, 'Only synthetic test records can be purged.')
     const { data: files } = await db.storage.from(BUCKET).list(ob.id)
     if (files?.length) await db.storage.from(BUCKET).remove(files.map(f => `${ob.id}/${f.name}`))
-    for (const t of ['maktoub_onboarding_consents', 'maktoub_onboarding_events']) {
+    for (const t of ['maktoub_onboarding_consents', 'maktoub_onboarding_events', 'maktoub_onboarding_messages', 'maktoub_companion_log']) {
       const { error } = await db.from(t).delete().eq('onboarding_id', ob.id)
       if (error) throw error
     }
