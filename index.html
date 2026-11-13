@@ -138,6 +138,11 @@ button{cursor:pointer}
 .event-copy p.desc{margin:0;max-width:38ch;font-family:var(--serif);font-size:clamp(19px,1.5vw,22px);line-height:1.4}
 .event .img-slot{--ratio:3/2;border-left:1px solid var(--hair)}.event .img-slot img{object-position:center 18%}
 
+.event--upcoming{grid-template-columns:minmax(180px,.5fr) minmax(0,2.05fr)}
+.event--upcoming .event-day{font-size:clamp(32px,3vw,48px);white-space:normal;line-height:1.05}
+.event--upcoming .event-date{flex-wrap:wrap}
+#events{scroll-margin-top:90px}
+
 /* WHY MAKTOUB (pitch lines) */
 .why h2{max-width:15ch}
 .why-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:clamp(56px,6vw,90px);border-top:1px solid var(--ink)}
@@ -466,12 +471,12 @@ button{cursor:pointer}
 <header class="header">
   <a class="wordmark" href="#top">MAKTOUB</a>
   <nav class="nav" aria-label="Primary">
-    <a href="#about">About</a><a href="#matchmaking">Matchmaking</a><a href="#social">Social club</a><a href="/events/wellness-and-connection/">Events</a><a href="/technology/">Technology</a><a href="#how">How it works</a><a href="/book/">Book a call</a><a class="nav-login" href="/login" data-portal-link>Log in</a><a class="btn" href="#join">Join Maktoub</a>
+    <a href="#about">About</a><a href="#matchmaking">Matchmaking</a><a href="#social">Social club</a><a href="#events">Events</a><a href="/technology/">Technology</a><a href="#how">How it works</a><a href="/book/">Book a call</a><a class="nav-login" href="/login" data-portal-link>Log in</a><a class="btn" href="#join">Join Maktoub</a>
   </nav>
   <button class="menu-button" type="button" aria-expanded="false" aria-controls="mobileMenu">Menu</button>
 </header>
 <nav id="mobileMenu" class="mobile-menu" aria-label="Mobile">
-  <a href="#about">About</a><a href="#matchmaking">Matchmaking</a><a href="#social">Social club</a><a href="/events/wellness-and-connection/">Events</a><a href="/technology/">Technology</a><a href="#how">How it works</a><a href="/book/">Book a call</a>
+  <a href="#about">About</a><a href="#matchmaking">Matchmaking</a><a href="#social">Social club</a><a href="#events">Events</a><a href="/technology/">Technology</a><a href="#how">How it works</a><a href="/book/">Book a call</a>
   <div class="mm-actions"><a class="btn btn-solid" href="#join" style="background:var(--white);color:var(--ink);border-color:var(--white)">Join Maktoub →</a><a class="btn btn-line" href="/login" data-portal-link>Log in →</a></div>
 </nav>
 
@@ -505,8 +510,8 @@ button{cursor:pointer}
 <!-- OUR UPCOMING EVENT (edit in MAKTOUB_EVENT at the top of the script) -->
 <section id="events" class="section paper event-sec" data-event-module>
   <div class="events-head"><p class="label">Our upcoming event</p><a class="btn-text" href="#social">The social club →</a></div>
-  <article class="event">
-    <div class="event-date"><div><p class="event-day">NEW YEAR</p></div><p class="label">Details coming soon</p></div>
+  <article class="event event--upcoming">
+    <div class="event-date"><div><p class="event-day">NEW<br>YEAR</p></div><p class="label">Details coming soon</p></div>
     <div class="event-copy">
       <div><p class="label muted">Coming next</p><h3 data-event="title">New Year</h3></div>
       <p class="desc" data-event="description">Our next gathering is for New Year. Date, venue and details to be announced.</p>
@@ -581,7 +586,7 @@ button{cursor:pointer}
 <li class="step"><p class="label">01</p><div><h3>Are you ready?</h3><p>Start with where you are, what you want and whether a relationship fits this stage of your life. There’s room to grow before you take the next step.</p></div></li>
 <li class="step"><p class="label">02</p><div><h3>Who are you?</h3><p>Through your intake, we explore your values, emotional needs, relationship patterns and the life you want to build.</p></div></li>
 <li class="step"><p class="label">03</p><div><h3>Who are you compatible with?</h3><p>We look at shared values, communication, expectations and possible friction—not just a list of preferences.</p></div></li></ol>
-<p class="lead" style="max-width:45ch;margin:32px 0">Then we find a comfortable way for you to meet: at one of our events or in a place of your choice.</p><h3 class="display h-md">We turn the process into a safe, respectful experience.</h3><p class="body" style="max-width:65ch;margin:24px 0">Not ready for matchmaking? You’re welcome and encouraged to evolve with us through our events. Explore new interests, connect with others and make room for the person you’re becoming.</p><div class="cta-row"><button class="btn btn-solid" type="button" data-open-apply="matchmaking">Begin your journey →</button><a class="btn btn-line" href="/book/">Book an introductory call →</a><a class="btn btn-line" href="/events/wellness-and-connection/">Explore our next event →</a></div></section>
+<p class="lead" style="max-width:45ch;margin:32px 0">Then we find a comfortable way for you to meet: at one of our events or in a place of your choice.</p><h3 class="display h-md">We turn the process into a safe, respectful experience.</h3><p class="body" style="max-width:65ch;margin:24px 0">Not ready for matchmaking? You’re welcome and encouraged to evolve with us through our events. Explore new interests, connect with others and make room for the person you’re becoming.</p><div class="cta-row"><button class="btn btn-solid" type="button" data-open-apply="matchmaking">Begin your journey →</button><a class="btn btn-line" href="/book/">Book an introductory call →</a><a class="btn btn-line" href="#events">Explore our next event →</a></div></section>
 
 <section id="screening" class="section night grain-night screen"><div class="section-grid"><p class="label">The technology · Lumiora</p><h2 class="display h-xl">Better questions.<br>More informed choices.</h2><div class="side-copy"><p class="lead">The relationship-intelligence system we’re building underneath Maktoub.</p></div></div><div class="voice"><p class="display h-md voice-caption">The question tells us what to look for. The voice tells us where to look closer.</p><p class="lead" style="max-width:65ch;margin-top:28px">Lumiora brings together structured interviews, contextual voice signals and human review. A change in pace or a pause is a reason to ask another question—not a verdict about who someone is.</p><p class="body" style="max-width:65ch;margin:24px 0">Our long-term aim is to connect these inputs with what happens in real relationships, so we can test what is useful and improve over time. The core architecture is in development; predictive performance is not yet established.</p><a class="btn btn-line" href="/technology/">Explore Lumiora: technology &amp; investment thesis →</a></div></section>
 <section class="section night grain-night bridge" style="border-top:1px solid rgba(255,255,255,.12)">
@@ -672,7 +677,7 @@ button{cursor:pointer}
   <div class="outro-brand" aria-hidden="true">MAKTOUB</div>
   <p class="outro-written">It’s written.<svg class="mark" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path pathLength="100" d="M59.2 13.2C31.6 5.8 6.8 22.4 7.7 51.8C8.6 85 42.6 95.1 68.4 87.7C91.4 81.3 96 46.3 83.1 24.2C72.1 7.7 47.2 4 27.9 18.7"/></svg></p>
   <div class="footer-marquee" aria-hidden="true"><div class="marquee-track"><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span><span>مكتوب</span></div></div>
-  <footer class="footer"><span>Maktoub / Riyadh</span><div class="footer-links"><a href="#about">About</a><a href="#matchmaking">Matchmaking</a><a href="#social">Social club</a><a href="/events/wellness-and-connection/">Events</a><a href="/technology/">Technology</a><a href="#how">How it works</a><a href="/login" data-portal-link>Log in</a></div></footer>
+  <footer class="footer"><span>Maktoub / Riyadh</span><div class="footer-links"><a href="#about">About</a><a href="#matchmaking">Matchmaking</a><a href="#social">Social club</a><a href="#events">Events</a><a href="/technology/">Technology</a><a href="#how">How it works</a><a href="/login" data-portal-link>Log in</a></div></footer>
 </section>
 </main>
 
