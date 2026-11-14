@@ -198,11 +198,22 @@ function drawDetail() {
   box.append(kv);
 
   const acts = el('div', null, 'acts'); acts.style.marginTop = '16px';
+  const voiceOpen = ['requested', 'payment_reported'].includes(r.voice_addon_status);
   if (!r.payment_verified_at && r.signed_at) {
     const ref = inp('text', '', 'Bank reference (optional)'), on = inp('date'), bt = inp('text', r.invoice_billed_to || '', 'Billed to (name on transfer)');
-    acts.append(act('Verify programme payment', 'Only after the funds appear in the bank statement. Issues the invoice and opens the ' + data.programme.prep_days + '-day preparation window.', ref, on, bt, btn('Verify payment', () => confirm('Confirm ' + data.programme.price + ' has arrived in the bank account?') && upd('verify_payment', { bank_reference: ref.value, received_on: on.value, billed_to: bt.value }, 'Payment verified. Preparation window open.'))));
-  }
-  if (['requested', 'payment_reported'].includes(r.voice_addon_status)) acts.append(act('Verify voice add-on payment', data.programme.voice_fee + ', separate transfer.', btn('Verify voice payment', () => confirm('Confirm the voice add-on transfer has arrived?') && upd('verify_voice_payment', {}, 'Voice payment verified.'))));
+    const amt = s => Number(String(s).replace(/[^\d.]/g, '')) || 0, cur = String(data.programme.price).split(' ')[0];
+    const total = voiceOpen ? cur + ' ' + (amt(data.programme.price) + amt(data.programme.voice_fee)).toLocaleString('en-US') : data.programme.price;
+    const title = voiceOpen ? 'Verify transfer: ' + total + ' (programme + voice analysis)' : 'Verify programme payment';
+    acts.append(act(title, 'Only after the funds appear in the bank statement. Issues the invoice' + (voiceOpen ? 's' : '') + ' and opens the ' + data.programme.prep_days + '-day preparation window.', ref, on, bt,
+      btn('Verify ' + total, async () => {
+        if (!confirm('Confirm ' + total + ' has arrived in the bank account?')) return;
+        try {
+          await api('admin_update', { id: openId, op: 'verify_payment', bank_reference: ref.value, received_on: on.value, billed_to: bt.value });
+          if (voiceOpen) await api('admin_update', { id: openId, op: 'verify_voice_payment' });
+          await refresh(); await openDetail(openId); say('dMsg', 'Payment verified. Preparation window open.');
+        } catch (e) { say('dMsg', e.message, true); }
+      })));
+  } else if (voiceOpen) acts.append(act('Verify voice add-on payment', data.programme.voice_fee + ', separate transfer.', btn('Verify voice payment', () => confirm('Confirm the voice add-on transfer has arrived?') && upd('verify_voice_payment', {}, 'Voice payment verified.'))));
   if (['none', 'declined'].includes(r.voice_addon_status)) acts.append(act('Offer voice analysis', 'Shows the add-on as offered in his portal.', btn('Offer', () => upd('offer_voice'))));
   if (r.payment_verified_at && !['completed', 'cancelled'].includes(r.stage)) {
     const mt = inp('datetime-local'); if (r.planning_meeting_at) mt.value = new Date(new Date(r.planning_meeting_at).getTime() + 3 * 3600e3).toISOString().slice(0, 16);

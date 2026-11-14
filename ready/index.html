@@ -378,7 +378,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
       <div class="cols two">
         <div><p class="label muted">Optional add-on</p><h2 style="margin-top:14px">The deeper <span class="u">layer.<svg class="uline" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M1 12.4C30 6 64 10 99 3.6" style="stroke:#9fb4d1"/></svg></span></h2>
           <p class="muted" style="margin-top:20px;max-width:44ch">Two minutes of your voice. The acoustic properties are read by specialist technology; the words are read by Deena directly. Together they map what is running underneath, and give the programme a sharper starting point.</p>
-          <div class="price" style="border-color:var(--hair-night)"><div><p class="label muted">Voice analysis report</p><div class="amt voice-label"></div><p class="muted small" style="margin-top:10px">Paid separately. Add it when you sign, or at any point later from your portal.</p></div></div>
+          <div class="price" style="border-color:var(--hair-night)"><div><p class="label muted">Voice analysis report</p><div class="amt voice-plus"></div><p class="muted small" style="margin-top:10px">Added to your transfer when you sign, or later from your portal.</p></div></div>
         </div>
         <div><ol class="chapters">
           <li><span><b>Emotional mastery</b>What helps you thrive, what drains you, what others see, what drives you deep down.</span></li>
@@ -398,7 +398,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
       <li>Non-clinical coaching and lifestyle education. Not psychotherapy, medical treatment or emergency support.</li>
       <li>Maktoub is not your medical provider. Any medical interpretation is made by a qualified professional you choose.</li>
       <li>Medical tests, doctors, trainers, nutritionists and other third-party services are not included in the fee, unless agreed in writing.</li>
-      <li>Blood results are uploaded privately in your portal, reviewed, and permanently deleted within 14 days. Never by Telegram or WhatsApp.</li>
+      <li>Blood results are uploaded privately in your portal, reviewed, and permanently deleted within 14 days.</li>
       <li>Check-ins are not monitored around the clock. In an emergency, call 911 in Saudi Arabia or 999 in the UAE.</li>
     </ul>
     <button class="btn" data-go="2">Review and sign the agreement →</button>
@@ -425,7 +425,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
         <label class="check" style="border-bottom:1px solid var(--hair)"><input type="checkbox" id="cDigital"><span>I agree to the Digital Accountability and Telegram terms.</span></label>
         <div id="voiceOpt">
           <details><summary class="t_programme_voice"></summary><div class="doc" id="doc_programme_voice"></div></details>
-          <label class="check opt"><input type="checkbox" id="cVoice"><span><b style="font-weight:500">Add voice analysis</b> (<span class="voice-label"></span>, paid separately). I consent to my recording being processed as described in the Voice Analysis Consent. <i class="muted">Optional. You can add it later.</i></span></label>
+          <label class="check opt"><input type="checkbox" id="cVoice"><span><b style="font-weight:500">Add voice analysis</b> (<span class="voice-plus"></span>, added to your transfer). I consent to my recording being processed as described in the Voice Analysis Consent. <i class="muted">Optional. You can add it later.</i></span></label>
         </div>
       </div>
       <label class="f" for="sigName">Type your full name to sign</label>
@@ -448,8 +448,8 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
    <div class="wrap narrow grain">
     <div class="section-head"><p class="label">03 / Transfer</p><p class="label muted">Bank transfer</p></div>
     <h2>Commit <span class="u">to it.<svg class="uline" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M1 12.4C30 6 64 10 99 3.6"/><path pathLength="100" d="M10 18.4C40 13.2 70 15.6 90 11.6"/></svg></span></h2>
-    <p class="muted" style="margin-top:20px;max-width:46ch">Transfer the programme fee to the account below, then let us know here. Preparation begins once we have verified it.</p>
-    <div class="price"><div><p class="label muted">Programme fee</p><div class="amt price-label"></div></div><div><p class="label muted">Payment</p><p style="margin:8px 0 0">One bank transfer, verified by hand against our statement.</p></div></div>
+    <p class="muted" style="margin-top:20px;max-width:46ch" id="payIntro"></p>
+    <div class="price"><div><p class="label muted" id="feeLabel">Programme fee</p><div class="amt" id="feeAmt"></div></div><div><p class="label muted">Payment</p><p style="margin:8px 0 0" id="feeNote">One bank transfer, verified by hand against our statement.</p></div></div>
     <div id="bankCard"><h3>Bank details</h3><dl class="bank" id="bank"></dl>
       <p class="small muted" style="margin:14px 0 0">Only transfer to this account. Maktoub will never send different bank details by message. If anything looks different, stop and contact us.</p></div>
     <div class="card" id="bankPending" hidden><p style="margin:0;font-family:var(--serif);font-size:20px">Our bank details are being confirmed. Please do not transfer yet. We will message you as soon as they are ready.</p></div>
@@ -508,7 +508,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
       <div class="wide" id="voiceWrap">
         <div class="section-head rule" style="margin-top:40px"><h3 style="margin:0">Voice analysis</h3><span class="label muted" id="voiceState"></span></div>
         <div id="voiceOffer" hidden>
-          <p class="muted" style="max-width:56ch">The deeper layer: six chapters read from two minutes of your voice. <span class="voice-label"></span>, paid separately.</p>
+          <p class="muted" style="max-width:56ch">The deeper layer: six chapters read from two minutes of your voice. <span class="voice-plus"></span>.</p>
           <details><summary class="t_programme_voice"></summary><div class="doc" id="doc_programme_voice_2"></div></details>
           <label class="check"><input type="checkbox" id="cVoice2"><span>I consent to my recording being processed as described in the Voice Analysis Consent.</span></label>
           <label class="f" for="sigName2">Type your full name to confirm</label><input type="text" id="sigName2" autocomplete="name">
@@ -564,7 +564,7 @@ const API = 'https://pmjvpnqmklxxpswwvbmv.supabase.co/functions/v1/maktoub-progr
 const $ = id => document.getElementById(id);
 const $$ = s => [...document.querySelectorAll(s)];
 const KEY = 'maktoub_ready';
-let token = null, view = null, current = 1;
+let token = null, view = null, current = 1, combinedTransfer = false, totalLabel = '';
 
 // The token leaves the address bar on load (no history, no referrer) and stays on this device.
 const q = (new URLSearchParams(location.search).get('invite') || '').trim().toLowerCase();
@@ -629,6 +629,7 @@ function apply(v, goTo) {
   $$('.fname').forEach(e => e.textContent = v.first_name);
   $$('.price-label').forEach(e => e.textContent = v.programme.price);
   $$('.voice-label').forEach(e => e.textContent = v.programme.voice_fee || '');
+  $$('.voice-plus').forEach(e => e.textContent = v.programme.voice_fee ? '+ ' + v.programme.voice_fee : '');
   const words = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
   $$('.nsessions').forEach(e => e.textContent = words[v.programme.live_sessions] || v.programme.live_sessions);
   $$('.nsessions-l').forEach(e => e.textContent = words[v.programme.live_sessions] || v.programme.live_sessions);
@@ -648,10 +649,22 @@ function apply(v, goTo) {
   if (v.voice.status === 'offered' && !v.signed) $('cVoice').checked = true;
 
   // 03 Transfer
-  const bank = v.payment.bank, p = v.payment;
+  const bank = v.payment.bank, p = v.payment, vs0 = v.voice.status;
+  // One transfer when the add-on is chosen before the programme fee is paid: 2,500 + 1,100 = 3,600.
+  const amt = s => Number(String(s || '').replace(/[^\d.]/g, '')) || 0;
+  const cur = String(v.programme.price).split(' ')[0];
+  const reportedTogether = !!(p.reported_at && v.voice.reported_at && Math.abs(Date.parse(p.reported_at) - Date.parse(v.voice.reported_at)) < 10 * 60e3);
+  const combined = (vs0 === 'requested' && !p.reported_at && !p.verified_at) || reportedTogether;
+  const total = cur + ' ' + (amt(v.programme.price) + (combined ? amt(v.programme.voice_fee) : 0)).toLocaleString('en-US');
+  combinedTransfer = combined; totalLabel = total;
+  $('feeLabel').textContent = combined ? 'Total to transfer' : 'Programme fee';
+  $('feeAmt').textContent = combined ? total : v.programme.price;
+  $('feeNote').textContent = combined ? v.programme.price + ' programme + ' + v.programme.voice_fee + ' voice analysis. One bank transfer, verified by hand.' : 'One bank transfer, verified by hand against our statement.';
+  $('payIntro').textContent = (combined ? 'Transfer ' + total + ' (programme and voice analysis)' : 'Transfer the programme fee') + ' to the account below, then let us know here. Preparation begins once we have verified it.';
+  $('payBtn').textContent = combined ? 'I have transferred ' + total : 'I have completed the transfer';
   $('bankCard').hidden = !bank; $('bankPending').hidden = !!bank;
   if (bank) {
-    const rows = [['Account name', bank.account_name], ['Bank', bank.bank_name], ['IBAN', bank.iban.replace(/(.{4})/g, '$1 ').trim(), bank.iban], ['SWIFT / BIC', bank.swift], ['Amount', v.programme.price]].filter(r => r[1]);
+    const rows = [['Account name', bank.account_name], ['Bank', bank.bank_name], ['IBAN', bank.iban.replace(/(.{4})/g, '$1 ').trim(), bank.iban], ['SWIFT / BIC', bank.swift], ['Amount', total]].filter(r => r[1]);
     $('bank').replaceChildren(...rows.map(([k, val, raw]) => {
       const d = el('div'), dt = el('dt', null, k), dd = el('dd', k === 'IBAN' ? 'mono' : null, val), c = el('button', 'copy', 'Copy'); c.type = 'button';
       c.onclick = async () => { try { await navigator.clipboard.writeText(raw || val); c.textContent = 'Copied'; setTimeout(() => c.textContent = 'Copy', 1600); } catch (_) {} };
@@ -660,10 +673,10 @@ function apply(v, goTo) {
   }
   $('payForm').hidden = !!p.reported_at || !!p.verified_at || !bank;
   $('payState').hidden = !(p.reported_at || p.verified_at);
-  if (p.verified_at) { $('payTitle').textContent = 'Payment verified. Thank you.'; $('payText').textContent = 'Verified ' + fmtDate(p.verified_at) + '. Your invoice is in your portal. Preparation has begun.'; }
+  if (p.verified_at) { $('payTitle').textContent = 'Payment verified. Thank you.'; $('payText').textContent = 'Verified ' + fmtDate(p.verified_at) + '. Your invoice' + (reportedTogether ? 's are' : ' is') + ' in your portal. Preparation has begun.'; }
   else if (p.reported_at) { $('payTitle').textContent = 'Transfer noted. We are verifying it.'; $('payText').textContent = 'You told us on ' + fmtDate(p.reported_at) + '. We confirm once it appears in our account, usually within one working day. Meanwhile, start your intake.'; }
   const vs = v.voice.status;
-  $('voicePay').hidden = !['requested', 'payment_reported', 'paid'].includes(vs) || !bank;
+  $('voicePay').hidden = combined || !['requested', 'payment_reported', 'paid'].includes(vs) || !bank;
   $('voicePayForm').hidden = vs !== 'requested';
   $('voicePayState').hidden = vs === 'requested';
   $('voicePayState').textContent = vs === 'paid' ? 'Voice add-on payment verified.' : vs === 'payment_reported' ? 'Voice add-on transfer noted. We are verifying it.' : '';
@@ -693,8 +706,13 @@ $('signBtn').addEventListener('click', async () => {
 // ---------- 03 transfer ----------
 $('payBtn').addEventListener('click', async () => {
   $('err3').textContent = ''; const b = $('payBtn'); b.disabled = true; b.textContent = 'Sending…';
-  try { apply(await call('report_payment', { kind: 'programme', transfer_date: $('transferDate').value, sender_name: $('senderName').value.trim() }), 3); }
-  catch (e) { $('err3').textContent = e.message; } finally { b.disabled = false; b.textContent = 'I have completed the transfer'; }
+  try {
+    const both = combinedTransfer, info = { transfer_date: $('transferDate').value, sender_name: $('senderName').value.trim() };
+    let v = await call('report_payment', { kind: 'programme', ...info });
+    if (both && v.voice.status === 'requested') v = await call('report_payment', { kind: 'voice', ...info });
+    apply(v, 3);
+  }
+  catch (e) { $('err3').textContent = e.message; } finally { b.disabled = false; b.textContent = combinedTransfer ? 'I have transferred ' + totalLabel : 'I have completed the transfer'; }
 });
 $('voicePayBtn').addEventListener('click', async () => {
   $('err3v').textContent = ''; const b = $('voicePayBtn'); b.disabled = true;
