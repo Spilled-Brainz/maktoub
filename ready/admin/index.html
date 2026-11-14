@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Readiness console | Maktoub</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#f4f1ea;--ink:#151515;--navy:#142c4b;--line:#d0c8be;--muted:#6b665f;--ok:#2f6b4f;--warn:#8a5a00;--err:#a3271f}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:400 15px/1.5 "Instrument Sans",Arial,sans-serif}
+[hidden]{display:none!important}a{color:inherit}
+header{border-bottom:1px solid var(--line);padding:0 20px;height:58px;display:flex;align-items:center;justify-content:space-between;letter-spacing:.14em;font-size:13px;font-weight:600;position:sticky;top:0;background:var(--paper);z-index:5}
+header button{all:unset;cursor:pointer;font-size:11px;letter-spacing:.1em}
+header nav a{font-size:11px;letter-spacing:.1em;margin-right:16px;text-decoration:none}
+main{max-width:1180px;margin:0 auto;padding:24px 20px 80px}
+h1{font-weight:500;letter-spacing:-.04em;font-size:34px;margin:0 0 4px}h2{font-size:12px;letter-spacing:.14em;text-transform:uppercase;margin:0 0 12px}
+h3{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:18px 0 6px;font-weight:600}
+.card{background:#fff;border:1px solid var(--line);padding:18px;margin:0 0 16px}
+.grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:960px){.grid{grid-template-columns:360px 1fr}}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:0 0 16px}
+@media(min-width:700px){.stats{grid-template-columns:repeat(5,1fr)}}
+.stat{background:#fff;border:1px solid var(--line);padding:12px 14px}.stat b{display:block;font-size:30px;font-weight:500;letter-spacing:-.03em;line-height:1}.stat span{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.stat.hot{border-color:var(--warn)}.stat.hot b{color:var(--warn)}
+label{display:block;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin:12px 0 4px;color:var(--muted)}
+input,select,textarea{width:100%;font:inherit;border:1px solid #bdb6ab;background:#fff;padding:8px 10px;border-radius:0}
+textarea{min-height:64px;resize:vertical}
+.inline{display:flex;gap:8px;align-items:center}.inline input[type=checkbox]{width:auto}
+button.b{border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:9px 13px;font-size:11px;letter-spacing:.11em;text-transform:uppercase;cursor:pointer;margin:10px 8px 0 0}
+button.g{background:transparent;color:var(--ink)}button.d{background:var(--err);border-color:var(--err)}button.s{padding:5px 9px;margin:4px 6px 0 0}
+button:disabled{opacity:.45;cursor:not-allowed}
+.msg{min-height:20px;font-size:13px;margin:8px 0;color:var(--navy)}.msg.e{color:var(--err)}
+.checks div{padding:6px 0;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;font-size:14px}
+.ok{color:var(--ok)}.no{color:var(--warn)}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;border-bottom:1px solid var(--ink);padding:6px}
+td{border-bottom:1px solid var(--line);padding:9px 6px;vertical-align:top}
+tr.r{cursor:pointer}tr.r:hover{background:#faf8f3}tr.sel{background:#eef1f5}
+.chip{display:inline-block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border:1px solid currentColor;white-space:nowrap}
+.kv{display:grid;grid-template-columns:180px 1fr;gap:4px 12px;font-size:14px}.kv dt{color:var(--muted)}.kv dd{margin:0;white-space:pre-wrap;word-break:break-word}
+.url{font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all;background:#f7f5f0;border:1px solid var(--line);padding:10px;margin-top:8px}
+details{margin-top:10px;border-top:1px solid var(--line);padding-top:8px}summary{cursor:pointer;font-weight:500}
+pre{white-space:pre-wrap;font:13px/1.55 "Instrument Sans",sans-serif;background:#faf8f3;padding:12px;border:1px solid var(--line);max-height:320px;overflow:auto}
+.test{color:var(--warn)}
+.acts{display:grid;grid-template-columns:1fr;gap:12px}@media(min-width:700px){.acts{grid-template-columns:1fr 1fr}}
+.act{border:1px solid var(--line);padding:12px;background:#fcfbf8}
+.act h4{margin:0 0 4px;font-size:13px;font-weight:600}
+.rb-sec{border:1px solid var(--line);margin:8px 0;padding:10px 12px;background:#fcfbf8}
+.rb-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr)) 34px;gap:6px;align-items:end;margin-top:6px}
+.rb-row button{margin:0;padding:8px}
+.alert{border-left:3px solid var(--warn);padding:6px 10px;background:#fbf6ea;font-size:13.5px;margin:6px 0}
+</style>
+</head>
+<body>
+<header><span>MAKTOUB · READINESS</span><span><nav style="display:inline"><a href="/onboard/admin/">Onboarding</a><a href="/login/">CRM</a></nav><button id="out" hidden>SIGN OUT</button></span></header>
+<main>
+  <section id="auth" hidden class="card" style="max-width:420px">
+    <h2>Founder sign-in</h2>
+    <form id="signin"><label for="em">Email</label><input id="em" type="email" autocomplete="username" required><label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password" required><button class="b">Sign in</button></form>
+    <p class="msg" id="authMsg"></p>
+    <p style="font-size:13px;color:var(--muted)">Already signed in to the onboarding console in this tab? Refresh this page.</p>
+  </section>
+
+  <section id="app" hidden>
+    <h1>The Readiness Programme</h1>
+    <p style="color:var(--muted);margin:0 0 18px">Proposals, agreements, transfers, preparation, programme dates and voice reports. Routine check-ins stay with the client’s portal and bot; this view shows what needs you.</p>
+    <div class="stats" id="stats"></div>
+    <div class="grid">
+      <div>
+        <div class="card"><h2>Before real proposals</h2><div class="checks" id="checks"></div>
+          <details><summary>Readiness documents (drafts)</summary><div id="docs"></div>
+            <p style="font-size:13px;color:var(--muted)">Drafts require qualified legal review. Approving makes this set signable by real clients. To change wording, add a new version.</p>
+            <button class="b" id="approveDocs">Approve documents</button></details>
+          <p class="msg" id="setMsg"></p></div>
+
+        <div class="card"><h2>New proposal</h2>
+          <form id="invite">
+            <label for="iname">First name (he adds the rest in his portal)</label><input id="iname" required maxlength="150">
+            <label for="iphone">Mobile</label><input id="iphone" type="tel" placeholder="+966 5…" required>
+            <label for="icountry">Country (if no +code)</label><select id="icountry"><option value="SA">Saudi Arabia</option><option value="AE">UAE</option><option value="KW">Kuwait</option><option value="QA">Qatar</option><option value="BH">Bahrain</option><option value="GB">United Kingdom</option></select>
+            <label for="iwho">Address as</label><select id="iwho"><option value="man">Man</option><option value="woman">Woman</option></select>
+            <div class="inline" style="margin-top:12px"><input type="checkbox" id="ivoice"><span style="font-size:14px">Pre-select voice analysis add-on</span></div>
+            <div class="inline" style="margin-top:8px"><input type="checkbox" id="itest"><span style="font-size:14px">Synthetic test (number +44 7700 900xxx)</span></div>
+            <button class="b">Create private link</button>
+          </form>
+          <p class="msg" id="invMsg"></p><div id="urlBox"></div></div>
+
+        <div class="card"><h2>Telegram commands</h2>
+          <p style="font-size:13.5px;margin:0 0 6px">Type <b>/ready Anas +9665…</b> to your bot and it replies with his private link. <b>/readiness</b> lists who needs action. Only your chat is accepted.</p>
+          <div id="tgState" style="font-size:13.5px;color:var(--muted)"></div>
+          <button class="b g" id="tgCheck">Check bot</button><button class="b" id="tgConnect">Connect commands</button>
+          <p class="msg" id="tgMsg"></p></div>
+      </div>
+
+      <div>
+        <div class="card"><h2>Clients</h2><table><thead><tr><th>Client</th><th>Stage</th><th>Needs</th><th>Dates</th></tr></thead><tbody id="rows"></tbody></table></div>
+        <div class="card" id="detail" hidden></div>
+      </div>
+    </div>
+  </section>
+</main>
+<script>
+(() => {
+'use strict';
+const BASE = 'https://pmjvpnqmklxxpswwvbmv.supabase.co', KEY = 'sb_publishable_1prLuRU6balRnnMUWkMTtA_KITZXKQe';
+const API = BASE + '/functions/v1/maktoub-programme';
+const $ = id => document.getElementById(id);
+const el = (t, txt, cls) => { const x = document.createElement(t); if (txt != null) x.textContent = String(txt); if (cls) x.className = cls; return x; };
+const when = iso => iso ? new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Riyadh' }) : '—';
+const day = iso => iso ? new Date(iso.length === 10 ? iso + 'T12:00:00+03:00' : iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Riyadh' }) : '—';
+let session = null, data = null, openId = null, detail = null;
+
+function readSession() { try { return JSON.parse(sessionStorage.getItem('maktoub_session') || 'null'); } catch (_) { return null; } }
+function saveSession(s) { session = { ...s, expires_at: s.expires_at || Math.floor(Date.now() / 1000) + (s.expires_in || 3600) }; sessionStorage.setItem('maktoub_session', JSON.stringify(session)); }
+async function auth(path, body) {
+  const r = await fetch(BASE + '/auth/v1/' + path, { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: KEY }, body: JSON.stringify(body) });
+  const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error_description || j.msg || 'Sign-in failed'); return j;
+}
+async function fresh() {
+  if (session && session.expires_at - 60 < Date.now() / 1000 && session.refresh_token) saveSession(await auth('token?grant_type=refresh_token', { refresh_token: session.refresh_token }));
+  return session.access_token;
+}
+async function api(action, extra) {
+  const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + await fresh() }, body: JSON.stringify({ action, ...extra }) });
+  const j = await r.json().catch(() => ({}));
+  if (r.status === 401) { signOut(); throw new Error('Please sign in again.'); }
+  if (!r.ok) throw new Error(j.error || 'Request failed');
+  return j;
+}
+const say = (id, t, err) => { $(id).textContent = t || ''; $(id).className = 'msg' + (err ? ' e' : ''); };
+
+// Operational exceptions only: what needs the founder.
+function needs(r) {
+  const n = [], today = data.today;
+  if (r.revoked_at || ['completed', 'cancelled'].includes(r.stage)) return n;
+  if (r.payment_reported_at && !r.payment_verified_at) n.push(['Verify transfer', 'var(--warn)']);
+  if (r.voice_addon_status === 'payment_reported') n.push(['Verify voice payment', 'var(--warn)']);
+  if (r.signed_at && !r.payment_reported_at && Date.now() - Date.parse(r.signed_at) > 3 * 864e5) n.push(['Signed, no transfer 3d+', 'var(--warn)']);
+  if (!r.signed_at && r.first_opened_at && Date.now() - Date.parse(r.first_opened_at) > 3 * 864e5) n.push(['Opened, not signed', 'var(--muted)']);
+  if (!r.first_opened_at && Date.now() - Date.parse(r.created_at) > 2 * 864e5) n.push(['Link not opened', 'var(--muted)']);
+  if (r.payment_verified_at && !r.planning_meeting_at && !r.planning_meeting_completed_at) n.push(['Book planning meeting', 'var(--navy)']);
+  if (r.payment_verified_at && !r.intake_submitted_at) n.push(['Intake incomplete', 'var(--navy)']);
+  if (r.payment_verified_at && ['not_started', 'pending'].includes(r.medical_status)) n.push(['Medical check-in', 'var(--navy)']);
+  if (r.prep_due_at && !r.start_date && r.prep_due_at.slice(0, 10) < today) n.push(['Preparation overdue', 'var(--err)']);
+  if (r.voice_addon_status === 'paid' && r.voice_submitted_at) n.push(['Voice report', 'var(--navy)']);
+  if (r.medical_pending) n.push(['Blood results to review (' + r.medical_pending + ')', 'var(--warn)']);
+  if (r.stage === 'start_confirmed' && r.start_date && r.start_date <= today) n.push(['Activate programme', 'var(--warn)']);
+  return n;
+}
+function render() {
+  const real = data.records.filter(r => !r.revoked_at);
+  const c = data.checks;
+  $('checks').replaceChildren(...[['Bank details verified', c.bank_ready], ['Legal entity name', c.legal_name], ['Readiness documents approved', c.documents_approved], ['Telegram bot token (server secret)', c.telegram_token]].map(([k, ok]) => { const d = el('div'); d.append(el('span', k), el('span', ok ? 'Yes' : 'Pending', ok ? 'ok' : 'no')); return d; }));
+  $('approveDocs').hidden = c.documents_approved;
+  $('docs').replaceChildren(...data.documents.map(d => { const det = el('details'); det.append(el('summary', d.title + ' · ' + d.version), el('pre', d.body)); return det; }));
+  const live = real.filter(r => !r.is_test && !['completed', 'cancelled'].includes(r.stage));
+  const S = [['Pending payments', live.filter(r => (r.payment_reported_at && !r.payment_verified_at) || r.voice_addon_status === 'payment_reported').length, true],
+    ['In preparation', live.filter(r => r.payment_verified_at && !['active', 'paused'].includes(r.stage)).length],
+    ['Prep overdue', live.filter(r => r.prep_due_at && !r.start_date && r.prep_due_at.slice(0, 10) < data.today).length, true],
+    ['Active', live.filter(r => r.stage === 'active').length], ['Completed', real.filter(r => r.stage === 'completed' && !r.is_test).length]];
+  $('stats').replaceChildren(...S.map(([l, n, hot]) => { const s = el('div', null, 'stat' + (hot && n ? ' hot' : '')); s.append(el('b', n), el('span', l)); return s; }));
+  $('rows').replaceChildren(...data.records.map(r => {
+    const tr = el('tr', null, 'r' + (r.id === openId ? ' sel' : '')); tr.onclick = () => { location.hash = r.id; openDetail(r.id); };
+    const who = el('td'); who.append(el('div', r.full_name || r.invited_name), el('div', r.reference_code + (r.is_test ? ' · TEST' : ''), r.is_test ? 'test' : '')); who.lastChild.style.cssText = 'font-size:12px;color:var(--muted)';
+    const st = el('td'); const ch = el('span', r.revoked_at ? 'Revoked' : data.stage_labels[r.stage], 'chip'); ch.style.color = r.stage === 'active' ? 'var(--ok)' : 'var(--navy)'; st.append(ch);
+    const nd = el('td'); needs(r).forEach(([t, col]) => { const x = el('span', t, 'chip'); x.style.cssText = 'color:' + col + ';margin:0 4px 4px 0'; nd.append(x); });
+    const dt = el('td', r.start_date ? day(r.start_date) + ' → ' + day(r.end_date) : r.prep_due_at ? 'Prep due ' + day(r.prep_due_at) : 'Sent ' + day(r.created_at)); dt.style.fontSize = '13px';
+    tr.append(who, st, nd, dt); return tr;
+  }));
+}
+
+// ---------- detail ----------
+async function openDetail(id) {
+  openId = id; render();
+  try { detail = await api('admin_get', { id }); drawDetail(); } catch (e) { $('detail').hidden = false; $('detail').replaceChildren(el('p', e.message, 'msg e')); }
+}
+const upd = async (op, extra = {}, okMsg) => {
+  try { const r = await api('admin_update', { id: openId, op, ...extra }); if (r.url && op === 'reissue') showUrl(r.url); await refresh(); await openDetail(openId); say('dMsg', okMsg || 'Saved.'); return r; }
+  catch (e) { say('dMsg', e.message, true); }
+};
+function act(title, help, ...nodes) { const a = el('div', null, 'act'); a.append(el('h4', title)); if (help) { const p = el('p', help); p.style.cssText = 'font-size:12.5px;color:var(--muted);margin:0 0 4px'; a.append(p); } nodes.forEach(n => a.append(n)); return a; }
+function inp(type, val, ph) { const i = el('input'); i.type = type; if (val != null) i.value = val; if (ph) i.placeholder = ph; return i; }
+function btn(t, fn, cls = 'b s') { const b = el('button', t, cls); b.type = 'button'; b.onclick = fn; return b; }
+function drawDetail() {
+  const { record: r, consents, events, report, progress } = detail; const box = $('detail'); box.hidden = false; box.replaceChildren();
+  const head = el('div'); head.append(el('h2', (r.intake?.full_name || r.invited_name) + ' · ' + r.reference_code + (r.is_test ? ' · TEST' : '')), el('p', data.stage_labels[r.stage] + (progress?.started ? ' · Day ' + progress.day + ' of ' + progress.of + ', phase ' + progress.phase : ''), 'msg'));
+  box.append(head, el('p', '', 'msg'));
+  box.lastChild.id = 'dMsg';
+  const kv = el('dl', null, 'kv');
+  [['Mobile', r.invited_phone], ['Email', r.intake?.email], ['Opened', when(r.first_opened_at)], ['Last seen', when(r.last_seen_at)], ['Signed', r.signed_at ? when(r.signed_at) + ' · ' + r.signature_name : '—'],
+   ['Transfer reported', r.payment_reported_at ? when(r.payment_reported_at) + (r.payment_client_note ? ' · ' + r.payment_client_note : '') : '—'], ['Payment verified', r.payment_verified_at ? when(r.payment_verified_at) + ' · ' + (r.invoice_number || '') : '—'],
+   ['Voice add-on', r.voice_addon_status + (r.voice_addon_invoice_number ? ' · ' + r.voice_addon_invoice_number : '')], ['Recording', r.voice_submitted_at ? Math.round(r.voice_duration_seconds / 60 * 10) / 10 + ' min · ' + when(r.voice_submitted_at) + (r.voice_storage_path ? '' : ' · deleted') : '—'],
+   ['Intake', r.intake_submitted_at ? 'Submitted ' + when(r.intake_submitted_at) : r.intake_saved_at ? 'Draft saved ' + when(r.intake_saved_at) : '—'], ['Preparation due', day(r.prep_due_at)], ['Planning meeting', r.planning_meeting_completed_at ? 'Done ' + when(r.planning_meeting_completed_at) : when(r.planning_meeting_at)],
+   ['Medical', r.medical_status.replaceAll('_', ' ') + (r.medical_constraints ? ' · ' + r.medical_constraints : '')], ['Programme', r.start_date ? day(r.start_date) + ' → ' + day(r.end_date) + (r.pause_days_total ? ' (incl. ' + r.pause_days_total + ' paused days)' : '') : '—'], ['Time zone', r.timezone]]
+    .forEach(([k, v]) => kv.append(el('dt', k), el('dd', v || '—')));
+  box.append(kv);
+
+  const acts = el('div', null, 'acts'); acts.style.marginTop = '16px';
+  if (!r.payment_verified_at && r.signed_at) {
+    const ref = inp('text', '', 'Bank reference (optional)'), on = inp('date'), bt = inp('text', r.invoice_billed_to || '', 'Billed to (name on transfer)');
+    acts.append(act('Verify programme payment', 'Only after the funds appear in the bank statement. Issues the invoice and opens the ' + data.programme.prep_days + '-day preparation window.', ref, on, bt, btn('Verify payment', () => confirm('Confirm ' + data.programme.price + ' has arrived in the bank account?') && upd('verify_payment', { bank_reference: ref.value, received_on: on.value, billed_to: bt.value }, 'Payment verified. Preparation window open.'))));
+  }
+  if (['requested', 'payment_reported'].includes(r.voice_addon_status)) acts.append(act('Verify voice add-on payment', data.programme.voice_fee + ', separate transfer.', btn('Verify voice payment', () => confirm('Confirm the voice add-on transfer has arrived?') && upd('verify_voice_payment', {}, 'Voice payment verified.'))));
+  if (['none', 'declined'].includes(r.voice_addon_status)) acts.append(act('Offer voice analysis', 'Shows the add-on as offered in his portal.', btn('Offer', () => upd('offer_voice'))));
+  if (r.payment_verified_at && !['completed', 'cancelled'].includes(r.stage)) {
+    const mt = inp('datetime-local'); if (r.planning_meeting_at) mt.value = new Date(new Date(r.planning_meeting_at).getTime() + 3 * 3600e3).toISOString().slice(0, 16);
+    acts.append(act('Planning meeting', 'Riyadh time.', mt, btn('Save time', () => mt.value && upd('set_meeting', { at: mt.value + ':00+03:00' })), btn('Mark completed', () => upd('meeting_done'), 'b g s')));
+    const ms = el('select'); ['not_started', 'pending', 'cleared', 'cleared_with_constraints', 'not_required'].forEach(v => { const o = el('option', v.replaceAll('_', ' ')); o.value = v; o.selected = r.medical_status === v; ms.append(o); });
+    const mc = inp('text', r.medical_constraints || '', 'Practical constraints only, e.g. no high-impact running');
+    acts.append(act('Medical check-in', 'Status and practical, non-diagnostic constraints only. Never upload or paste reports or results.', ms, mc, btn('Save', () => upd('set_medical', { status: ms.value, constraints: mc.value }))));
+    const sg = el('select'); ['payment_verified', 'meeting_pending', 'meeting_completed', 'medical_pending', 'baseline', 'protocol_preparing', 'bot_configuration', 'portal_ready', 'start_confirmed'].forEach(v => { const o = el('option', data.stage_labels[v]); o.value = v; o.selected = r.stage === v; sg.append(o); });
+    acts.append(act('Preparation stage', 'What he sees on his tracker.', sg, btn('Set stage', () => upd('set_stage', { stage: sg.value }))));
+    const sd = inp('date', r.start_date || '');
+    acts.append(act('Official start date', 'The 90 days begin on this date, never before. End date includes paused days.', sd, btn('Confirm date', () => sd.value && upd('set_start', { date: sd.value })), r.start_date && !['active', 'paused', 'completed'].includes(r.stage) ? btn('Activate programme', () => upd('activate', {}, 'Programme active.'), 'b g s') : el('span')));
+    const life = act('Programme', 'Pauses are at your discretion; the end date moves by the paused days.');
+    if (r.stage === 'active') life.append(btn('Pause', () => confirm('Pause the programme clock?') && upd('pause')), btn('Complete', () => confirm('Mark the programme completed?') && upd('complete'), 'b g s'));
+    if (r.stage === 'paused') life.append(btn('Resume', () => upd('resume')));
+    life.append(btn('Cancel', () => confirm('Cancel this enrolment? This does not refund anything automatically.') && upd('cancel'), 'b d s'));
+    acts.append(life);
+  }
+  const note = el('textarea'); note.value = r.founder_note || '';
+  acts.append(act('Private note', 'Never shown to the client.', note, btn('Save note', () => upd('note', { text: note.value }))));
+  const linkAct = act('Private link', 'Reissuing invalidates the old link.', btn('Reissue link', () => confirm('Issue a new link? The old one stops working.') && upd('reissue', {}, 'New link created (shown once, in the left panel).')), r.revoked_at ? el('span') : btn('Revoke', () => confirm('Revoke this link?') && upd('revoke'), 'b g s'));
+  if (r.is_test) linkAct.append(btn('Purge test record', async () => { if (!confirm('Delete this synthetic test record and everything attached?')) return; try { await api('admin_purge_test', { id: r.id }); location.hash = ''; openId = null; $('detail').hidden = true; await refresh(); } catch (e) { say('dMsg', e.message, true); } }, 'b d s'));
+  acts.append(linkAct);
+  if (r.voice_storage_path) acts.append(act('Voice recording', 'Private 10-minute link. Delete within 30 days of the report being delivered.', btn('Listen', async () => { const x = await upd('voice_link'); if (x?.url) window.open(x.url, '_blank', 'noopener'); }), btn('Delete recording', () => confirm('Permanently delete the recording?') && upd('delete_voice', {}, 'Recording deleted.'), 'b d s')));
+  box.append(acts);
+
+  // Blood results: temporary review, then verified deletion
+  const med = detail.medical || [];
+  if (med.length) {
+    const md = el('details'); md.open = med.some(f => !f.deleted_at); md.append(el('summary', 'Blood results (' + med.filter(f => !f.deleted_at).length + ' awaiting review)'));
+    const note = el('p', 'Open through a 5-minute private link. Do not download, forward or paste results anywhere. Record only practical, non-diagnostic constraints under Medical. Files are deleted automatically ' + detail.medical_days + ' days after upload.'); note.style.cssText = 'font-size:13px;color:var(--muted)'; md.append(note);
+    med.forEach(f => {
+      const row = el('div'); row.style.cssText = 'border-top:1px solid var(--line);padding:8px 0';
+      row.append(el('div', f.label + ' · ' + Math.round(f.bytes / 1024) + ' KB · uploaded ' + when(f.uploaded_at)));
+      if (f.deleted_at) row.append(el('div', 'Deleted ' + when(f.deleted_at) + ' by ' + f.deleted_by + (f.reviewed_at ? ' after review' : '') + (f.deletion_verified ? ' · deletion verified' : ' · verification pending'), f.deletion_verified ? 'ok' : 'no'));
+      else {
+        row.append(el('div', 'Auto-deletes ' + when(f.expires_at) + (f.view_count ? ' · viewed ' + f.view_count + '×' : ''), 'no'));
+        row.append(btn('View (5 min)', async () => { try { const x = await api('admin_update', { id: openId, op: 'medical_view', file_id: f.id }); if (x.url) window.open(x.url, '_blank', 'noopener'); } catch (e) { say('dMsg', e.message, true); } }),
+          btn('Reviewed: delete now', () => confirm('Permanently delete this file now?') && upd('medical_reviewed', { file_id: f.id }, 'Reviewed and permanently deleted.'), 'b d s'));
+      }
+      md.append(row);
+    });
+    box.append(md);
+  }
+
+  // Intake (readable, grouped by section)
+  const intake = r.intake || {};
+  const det = el('details'); det.open = !!r.intake_submitted_at; det.append(el('summary', 'Intake' + (r.intake_submitted_at ? '' : ' (draft)')));
+  for (const sec of detail.intake_schema) {
+    const rows = sec.fields.filter(f => intake[f.k] !== undefined && intake[f.k] !== ''); if (!rows.length) continue;
+    det.append(el('h3', sec.title)); const k = el('dl', null, 'kv');
+    rows.forEach(f => { let v = intake[f.k]; if (Array.isArray(v)) v = v.join(', '); if (typeof v === 'boolean') v = v ? 'Yes' : 'No'; if (f.unit) v += ' ' + f.unit; if (f.t === 'score') v += ' / 10'; k.append(el('dt', f.l), el('dd', v)); });
+    det.append(k);
+  }
+  if (intake.weight_kg && intake.height_cm) det.append(el('p', 'BMI (indicative only): ' + (intake.weight_kg / Math.pow(intake.height_cm / 100, 2)).toFixed(1), 'msg'));
+  box.append(det);
+
+  if (['requested', 'payment_reported', 'paid'].includes(r.voice_addon_status)) box.append(reportBuilder(report, r));
+
+  const c = el('details'); c.append(el('summary', 'Consents (' + (consents || []).length + ')'));
+  (consents || []).forEach(x => c.append(el('div', when(x.created_at) + ' · ' + x.kind + ' · ' + x.document_version + ' · ' + (x.granted ? 'granted' : 'declined') + ' · ' + (x.signature_name || ''))));
+  const ev = el('details'); ev.append(el('summary', 'Audit trail (' + (events || []).length + ')'));
+  (events || []).forEach(x => { const d = el('div', when(x.created_at) + ' · ' + x.actor + ' · ' + x.action + (Object.keys(x.detail || {}).length ? ' · ' + JSON.stringify(x.detail) : '')); d.style.fontSize = '13px'; ev.append(d); });
+  box.append(c, ev);
+}
+
+// ---------- voice report builder ----------
+const LEVELS = ['High', 'Good', 'Low'];
+const RS = [
+  { k: 'synthesis', title: 'Overview', f: [['headline', 'text', 'Headline'], ['read', 'long', 'Cross-layer read (acoustic + language + context)'], ['signals', 'list', 'Key signals', [['label', 'Signal'], ['value', 'Value'], ['strength', 'Strength']]], ['changes', 'long', 'What this changes for the programme'], ['questions', 'lines', 'Questions to work on (one per line)']] },
+  { k: 'emotional', title: 'Emotional mastery', f: [['thrive.emotion', 'text', 'Thrive · emotion', 'em'], ['thrive.text', 'long', 'Thrive · reading'], ['drain.emotion', 'text', 'Drain · emotion', 'em'], ['drain.text', 'long', 'Drain · reading'], ['visible.emotion', 'text', 'Visible · emotion', 'em'], ['visible.text', 'long', 'Visible · reading'], ['deep.emotion', 'text', 'Deep down · emotion', 'em'], ['deep.text', 'long', 'Deep down · reading'], ['test', 'long', 'Test it this month']] },
+  { k: 'mind', title: 'How your mind works', f: [['processing.style', 'text', 'Processing style'], ['processing.text', 'long', 'Processing · reading'], ['brain.left', 'number', 'Left hemisphere score'], ['brain.right', 'number', 'Right hemisphere score'], ['brain.text', 'long', 'Hemisphere · reading'], ['stress.type', 'text', 'Stress type'], ['stress.level', 'text', 'Stress level (e.g. 17.90 · above baseline)'], ['stress.text', 'long', 'Stress · reading'], ['test', 'long', 'Test it this month']] },
+  { k: 'social', title: 'Social mirror', f: [['archetype.name', 'text', 'Archetype'], ['archetype.text', 'long', 'Archetype · reading'], ['motivator.name', 'text', 'Core motivation'], ['motivator.text', 'long', 'Motivation · reading'], ['perception_summary', 'long', 'How others see him · summary'], ['perception', 'lines', 'Perception traits (one per line)'], ['leadership', 'list', 'Leadership profile', [['t', 'Dimension'], ['level', 'Level', LEVELS], ['d', 'Note']]], ['leadership_summary', 'long', 'Leadership summary'], ['test', 'long', 'Test it this month']] },
+  { k: 'negativity', title: 'Negativity', f: [['core.name', 'text', 'Core pattern (e.g. fear of betrayal)'], ['core.text', 'long', 'Core · reading'], ['core.affects', 'long', 'What it may affect'], ['patterns', 'list', 'Restrictive patterns', [['name', 'Pattern', 'neg'], ['text', 'Reading'], ['notice', 'Notice cue']]], ['test', 'long', 'Test it this month']] },
+  { k: 'body', title: 'Mind and body', f: [['patterns', 'list', 'Body patterns', [['title', 'Pattern', 'body'], ['interpretation', 'Interpretation'], ['asking', 'What it may be asking for']]], ['test', 'long', 'Test it this month']] },
+  { k: 'journey', title: 'Life journey', f: [['points', 'list', 'Imprint curve (age, level 0–10)', [['age', 'Age', 'num'], ['level', 'Level', 'num']]], ['markers', 'list', 'Markers', [['label', 'Label (e.g. Turning point)'], ['value', 'Value (e.g. Age 11–15)']]], ['insight', 'long', 'Insight'], ['meaning', 'long', 'What this may mean'], ['test', 'long', 'Test it this month']] },
+  { k: 'notes', title: 'Notes and next steps', f: [['session', 'long', 'Session notes'], ['recommendations', 'long', 'Recommendations']] },
+];
+const SUGGEST = { em: ['Passion', 'Resolve', 'Joy', 'Calm', 'Confidence', 'Fear', 'Anger', 'Sadness', 'Anxiety', 'Cheerfulness', 'Determination'], neg: ['Perfectionist', 'Harsh self-critic', 'Combative', 'Overthinker', 'Guarded'], body: ['Overstimulated nervous system', 'Digestive / assimilation stress', 'Endocrine stress'] };
+const getP = (o, p) => p.split('.').reduce((a, k) => a == null ? undefined : a[k], o);
+const setP = (o, p, v) => { const ks = p.split('.'); let a = o; ks.slice(0, -1).forEach(k => { a[k] = a[k] && typeof a[k] === 'object' ? a[k] : {}; a = a[k]; }); a[ks.at(-1)] = v; };
+function reportBuilder(report, r) {
+  const wrap = el('details'); wrap.open = r.voice_addon_status === 'paid';
+  wrap.append(el('summary', 'Voice report · ' + (report ? report.status + (report.published_at ? ' ' + when(report.published_at) : '') : 'not started')));
+  const note = el('p', 'Enter the Emowave signals and your reading. Saving a draft locks his recording. He sees nothing until you publish. Write findings as patterns to test, not verdicts.');
+  note.style.cssText = 'font-size:13px;color:var(--muted)'; wrap.append(note);
+  const dls = el('div'); Object.entries(SUGGEST).forEach(([k, opts]) => { const d = el('datalist'); d.id = 'dl_' + k; opts.forEach(o => { const op = el('option'); op.value = o; d.append(op); }); dls.append(d); }); wrap.append(dls);
+  let model = JSON.parse(JSON.stringify(report?.data || {}));
+  if (!model.social?.leadership) setP(model, 'social.leadership', ['Purpose', 'Self-awareness', 'Self-development', 'Self-management', 'Self-belief', 'Self-esteem', 'Being'].map(t => ({ t, level: 'Good', d: '' })));
+  const form = el('div');
+  const build = () => {
+    form.replaceChildren();
+    for (const sec of RS) {
+      const s = el('details', null, 'rb-sec'); s.append(el('summary', sec.title));
+      for (const [path, type, label, extra] of sec.f) {
+        const full = sec.k + '.' + path; s.append(el('label', label));
+        if (type === 'list') {
+          const rows = getP(model, full) || []; const list = el('div');
+          rows.forEach((row, i) => {
+            const rr = el('div', null, 'rb-row');
+            extra.forEach(([k, l, opt]) => {
+              let x;
+              if (Array.isArray(opt)) { x = el('select'); opt.forEach(o => { const op = el('option', o); op.selected = row[k] === o; x.append(op); }); }
+              else { x = inp(opt === 'num' ? 'number' : 'text', row[k] ?? '', l); if (opt && SUGGEST[opt]) x.setAttribute('list', 'dl_' + opt); }
+              x.oninput = x.onchange = () => { row[k] = opt === 'num' ? (x.value === '' ? '' : +x.value) : x.value; }; rr.append(x);
+            });
+            rr.append(btn('×', () => { rows.splice(i, 1); build(); }, 'b g'));
+            list.append(rr);
+          });
+          s.append(list, btn('+ Add', () => { const arr = getP(model, full) || []; arr.push({}); setP(model, full, arr); build(); }, 'b g s'));
+          continue;
+        }
+        let x;
+        if (type === 'long' || type === 'lines') { x = el('textarea'); x.value = type === 'lines' ? (getP(model, full) || []).join('\n') : (getP(model, full) || ''); }
+        else { x = inp(type === 'number' ? 'number' : 'text', getP(model, full) ?? ''); if (extra && SUGGEST[extra]) x.setAttribute('list', 'dl_' + extra); }
+        x.oninput = () => setP(model, full, type === 'lines' ? x.value.split('\n').map(t => t.trim()).filter(Boolean) : type === 'number' ? (x.value === '' ? '' : +x.value) : x.value);
+        s.append(x);
+      }
+      form.append(s);
+    }
+  };
+  build(); wrap.append(form);
+  const io = el('details'); io.append(el('summary', 'Import / export JSON'));
+  const ta = el('textarea'); ta.style.minHeight = '160px'; ta.placeholder = 'Paste report JSON (e.g. extracted from the Emowave report), then Import.';
+  io.append(ta, btn('Export current', () => { ta.value = JSON.stringify(model, null, 2); }, 'b g s'), btn('Import', () => { try { model = JSON.parse(ta.value); build(); say('rbMsg', 'Imported. Review, then save.'); } catch (_) { say('rbMsg', 'That is not valid JSON.', true); } }, 'b g s'));
+  wrap.append(io);
+  const clean = o => JSON.parse(JSON.stringify(o, (k, v) => (v === '' || (Array.isArray(v) && !v.length)) ? undefined : v));
+  const save = async (extra, msg) => { try { await api('admin_save_report', { id: r.id, data: clean(model), ...extra }); say('rbMsg', msg); const d = await api('admin_get', { id: r.id }); detail = d; } catch (e) { say('rbMsg', e.message, true); } };
+  wrap.append(btn('Save draft', () => save({}, 'Draft saved.')), btn('Publish to his portal', () => confirm('Publish the report? He will see it in his portal immediately.') && save({ publish: true }, 'Published.'), 'b s'));
+  if (report?.status === 'published') wrap.append(btn('Unpublish', () => save({ unpublish: true }, 'Unpublished.'), 'b g s'));
+  const m = el('p', '', 'msg'); m.id = 'rbMsg'; wrap.append(m);
+  return wrap;
+}
+
+function showUrl(url) {
+  const box = $('urlBox'); box.replaceChildren(el('div', url, 'url'));
+  const copy = btn('Copy link', async () => { try { await navigator.clipboard.writeText(url); copy.textContent = 'Copied'; } catch (_) {} }, 'b s');
+  const wa = el('a', 'WhatsApp', 'b g s'); wa.href = 'https://wa.me/?text=' + encodeURIComponent(url); wa.target = '_blank'; wa.rel = 'noopener'; wa.style.cssText = 'display:inline-block;text-decoration:none;border:1px solid var(--ink);padding:5px 9px;font-size:11px;letter-spacing:.11em;text-transform:uppercase;margin:4px 6px 0 0';
+  const tg = el('a', 'Telegram', 'b g s'); tg.href = 'https://t.me/share/url?url=' + encodeURIComponent(url); tg.target = '_blank'; tg.rel = 'noopener'; tg.style.cssText = wa.style.cssText;
+  box.append(copy, wa, tg, el('p', 'Shown once. Only its hash is stored.', 'msg'));
+}
+
+$('invite').onsubmit = async e => {
+  e.preventDefault(); say('invMsg', 'Creating…');
+  try {
+    const res = await api('admin_invite', { full_name: $('iname').value, phone: $('iphone').value, country_iso2: $('icountry').value, addressed_as: $('iwho').value, voice_offer: $('ivoice').checked, test: $('itest').checked });
+    say('invMsg', 'Private link created for ' + res.reference + '.'); showUrl(res.url); $('invite').reset(); await refresh();
+  } catch (err) { say('invMsg', err.message, true); }
+};
+$('approveDocs').onclick = async () => {
+  if (!confirm('Approve the Readiness document set for real clients? Confirm they have had the legal review you require.')) return;
+  try { await api('admin_approve_documents', { confirm: true }); say('setMsg', 'Documents approved.'); await refresh(); } catch (err) { say('setMsg', err.message, true); }
+};
+$('tgCheck').onclick = async () => {
+  try { const t = await api('admin_telegram', {}); $('tgState').textContent = t.connected_here ? 'Commands connected.' : t.url ? 'This bot currently sends its updates to another service (' + t.url.replace(/^https?:\/\//, '').split('/')[0] + '). Connecting would replace it.' : 'Bot reachable. Commands not connected yet.'; if (t.last_error_message) $('tgState').textContent += ' Last error: ' + t.last_error_message; }
+  catch (err) { say('tgMsg', err.message, true); }
+};
+$('tgConnect').onclick = async () => {
+  try { await api('admin_telegram', { connect: true }); say('tgMsg', 'Connected. Send /ready to your bot.'); $('tgCheck').click(); }
+  catch (err) {
+    if (/replace/.test(err.message) && confirm(err.message)) { try { await api('admin_telegram', { connect: true, replace: true }); say('tgMsg', 'Connected.'); } catch (e2) { say('tgMsg', e2.message, true); } }
+    else say('tgMsg', err.message, true);
+  }
+};
+
+async function refresh() { data = await api('admin_overview'); render(); }
+function signOut() { sessionStorage.removeItem('maktoub_session'); session = null; $('app').hidden = true; $('auth').hidden = false; $('out').hidden = true; }
+$('out').onclick = signOut;
+$('signin').onsubmit = async e => {
+  e.preventDefault(); say('authMsg', 'Signing in…');
+  try { saveSession(await auth('token?grant_type=password', { email: $('em').value.trim(), password: $('pw').value })); $('pw').value = ''; await start(); }
+  catch (err) { say('authMsg', err.message, true); }
+};
+window.addEventListener('hashchange', () => { const id = location.hash.slice(1); if (/^[0-9a-f-]{36}$/.test(id)) openDetail(id); });
+async function start() {
+  try { await refresh(); $('auth').hidden = true; $('app').hidden = false; $('out').hidden = false; say('authMsg', ''); const id = location.hash.slice(1); if (/^[0-9a-f-]{36}$/.test(id)) openDetail(id); }
+  catch (e) { $('auth').hidden = false; $('app').hidden = true; say('authMsg', e.message, true); }
+}
+session = readSession();
+if (session?.access_token) start(); else $('auth').hidden = false;
+})();
+</script>
+</body>
+</html>
