@@ -256,8 +256,8 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
 <main>
   <section id="gate" class="gate wrap grain">
     <div class="kicker">Private</div>
-    <h2 id="gateTitle" style="margin-top:18px">Opening your deal…</h2>
-    <p id="gateText" class="muted" style="margin-top:16px;max-width:46ch"></p>
+    <h2 id="gateTitle" style="margin-top:18px;max-width:18ch">There are years where days happen, and days where years happen.</h2>
+    <p id="gateText" class="muted" style="margin-top:16px;max-width:46ch">Opening your deal…</p>
   </section>
 
   <!-- ============ 01 PROPOSAL ============ -->
@@ -293,10 +293,10 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
     <div class="cols two">
       <div><p class="label">Why this, why now</p><h2 style="margin-top:14px">Change the <span class="u">system.<svg class="uline" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M1 12.4C30 6 64 10 99 3.6"/></svg></span></h2></div>
       <div>
-        <p class="lead" style="max-width:none">Transitions test everything at once.</p>
-        <p class="muted">Sleep slips. Training stops. Food becomes comfort. The mind runs at night. Most people try to fix one thing. This programme works on the system: how you think, move, eat, sleep and recover, and how each one pulls the others.</p>
-        <p class="muted">It is not therapy and it is not a gym plan. It is a disciplined, personal structure, approved by a person, built around your real week, and held in place by daily accountability.</p>
-        <p class="muted">This is a Maktoub programme, so its purpose extends beyond personal performance. It is designed to place you in the best possible position for what comes next, including building a life with a compatible partner. It prepares the ground; it does not promise a relationship.</p>
+        <p class="lead" style="max-width:none">There are years where days happen, and days where years happen.</p>
+        <p class="muted">You are going through a major transition, with clear objectives for who you want to be next: the version of yourself you always knew you could be.</p>
+        <p class="muted">Upgrade is built around you. It supercharges you mentally and physically, and puts in place the systems that turn this period into your new life, and make it hold.</p>
+        <p class="muted">This is a Maktoub programme, so it looks beyond performance. It creates the space to let the right partner in.</p>
       </div>
     </div>
 
@@ -707,7 +707,7 @@ const QUOTES = [
   }, 9000);
 })();
 
-const INCLUDED = ['Initial readiness and lifestyle assessment', 'Sessions on your nutrition and movement habits', 'Work on mindset barriers and recurring patterns', 'Personalised weekly lifestyle and reflection protocols', 'Curated articles, research, books, podcasts and videos', 'Customised Telegram check-ins', 'Your private client portal', 'Weekly accountability tracking', 'Agreed programme review sessions', 'Coordination with independent medical and movement professionals', 'Final 90-day progress review'];
+const INCLUDED = ['Initial readiness and lifestyle assessment', 'Sessions on your nutrition and movement habits', 'Work on mindset barriers and recurring patterns', 'Personalised weekly lifestyle and reflection protocols', 'Curated articles, research, books, podcasts and videos, where useful', 'Customised Telegram check-ins', 'Your private client portal', 'Weekly accountability tracking', 'Agreed programme review sessions', 'Coordination with independent medical and movement professionals', 'Final 90-day progress review'];
 $('included').replaceChildren(...INCLUDED.map((t, i) => { const li = el('li'); li.append(el('span', 'label', String(i + 1).padStart(2, '0')), el('span', null, t)); li.style.gridTemplateColumns = '44px 1fr'; return li; }));
 
 function apply(v, goTo) {
