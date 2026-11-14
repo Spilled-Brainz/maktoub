@@ -64,12 +64,12 @@ pre{white-space:pre-wrap;font:13px/1.55 "Instrument Sans",sans-serif;background:
   </section>
 
   <section id="app" hidden>
-    <h1>The Readiness Programme</h1>
+    <h1>Programmes</h1>
     <p style="color:var(--muted);margin:0 0 18px">Proposals, agreements, transfers, preparation, programme dates and voice reports. Routine check-ins stay with the client’s portal and bot; this view shows what needs you.</p>
     <div class="stats" id="stats"></div>
     <div class="grid">
       <div>
-        <div class="card"><label for="prog" style="margin-top:0">Programme</label><select id="prog"><option value="readiness-90">The Readiness Programme</option><option value="matchmaking">Private Matchmaking (two options)</option></select></div>
+        <div class="card"><label for="prog" style="margin-top:0">Programme</label><select id="prog"><option value="readiness-90">Upgrade: Mental and Physical Bootcamp</option><option value="matchmaking">Private Matchmaking (two options)</option></select></div>
         <div class="card"><h2>Before real proposals</h2><div class="checks" id="checks"></div>
           <details><summary id="docsTitle">Documents (drafts)</summary><div id="docs"></div>
             <p style="font-size:13px;color:var(--muted)">Drafts require qualified legal review. Approving makes this set signable by real clients. To change wording, add a new version.</p>
@@ -153,7 +153,7 @@ function needs(r) {
 function render() {
   const real = data.records.filter(r => !r.revoked_at);
   const c = data.checks;
-  $('checks').replaceChildren(...[['Bank details verified', c.bank_ready], ['Legal entity name', c.legal_name], ['Readiness documents approved', c.documents_approved], ['Telegram bot token (server secret)', c.telegram_token]].map(([k, ok]) => { const d = el('div'); d.append(el('span', k), el('span', ok ? 'Yes' : 'Pending', ok ? 'ok' : 'no')); return d; }));
+  $('checks').replaceChildren(...[['Bank details verified', c.bank_ready], ['Legal entity name', c.legal_name], ['Documents approved', c.documents_approved], ['Telegram bot token (server secret)', c.telegram_token]].map(([k, ok]) => { const d = el('div'); d.append(el('span', k), el('span', ok ? 'Yes' : 'Pending', ok ? 'ok' : 'no')); return d; }));
   $('approveDocs').hidden = c.documents_approved; $('docsTitle').textContent = data.programme.name + ' documents (drafts)';
   $('docs').replaceChildren(...data.documents.map(d => { const det = el('details'); det.append(el('summary', d.title + ' · ' + d.version), el('pre', d.body)); return det; }));
   const live = real.filter(r => !r.is_test && !['completed', 'cancelled'].includes(r.stage));
@@ -164,7 +164,7 @@ function render() {
   $('stats').replaceChildren(...S.map(([l, n, hot]) => { const s = el('div', null, 'stat' + (hot && n ? ' hot' : '')); s.append(el('b', n), el('span', l)); return s; }));
   $('rows').replaceChildren(...data.records.map(r => {
     const tr = el('tr', null, 'r' + (r.id === openId ? ' sel' : '')); tr.onclick = () => { location.hash = r.id; openDetail(r.id); };
-    const who = el('td'); who.append(el('div', r.full_name || r.invited_name), el('div', r.reference_code + ' · ' + (r.programme_code === 'matchmaking' ? 'Matchmaking' + (r.tier ? ' (' + r.tier + ')' : '') : 'Readiness') + (r.is_test ? ' · TEST' : ''), r.is_test ? 'test' : '')); who.lastChild.style.cssText = 'font-size:12px;color:var(--muted)';
+    const who = el('td'); who.append(el('div', r.full_name || r.invited_name), el('div', r.reference_code + ' · ' + (r.programme_code === 'matchmaking' ? 'Matchmaking' + (r.tier ? ' (' + r.tier + ')' : '') : 'Upgrade') + (r.is_test ? ' · TEST' : ''), r.is_test ? 'test' : '')); who.lastChild.style.cssText = 'font-size:12px;color:var(--muted)';
     const st = el('td'); const ch = el('span', r.revoked_at ? 'Revoked' : data.stage_labels[r.stage], 'chip'); ch.style.color = r.stage === 'active' ? 'var(--ok)' : 'var(--navy)'; st.append(ch);
     const nd = el('td'); needs(r).forEach(([t, col]) => { const x = el('span', t, 'chip'); x.style.cssText = 'color:' + col + ';margin:0 4px 4px 0'; nd.append(x); });
     const dt = el('td', r.start_date ? day(r.start_date) + ' → ' + day(r.end_date) : r.prep_due_at ? 'Prep due ' + day(r.prep_due_at) : 'Sent ' + day(r.created_at)); dt.style.fontSize = '13px';
