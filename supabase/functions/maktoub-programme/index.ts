@@ -101,12 +101,42 @@ async function telegram(method: string, payload: Record<string, unknown>) {
 // Founder alerts on the founder's own Telegram. Test records are sent too, tagged TEST.
 // Intake answers are sent on submission (founder decision, 14 Nov 2026; disclosed in health consent v3).
 // Blood-result files are never sent through Telegram.
+const tierOf = (p: Record<string, any>, code: unknown) => (p.tiers || []).find((t: Record<string, any>) => t.code === code) || null
+const VOICE_OWED = ['requested', 'payment_reported', 'paid']
+function alertBody(en: Record<string, any>, p: Record<string, any> | null) {
+  const cur = en.currency || 'SAR'
+  const t = p ? tierOf(p, en.tier) : null
+  const voiceFee = VOICE_OWED.includes(en.voice_addon_status) ? (en.voice_addon_minor || p?.voice_addon_minor || 0) : 0
+  const total = en.price_minor + voiceFee
+  const offer = `${t ? t.name + ' · ' + t.months + ' months' : p?.name || 'Programme'} · ${money(en.price_minor, cur)}` +
+    (voiceFee ? ` + voice ${money(voiceFee, cur)} = <b>${money(total, cur)}</b>` : en.voice_addon_status === 'included' ? ' · voice included' : '')
+  const hasVoice = VOICE_OWED.includes(en.voice_addon_status) || en.voice_addon_status === 'included'
+  const steps: [string, boolean][] = [['Signed', !!en.signed_at], ['Transfer', !!en.payment_reported_at], ['Verified', !!en.payment_verified_at], ['Intake', !!en.intake_submitted_at]]
+  if (hasVoice) steps.push(['Voice', !!en.voice_submitted_at])
+  const next = en.payment_reported_at && !en.payment_verified_at ? `Check your bank for ${money(total, cur)}, then tap Verify.`
+    : !en.signed_at ? 'He reviews and signs.'
+    : !en.payment_reported_at ? `He transfers ${money(total, cur)}.`
+    : !en.intake_submitted_at ? 'He completes the intake.'
+    : hasVoice && !en.voice_submitted_at ? 'He records his voice answer.'
+    : en.payment_verified_at && !en.planning_meeting_at ? 'Book the planning meeting.'
+    : 'Nothing needed from you right now.'
+  const lines = [offer, steps.map(([l, d]) => (d ? '✅ ' : '⬜ ') + l).join('  ')]
+  if (en.intake?.email) lines.push('✉️ ' + esc(en.intake.email))
+  lines.push('<i>Next: ' + esc(next) + '</i>')
+  return { text: lines.join('\n'), total, canVerify: !!en.payment_reported_at && !en.payment_verified_at && !!en.signed_at }
+}
+// Founder alerts on the founder's own Telegram, with enough detail not to need the console.
+// Test records are sent too, tagged TEST. Intake answers follow on submission (health consent v3).
+// Blood-result files are never sent through Telegram.
 async function alertFounder(en: Record<string, any>, title: string, extra = '') {
   if (!BOT) { logEvent(en.id, 'system', 'founder_alert_skipped', { title, reason: 'no bot token secret' }); return }
+  const p = await programme(en.programme_code).catch(() => null)
   const name = en.intake?.full_name || en.signature_name || en.invited_name
-  const text = `${en.is_test ? '🧪 TEST · ' : ''}<b>${esc(title)}</b>\nReadiness · ${esc(name)} · ${esc(en.reference_code)}\n📱 ${esc(en.invited_phone)}${extra ? '\n' + esc(extra) : ''}`
+  const body = alertBody(en, p)
+  const text = `${en.is_test ? '🧪 TEST · ' : ''}<b>${esc(title)}</b>\n${esc(name)} · ${esc(en.reference_code)} · 📱 ${esc(en.invited_phone)}\n${extra ? esc(extra) + '\n' : ''}\n${body.text}`
+  const keyboard = [...(body.canVerify ? [[{ text: `✅ Verify ${money(body.total, en.currency || 'SAR')} received`, callback_data: `v:${en.id}` }]] : []), [{ text: 'Open record', url: `${SITE}/ready/admin/#${en.id}` }]]
   try {
-    await telegram('sendMessage', { chat_id: FOUNDER_CHAT, text, parse_mode: 'HTML', disable_web_page_preview: true, reply_markup: { inline_keyboard: [[{ text: 'Open record', url: `${SITE}/ready/admin/#${en.id}` }]] } })
+    await telegram('sendMessage', { chat_id: FOUNDER_CHAT, text, parse_mode: 'HTML', disable_web_page_preview: true, reply_markup: { inline_keyboard: keyboard } })
     logEvent(en.id, 'system', 'founder_alerted', { title })
   } catch (e) { console.error('founder alert failed', (e as Error).message); logEvent(en.id, 'system', 'founder_alert_failed', { title }) }
 }
@@ -125,14 +155,15 @@ async function programme(code: string) {
 const bankReady = (s: Record<string, any>) => !!(s.bank_verified_at && s.bank_account_name && s.bank_name && s.bank_iban)
 const readyForReal = (p: Record<string, any>, s: Record<string, any>) => bankReady(s) && !!s.provider_legal_name && !!p.documents_approved_at
 
-async function documents(p: Record<string, any>, s: Record<string, any>, price: { minor: number; currency: string }) {
+async function documents(p: Record<string, any>, s: Record<string, any>, price: { minor: number; currency: string }, tierCode?: string | null) {
   const versions = Object.values(p.documents || {}) as string[]
   const { data, error } = await db.from('maktoub_legal_documents').select('version,kind,title,body').in('version', versions)
   if (error || !data || data.length !== versions.length) throw new Error('legal documents unavailable')
   const fill = (b: string) => b.replaceAll('{{PROVIDER}}', s.provider_legal_name || 'Maktoub')
     .replaceAll('{{FEE}}', money(price.minor, price.currency))
     .replaceAll('{{VOICE_FEE}}', p.voice_addon_minor ? money(p.voice_addon_minor, p.currency) : 'the agreed fee')
-    .replaceAll('{{SESSIONS}}', NUMBER_WORDS[p.live_sessions] || String(p.live_sessions)).trim()
+    .replaceAll('{{SESSIONS}}', NUMBER_WORDS[p.live_sessions] || String(p.live_sessions))
+    .replaceAll('{{TIER}}', (() => { const t = tierOf(p, tierCode); return t ? `${t.name}: ${t.summary}` : 'To be selected before signing.' })()).trim()
   return Promise.all(data.sort((a, b) => DOC_ORDER.indexOf(a.kind) - DOC_ORDER.indexOf(b.kind)).map(async d => {
     const body = fill(d.body)
     return { kind: d.kind, version: d.version, title: d.title, body, optional: d.kind === 'programme_voice', sha256: await sha256(d.version + '\n' + d.title + '\n' + body) }
@@ -346,17 +377,18 @@ function progress(en: Record<string, any>, p: Record<string, any>) {
   const today = riyadhDay()
   const raw = dayDiff(en.start_date, today) + 1 - (en.pause_days_total || 0)
   const started = raw >= 1
-  const day = Math.max(0, Math.min(p.duration_days, raw))
-  const third = p.duration_days / 3
+  const total = en.duration_days || p.duration_days
+  const day = Math.max(0, Math.min(total, raw))
+  const third = total / 3
   return {
-    start_date: en.start_date, end_date: en.end_date, started, day, of: p.duration_days,
+    start_date: en.start_date, end_date: en.end_date, started, day, of: total,
     days_to_start: started ? 0 : 1 - raw,
     phase: !started ? 0 : day <= third ? 1 : day <= 2 * third ? 2 : 3,
-    percent: Math.round((day / p.duration_days) * 100),
+    percent: Math.round((day / total) * 100),
   }
 }
 async function clientView(en: Record<string, any>, p: Record<string, any>, s: Record<string, any>) {
-  const docs = await documents(p, s, { minor: en.price_minor, currency: en.currency })
+  const docs = await documents(p, s, { minor: en.price_minor, currency: en.currency }, en.tier)
   const bank = bankReady(s) ? { account_name: s.bank_account_name, bank_name: s.bank_name, iban: s.bank_iban, swift: s.bank_swift } : null
   const seller = s.provider_legal_name || 'Maktoub'
   const billedTo = en.invoice_billed_to || en.intake?.full_name || en.signature_name || en.invited_name
@@ -373,7 +405,8 @@ async function clientView(en: Record<string, any>, p: Record<string, any>, s: Re
   return {
     reference: en.reference_code, is_test: en.is_test, addressed_as: en.addressed_as,
     first_name: String(en.intake?.preferred_name || en.invited_name).trim().split(/\s+/)[0],
-    programme: { name: p.name, category: p.category, duration_days: p.duration_days, prep_days: p.prep_days, live_sessions: p.live_sessions,
+    tier: en.tier, tiers: (p.tiers || []).map((t: Record<string, any>) => ({ ...t, price: money(t.price_minor, p.currency) })),
+    programme: { code: p.code, name: p.name, category: p.category, duration_days: en.duration_days || p.duration_days, prep_days: p.prep_days, live_sessions: p.live_sessions,
       price: money(en.price_minor, en.currency), voice_fee: p.voice_addon_minor ? money(p.voice_addon_minor, p.currency) : null },
     documents: docs,
     stage: en.stage, stage_label: STAGE_LABELS[en.stage],
@@ -442,16 +475,29 @@ async function clientAction(req: Request, origin: string, ip: string) {
     return view(fresh)
   }
 
+  if (action === 'choose_tier') {
+    if (en.signed_at) throw new HttpError(409, 'Your option is already confirmed in your signed agreement.')
+    const t = tierOf(p, body.tier)
+    if (!t) throw new HttpError(400, 'Choose one of the options.')
+    const voice = t.voice_included ? { voice_addon_status: 'included', voice_addon_minor: null }
+      : en.voice_addon_status === 'included' ? { voice_addon_status: 'offered', voice_addon_minor: null } : {}
+    const fresh = await update({ tier: t.code, price_minor: t.price_minor, duration_days: Math.round(t.months * 30), ...voice })
+    logEvent(en.id, 'client', 'tier_chosen', { tier: t.code })
+    return view(fresh)
+  }
+
   if (action === 'sign') {
     if (en.signed_at) return view(en)
+    if ((p.tiers || []).length && !tierOf(p, en.tier)) throw new HttpError(409, 'Please choose your option first.')
     const name = str(body.signature_name, 150)
     if (!name || name.replace(/[^\p{L}]/gu, '').length < 3 || !/\s/.test(name)) throw new HttpError(400, 'Please type your full name, including your family name, as your signature.')
     const accepted = body.accept && typeof body.accept === 'object' ? body.accept as Record<string, boolean> : {}
     if (REQUIRED_DOCS.some(k => accepted[k] !== true)) throw new HttpError(400, 'Please confirm each document to continue.')
-    const docs = await documents(p, s, { minor: en.price_minor, currency: en.currency })
+    const docs = await documents(p, s, { minor: en.price_minor, currency: en.currency }, en.tier)
     const sent = body.documents && typeof body.documents === 'object' ? body.documents as Record<string, string> : {}
-    const wantVoice = body.voice_addon === true && !!p.voice_addon_minor
-    const signing = docs.filter(d => REQUIRED_DOCS.includes(d.kind) || (wantVoice && d.kind === 'programme_voice'))
+    const included = en.voice_addon_status === 'included'
+    const wantVoice = !included && body.voice_addon === true && !!p.voice_addon_minor
+    const signing = docs.filter(d => REQUIRED_DOCS.includes(d.kind) || ((wantVoice || included) && d.kind === 'programme_voice'))
     if (signing.some(d => sent[d.kind] !== d.sha256)) throw new HttpError(409, 'A document was updated while you were reading. Please review it again.')
     await recordConsents(en, signing, name, req, ip)
     const fresh = await update({
@@ -459,17 +505,18 @@ async function clientAction(req: Request, origin: string, ip: string) {
       ...(wantVoice ? { voice_addon_status: 'requested', voice_addon_requested_at: now, voice_addon_minor: p.voice_addon_minor } : {}),
     })
     logEvent(en.id, 'client', 'signed', { versions: signing.map(d => d.version), voice_addon: wantVoice })
-    await alertFounder(fresh, 'Agreement signed ✍️', wantVoice ? 'Voice analysis add-on requested' : '')
+    const t = tierOf(p, en.tier)
+    await alertFounder(fresh, 'Agreement signed ✍️', [t ? `${t.name} · ${money(t.price_minor, p.currency)} · ${t.months} months` : '', wantVoice ? 'Voice analysis add-on requested' : included ? 'Voice analysis included' : ''].filter(Boolean).join('\n'))
     return view(fresh)
   }
 
   if (action === 'request_voice') {
     if (!en.signed_at) throw new HttpError(409, 'Please sign the agreement first.')
     if (!p.voice_addon_minor) throw new HttpError(409, 'Voice analysis is not available for this programme.')
-    if (['requested', 'payment_reported', 'paid'].includes(en.voice_addon_status)) return view(en)
+    if (['requested', 'payment_reported', 'paid', 'included'].includes(en.voice_addon_status)) return view(en)
     const name = str(body.signature_name, 150)
     if (!name || !/\s/.test(name)) throw new HttpError(400, 'Please type your full name to confirm.')
-    const docs = await documents(p, s, { minor: en.price_minor, currency: en.currency })
+    const docs = await documents(p, s, { minor: en.price_minor, currency: en.currency }, en.tier)
     const voiceDoc = docs.find(d => d.kind === 'programme_voice')!
     if (body.consent !== true || body.document_sha256 !== voiceDoc.sha256) throw new HttpError(409, 'Please review the voice analysis consent again.')
     await recordConsents(en, [voiceDoc], name, req, ip)
@@ -522,7 +569,7 @@ async function clientAction(req: Request, origin: string, ip: string) {
   }
 
   if (action === 'voice') {
-    if (!['requested', 'payment_reported', 'paid'].includes(en.voice_addon_status)) throw new HttpError(409, 'Add voice analysis first.')
+    if (!['requested', 'payment_reported', 'paid', 'included'].includes(en.voice_addon_status)) throw new HttpError(409, 'Add voice analysis first.')
     const { data: rep } = await db.from('maktoub_voice_reports').select('enrolment_id').eq('enrolment_id', en.id).maybeSingle()
     if (rep) throw new HttpError(409, 'Your recording is already being analysed.')
     if (await limited('prg-voice:' + en.id, 12, 86400)) throw new HttpError(429, 'Too many uploads today. Please try again tomorrow.')
@@ -582,10 +629,10 @@ async function clientAction(req: Request, origin: string, ip: string) {
 }
 
 // ---------- invitations (founder console and Telegram) ----------
-async function createInvite(opts: { name: string; phone: string; country?: string; test: boolean; voiceOffer: boolean; addressedAs?: string; uid: string | null; via: 'founder' | 'telegram' }) {
-  const p = await programme('readiness-90')
+async function createInvite(opts: { name: string; phone: string; country?: string; test: boolean; voiceOffer: boolean; addressedAs?: string; uid: string | null; via: 'founder' | 'telegram'; code?: string }) {
+  const p = await programme(opts.code === 'matchmaking' ? 'matchmaking' : 'readiness-90')
   const s = await bankSettings()
-  if (!opts.test && !readyForReal(p, s)) throw new HttpError(409, 'Before inviting a real client: approve the Readiness documents in the console (bank details and legal name are already used from onboarding settings).')
+  if (!opts.test && !readyForReal(p, s)) throw new HttpError(409, `Before inviting a real client: approve the ${p.name} documents in the console.`)
   const name = str(opts.name, 150)
   const parsed = parsePhoneNumberFromString(String(opts.phone || ''), ((opts.country || 'SA').toUpperCase()) as any)
   const fictional = opts.test && /^\+447700900\d{3}$/.test(parsed?.number || '')
@@ -621,7 +668,7 @@ async function createInvite(opts: { name: string; phone: string; country?: strin
 }
 
 // ---------- founder console ----------
-const LIST_COLS = 'id,reference_code,invited_name,invited_phone,is_test,revoked_at,invite_expires_at,created_at,first_opened_at,last_seen_at,stage,signed_at,payment_reported_at,payment_verified_at,voice_addon_status,voice_submitted_at,intake_submitted_at,prep_due_at,planning_meeting_at,planning_meeting_completed_at,medical_status,start_date,end_date,pause_days_total,intake->>full_name'
+const LIST_COLS = 'id,programme_code,tier,price_minor,voice_addon_minor,reference_code,invited_name,invited_phone,is_test,revoked_at,invite_expires_at,created_at,first_opened_at,last_seen_at,stage,signed_at,payment_reported_at,payment_verified_at,voice_addon_status,voice_submitted_at,intake_submitted_at,prep_due_at,planning_meeting_at,planning_meeting_completed_at,medical_status,start_date,end_date,pause_days_total,intake->>full_name'
 
 async function founderAction(req: Request, origin: string, jwt: string) {
   const { data: identity, error: authErr } = await db.auth.getUser(jwt)
@@ -634,7 +681,7 @@ async function founderAction(req: Request, origin: string, jwt: string) {
   if (!body || typeof body !== 'object') throw new HttpError(400, 'Invalid request.')
   const action = String(body.action || '')
   const now = new Date().toISOString()
-  const p = await programme('readiness-90')
+  const p = await programme(body.programme === 'matchmaking' ? 'matchmaking' : 'readiness-90')
   const s = await bankSettings()
   const getOne = async (id: unknown) => {
     if (typeof id !== 'string' || !UUID.test(id)) throw new HttpError(400, 'Record required.')
@@ -656,7 +703,8 @@ async function founderAction(req: Request, origin: string, jwt: string) {
     const { data: meds } = await db.from('maktoub_medical_files').select('enrolment_id').is('deleted_at', null)
     for (const r of data || []) (r as Record<string, unknown>).medical_pending = (meds || []).filter(m => m.enrolment_id === r.id).length
     return json({
-      programme: { code: p.code, name: p.name, price: money(p.price_minor, p.currency), voice_fee: p.voice_addon_minor ? money(p.voice_addon_minor, p.currency) : null, documents_approved_at: p.documents_approved_at, duration_days: p.duration_days, prep_days: p.prep_days },
+      programmes: (await db.from('maktoub_programmes').select('code,name,documents_approved_at').eq('active', true).order('created_at')).data,
+      programme: { code: p.code, name: p.name, price: money(p.price_minor, p.currency), currency: p.currency, tiers: p.tiers, voice_fee: p.voice_addon_minor ? money(p.voice_addon_minor, p.currency) : null, documents_approved_at: p.documents_approved_at, duration_days: p.duration_days, prep_days: p.prep_days },
       checks: { bank_ready: bankReady(s), legal_name: !!s.provider_legal_name, documents_approved: !!p.documents_approved_at, telegram_token: !!BOT, telegram_token_name: BOT_KEY || null, ready_for_real_invites: readyForReal(p, s) },
       documents: await documents(p, s, { minor: p.price_minor, currency: p.currency }),
       records: data, stage_labels: STAGE_LABELS, today: riyadhDay(),
@@ -671,7 +719,7 @@ async function founderAction(req: Request, origin: string, jwt: string) {
   }
 
   if (action === 'admin_invite') {
-    return json(await createInvite({ name: body.full_name, phone: body.phone, country: body.country_iso2, test: body.test === true, voiceOffer: body.voice_offer === true, addressedAs: body.addressed_as, uid, via: 'founder' }), 200, origin)
+    return json(await createInvite({ name: body.full_name, phone: body.phone, country: body.country_iso2, test: body.test === true, voiceOffer: body.voice_offer === true, addressedAs: body.addressed_as, uid, via: 'founder', code: p.code }), 200, origin)
   }
 
   if (action === 'admin_get') {
@@ -684,7 +732,8 @@ async function founderAction(req: Request, origin: string, jwt: string) {
       db.from('maktoub_medical_files').select('id,label,mime,bytes,uploaded_at,expires_at,view_count,last_viewed_at,reviewed_at,deleted_at,deleted_by,deletion_verified').eq('enrolment_id', en.id).order('uploaded_at', { ascending: false }),
     ])
     const { invite_token_hash: _h, ...record } = en
-    return json({ record, consents, events, report, medical, medical_days: MED_DAYS, progress: progress(en, p), stage_labels: STAGE_LABELS, intake_schema: INTAKE }, 200, origin)
+    const pe = await programme(en.programme_code)
+    return json({ record, consents, events, report, medical, medical_days: MED_DAYS, progress: progress(en, pe), stage_labels: STAGE_LABELS, intake_schema: INTAKE, programme: { code: pe.code, name: pe.name, tier: tierOf(pe, en.tier) } }, 200, origin)
   }
 
   if (action === 'admin_update') {
@@ -789,11 +838,11 @@ async function founderAction(req: Request, origin: string, jwt: string) {
 
   if (action === 'admin_save_report') {
     const en = await getOne(body.id)
-    if (!['requested', 'payment_reported', 'paid'].includes(en.voice_addon_status)) throw new HttpError(409, 'Voice analysis has not been requested.')
+    if (!['requested', 'payment_reported', 'paid', 'included'].includes(en.voice_addon_status)) throw new HttpError(409, 'Voice analysis has not been requested.')
     const data = body.data && typeof body.data === 'object' && !Array.isArray(body.data) ? body.data : null
     if (!data || JSON.stringify(data).length > 120000) throw new HttpError(400, 'Report data is missing or too large.')
     const publish = body.publish === true
-    if (publish && en.voice_addon_status !== 'paid') throw new HttpError(409, 'Verify the voice add-on payment before publishing.')
+    if (publish && !(en.voice_addon_status === 'paid' || (en.voice_addon_status === 'included' && en.payment_verified_at))) throw new HttpError(409, 'Verify the payment before publishing.')
     const row: Record<string, unknown> = { enrolment_id: en.id, data, updated_at: now, updated_by: uid }
     if (publish) Object.assign(row, { status: 'published', published_at: now, published_by: uid })
     else if (body.unpublish === true) Object.assign(row, { status: 'draft', published_at: null })
@@ -838,8 +887,8 @@ async function founderAction(req: Request, origin: string, jwt: string) {
         if (error) throw error
         cfg = { value }
       }
-      await telegram('setWebhook', { url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/maktoub-programme`, secret_token: cfg.value, allowed_updates: ['message'], drop_pending_updates: false })
-      await telegram('setMyCommands', { commands: [{ command: 'ready', description: 'Send a Readiness Programme proposal' }, { command: 'readytest', description: 'Create a test proposal' }, { command: 'readiness', description: 'Readiness clients needing action' }], scope: { type: 'chat', chat_id: Number(FOUNDER_CHAT) } })
+      await telegram('setWebhook', { url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/maktoub-programme`, secret_token: cfg.value, allowed_updates: ['message', 'callback_query'], drop_pending_updates: false })
+      await telegram('setMyCommands', { commands: [{ command: 'ready', description: 'Send a Readiness Programme proposal' }, { command: 'readytest', description: 'Create a test proposal' }, { command: 'match', description: 'Send a private matchmaking proposal' }, { command: 'matchtest', description: 'Create a test matchmaking proposal' }, { command: 'readiness', description: 'Clients needing action' }], scope: { type: 'chat', chat_id: Number(FOUNDER_CHAT) } })
       return json({ connected: true, previous_url: info.url ? String(info.url).replace(/bot[^/]+/, 'bot…') : null }, 200, origin)
     }
     return json({ url: info.url ? String(info.url).replace(/\?.*$/, '') : null, connected_here: String(info.url || '').includes('/maktoub-programme'), pending_update_count: info.pending_update_count, last_error_message: info.last_error_message || null }, 200, origin)
@@ -853,6 +902,39 @@ async function telegramAction(req: Request) {
   const { data: cfg } = await db.from('maktoub_internal_config').select('value').eq('key', 'telegram_webhook_secret').maybeSingle()
   if (!cfg?.value || req.headers.get('x-telegram-bot-api-secret-token') !== cfg.value) return new Response('forbidden', { status: 403 })
   const update = await req.json().catch(() => null)
+  const cq = update?.callback_query
+  if (cq) {
+    if (String(cq.from?.id) !== FOUNDER_CHAT) return new Response('ok')
+    const m = /^(v|vv):([0-9a-f-]{36})$/.exec(String(cq.data || ''))
+    let note = 'Unknown action.'
+    if (m) {
+      const { data: en } = await db.from('maktoub_enrolments').select('*').eq('id', m[2]).maybeSingle()
+      const p = en ? await programme(en.programme_code).catch(() => null) : null
+      const total = en ? alertBody(en, p).total : 0
+      if (!en) note = 'Record not found.'
+      else if (en.payment_verified_at) note = 'Already verified.'
+      else if (!en.signed_at || !en.payment_reported_at) note = 'No transfer reported yet.'
+      else if (m[1] === 'v') {
+        await telegram('sendMessage', { chat_id: FOUNDER_CHAT, parse_mode: 'HTML', text: `Confirm <b>${money(total, en.currency)}</b> from ${esc(en.intake?.full_name || en.signature_name || en.invited_name)} has arrived in your bank?`,
+          reply_markup: { inline_keyboard: [[{ text: '✅ Yes, verify', callback_data: `vv:${en.id}` }]] } }).catch(() => {})
+        note = 'Confirm below.'
+      } else {
+        const now = new Date().toISOString()
+        const voiceDue = ['requested', 'payment_reported'].includes(en.voice_addon_status)
+        const { data: fresh, error } = await db.from('maktoub_enrolments').update({ payment_verified_at: now,
+          stage: ['invited', 'signed', 'payment_reported'].includes(en.stage) ? 'meeting_pending' : en.stage,
+          ...(voiceDue ? { voice_addon_status: 'paid', voice_addon_verified_at: now } : {}) }).eq('id', en.id).select('*').single()
+        if (error || !fresh) note = 'Could not verify. Please use the console.'
+        else {
+          logEvent(en.id, 'telegram', 'verify_payment', { voice: voiceDue })
+          note = 'Verified.'
+          await alertFounder(fresh, 'Payment verified ✅', `Invoice ${fresh.invoice_number}${fresh.voice_addon_invoice_number ? ' and ' + fresh.voice_addon_invoice_number : ''} issued. Preparation window open.`)
+        }
+      }
+    }
+    await telegram('answerCallbackQuery', { callback_query_id: cq.id, text: note.slice(0, 190) }).catch(() => {})
+    return new Response('ok')
+  }
   const msg = update?.message
   // Always 200 to Telegram so it does not retry; ignore anything not from the founder's private chat.
   if (!msg?.text || String(msg.chat?.id) !== FOUNDER_CHAT || msg.chat?.type !== 'private') return new Response('ok')
@@ -862,30 +944,31 @@ async function telegramAction(req: Request) {
   const [cmdRaw, ...rest] = text.split(/\s+/)
   const cmd = cmdRaw.toLowerCase().replace(/@\w+$/, '')
   try {
-    if (cmd === '/ready' || cmd === '/readytest') {
-      const test = cmd === '/readytest'
-      const voice = rest.some(w => /^(\+?voice)$/i.test(w))
+    if (['/ready', '/readytest', '/match', '/matchtest'].includes(cmd)) {
+      const test = cmd.endsWith('test')
+      const code = cmd.startsWith('/match') ? 'matchmaking' : 'readiness-90'
+      const voice = code === 'matchmaking' || rest.some(w => /^(\+?voice)$/i.test(w))
       const words = rest.filter(w => !/^(\+?voice)$/i.test(w))
       const phoneStart = words.findIndex(w => /^\+?\d/.test(w))
       const name = (phoneStart === -1 ? words : words.slice(0, phoneStart)).join(' ')
       const phone = test ? '+447700900' + String(Math.floor(Math.random() * 1000)).padStart(3, '0') : (phoneStart === -1 ? '' : words.slice(phoneStart).join(''))
       if (!name || !phone) {
-        await reply('Usage:\n<code>/ready Anas +9665XXXXXXXX</code>\n<code>/ready Anas +9665XXXXXXXX voice</code> to offer voice analysis\n<code>/readytest Anas</code> for a synthetic test')
+        await reply('Usage:\n<code>/ready Anas +9665XXXXXXXX</code> Readiness Programme (add <code>voice</code> to offer voice analysis)\n<code>/match Osama +9665XXXXXXXX</code> private matchmaking, two options\n<code>/readytest Anas</code> or <code>/matchtest Osama</code> for a synthetic test')
         return new Response('ok')
       }
-      const inv = await createInvite({ name, phone, test, voiceOffer: voice, uid: null, via: 'telegram' })
-      await reply(`<b>${test ? 'Test proposal' : 'Readiness proposal'} ready</b> · ${esc(inv.reference)}\n${esc(name)}${voice ? ' · voice analysis offered' : ''}\nValid until ${esc(new Date(inv.expires_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', timeZone: 'Asia/Riyadh' }))}\n\nForward this private link to him (it is shown only once):`)
+      const inv = await createInvite({ name, phone, test, voiceOffer: voice, uid: null, via: 'telegram', code })
+      await reply(`<b>${test ? 'Test proposal' : code === 'matchmaking' ? 'Matchmaking proposal' : 'Readiness proposal'} ready</b> · ${esc(inv.reference)}\n${esc(name)}${voice ? ' · voice analysis offered' : ''}\nValid until ${esc(new Date(inv.expires_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', timeZone: 'Asia/Riyadh' }))}\n\nForward this private link to him (it is shown only once):`)
       await reply(inv.url, { reply_markup: { inline_keyboard: [[{ text: 'Open record', url: `${SITE}/ready/admin/#${inv.id}` }]] } })
       return new Response('ok')
     }
-    if (cmd === '/readiness') {
-      const { data } = await db.from('maktoub_enrolments').select('id,reference_code,invited_name,stage,payment_reported_at,payment_verified_at,voice_addon_status,prep_due_at,start_date,is_test').is('revoked_at', null).not('stage', 'in', '(completed,cancelled)').order('created_at', { ascending: false }).limit(20)
+    if (cmd === '/readiness' || cmd === '/clients') {
+      const { data } = await db.from('maktoub_enrolments').select('id,programme_code,reference_code,invited_name,stage,payment_reported_at,payment_verified_at,voice_addon_status,prep_due_at,start_date,is_test').is('revoked_at', null).not('stage', 'in', '(completed,cancelled)').order('created_at', { ascending: false }).limit(20)
       const rows = (data || []).filter(r => !r.is_test)
       if (!rows.length) { await reply('No open Readiness enrolments.'); return new Response('ok') }
       const lines = rows.map(r => {
         const flag = (r.payment_reported_at && !r.payment_verified_at) || r.voice_addon_status === 'payment_reported' ? ' · 💳 verify' : ''
         const due = r.prep_due_at && !r.start_date ? ` · prep due ${new Date(r.prep_due_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'Asia/Riyadh' })}` : ''
-        return `• <b>${esc(r.invited_name)}</b> ${esc(r.reference_code)} · ${esc(STAGE_LABELS[r.stage])}${flag}${due}`
+        return `• <b>${esc(r.invited_name)}</b> ${esc(r.reference_code)} · ${r.programme_code === 'matchmaking' ? 'Matchmaking' : 'Readiness'} · ${esc(STAGE_LABELS[r.stage])}${flag}${due}`
       })
       await reply(lines.join('\n'), { reply_markup: { inline_keyboard: [[{ text: 'Open console', url: `${SITE}/ready/admin/` }]] } })
       return new Response('ok')

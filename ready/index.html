@@ -74,6 +74,12 @@ section.step{animation:in .4s var(--ease)}
 .qrot figcaption{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--smoke);margin-top:6px}
 .s1head{align-items:flex-start;flex-wrap:wrap}
 @media(max-width:759px){.qrot{text-align:left;max-width:none}}
+.tier{border:1px solid var(--ink);background:var(--white);padding:26px;display:flex;flex-direction:column}
+.tier.sel{outline:2px solid var(--navy);outline-offset:-2px}
+.tier h4{font-size:clamp(26px,3vw,34px);font-weight:500;letter-spacing:-.02em;margin:6px 0 4px}
+.tier .amt{margin:10px 0 4px}
+.tier .ticks{margin:16px 0 0;flex:1}
+.tier .btn{margin-top:22px}
 .alt-price{font-size:19px;color:#3E3B37;margin:12px 0 0}.alt-price b{font-weight:500;color:var(--ink)}
 .sys li{grid-template-columns:44px 1fr auto}.sys .chip{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--hair);padding:4px 8px;white-space:nowrap;align-self:start;margin-top:4px;color:var(--smoke)}
 .sys .chip.live{border-color:var(--navy);color:var(--navy)}
@@ -261,15 +267,15 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
     <h1><span class="fname"></span>,<br><span class="u">it’s time.<svg class="uline" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M1 12.4C30 6 64 10 99 3.6"/><path pathLength="100" d="M10 18.4C40 13.2 70 15.6 90 11.6"/></svg></span></h1>
     <div class="hero-grid">
       <div>
-        <p class="lead">Ninety days. Mind and body. A structure built around you, and the discipline to keep it.</p>
-        <p class="muted" style="margin-top:16px;max-width:44ch">Maktoub | The Readiness Programme is a personalised mind-and-body programme for a period of transition. Structure, guidance, education, professional coordination and accountability, so the change happening around you becomes change you lead.</p>
+        <p class="lead" id="heroLead">Ninety days. Mind and body. A structure built around you, and the discipline to keep it.</p>
+        <p class="muted" style="margin-top:16px;max-width:44ch" id="heroSub">Maktoub | The Readiness Programme is a personalised mind-and-body programme for a period of transition. Structure, guidance, education, professional coordination and accountability, so the change happening around you becomes change you lead.</p>
       </div>
       <svg class="ill" viewBox="0 0 600 300" role="img" aria-label="A flat path continues while a second path crosses day one and rises toward day ninety">
         <path class="g" d="M20 214 C150 208 330 220 580 212"/>
         <path class="k draw" pathLength="100" d="M300 36 V266" style="stroke-dasharray:2 5;stroke-dashoffset:0;opacity:.55"/>
         <path class="s draw" pathLength="100" d="M20 214 C140 208 230 212 300 202 S 460 118 580 52" style="stroke-width:2.2"/>
         <circle class="d" cx="300" cy="202" r="6"/><circle class="f" cx="580" cy="52" r="4"/>
-        <text x="20" y="244">Today</text><text x="306" y="286">Day 1</text><text x="580" y="34" text-anchor="end">Day 90</text><text x="580" y="240" text-anchor="end">The old pattern</text>
+        <text x="20" y="244">Today</text><text x="306" y="286" id="ill1">Day 1</text><text x="580" y="34" text-anchor="end" id="ill2">Day 90</text><text x="580" y="240" text-anchor="end">The old pattern</text>
       </svg>
     </div>
    </div>
@@ -282,6 +288,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
     </div>
    </div>
 
+   <div id="rdBody">
    <div class="wrap grain">
     <div class="cols two">
       <div><p class="label">Why this, why now</p><h2 style="margin-top:14px">Change the <span class="u">system.<svg class="uline" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M1 12.4C30 6 64 10 99 3.6"/></svg></span></h2></div>
@@ -415,6 +422,39 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
     </ul>
     <button class="btn" data-go="2">Review and sign the agreement →</button>
     <p class="small muted center" style="margin-top:12px">Questions first? Reply to the message that brought you here.</p>
+   </div>
+   </div>
+   <div id="mmBody" hidden>
+    <div class="wrap grain">
+     <div class="section-head"><h3 style="margin:0">Two ways in</h3><span class="label muted">Choose yours</span></div>
+     <div class="cols two" id="tierCards"></div>
+     <div class="err" id="errTier" role="alert"></div>
+
+     <div class="rule"><div class="section-head"><h3 style="margin:0">How it works</h3></div>
+     <ol class="steps">
+      <li><span class="label">01</span><span><b>Choose and sign</b>Pick your option, read the agreement and sign here.</span><span class="dur">Today</span></li>
+      <li><span class="label">02</span><span><b>Voice and intake</b>Two minutes of your voice, and an intake on your mindset and your body: movement, food, sleep, recovery.</span><span class="dur">Your portal</span></li>
+      <li><span class="label">03</span><span><b>Your reading</b>Voice results and intake reviewed together. We recommend the exact protocol for you, body and mind.</span><span class="dur">About 7 days</span></li>
+      <li class="key"><span class="label">04</span><span><b>The search</b>Screened, identity-verified introductions, only ever with your explicit approval. Mindset review and support along the way.</span><span class="dur">From your start</span></li>
+      <li><span class="label">05</span><span><b>Review</b>What you learned, what changed, what comes next.</span><span class="dur">End of term</span></li>
+     </ol></div>
+
+     <div class="rule"><div class="cols two">
+      <div><h3>Built into both</h3><ul class="ticks">
+        <li>Mind and body intake, to recommend your exact protocol</li>
+        <li>Mindset review and support along the way</li>
+        <li>Your private portal and direct line to Maktoub</li>
+        <li>Your identity never disclosed without your approval</li></ul></div>
+      <div><p class="notice" style="margin-top:0">We start by knowing you. The right introduction is easier to recognise when you know what you are looking for, and who you are becoming.</p></div>
+     </div></div>
+
+     <div class="rule"><h3>Boundaries, clearly</h3><ul class="ticks">
+      <li>Compatibility depends on two people. Except for the Private Search date guarantee, no relationship or outcome is guaranteed.</li>
+      <li>Voice analysis is a signal layer to explore, not a diagnosis.</li>
+      <li>Not therapy or medical care. Any medical interpretation is made by a qualified professional.</li>
+      <li>Blood results, if requested, are uploaded privately in your portal and deleted within 14 days.</li>
+     </ul></div>
+    </div>
    </div>
   </section>
 
@@ -614,7 +654,8 @@ function renderDoc(target, body) {
 const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('inview'); io.unobserve(e.target); } }), { threshold: .25 }) : null;
 $$('svg.ill').forEach(s => io ? io.observe(s) : s.classList.add('inview'));
 
-const maxStep = v => v.signed ? 4 : 2;
+const maxStep = v => v.signed ? 4 : (v.tiers && v.tiers.length && !v.tier) ? 1 : 2;
+const isMM = v => v.programme.code === 'matchmaking';
 function show(step) {
   current = step;
   for (let i = 1; i <= 4; i++) $('s' + i).hidden = i !== step;
@@ -688,7 +729,16 @@ function apply(v, goTo) {
     $$('.t_' + d.kind).forEach(s => s.textContent = d.title + (d.optional ? ' (optional)' : ''));
   }
   if (docs.programme_voice) renderDoc($('doc_programme_voice_2'), docs.programme_voice.body);
-  $('voiceOpt').hidden = !docs.programme_voice;
+  $('voiceOpt').hidden = !docs.programme_voice || v.voice.status === 'included';
+  const mm = isMM(v);
+  $('rdBody').hidden = mm; $('mmBody').hidden = !mm;
+  document.title = (mm ? 'Private Matchmaking' : 'The Readiness Programme') + ' | Maktoub';
+  if (mm) {
+    $('heroLead').textContent = 'A private search, built on knowing you first. Voice, mind and body, then the right introductions.';
+    $('heroSub').textContent = 'Maktoub private matchmaking begins with a deeper read of you: your voice analysis, your mindset and your physical habits. So the search, and the protocol we recommend, fit who you are becoming.';
+    $('ill1').textContent = 'Your reading'; $('ill2').textContent = 'The right introduction';
+    renderTiers(v);
+  }
 
   // 02 Agreement
   $('signForm').hidden = !!v.signed; $('signedBox').hidden = !v.signed;
@@ -730,6 +780,23 @@ function apply(v, goTo) {
 
   renderPortal(v);
   show(goTo || current);
+}
+
+// ---------- matchmaking options ----------
+const TIER_POINTS = {
+  standard: ['Six months of active matchmaking', 'Screened, identity-verified introductions, only with your approval', 'Mind and body intake, with a mindset review', 'Voice analysis, recommended (+ add-on)'],
+  premium: ['Three months of an intensified search', 'Three dates guaranteed', 'Voice analysis included', 'Mindset review and support throughout', 'Your recommended protocol, body and mind'],
+};
+function renderTiers(v) {
+  $('tierCards').replaceChildren(...v.tiers.map(t => {
+    const c = el('article', 'tier' + (v.tier === t.code ? ' sel' : ''));
+    c.append(el('p', 'label muted', t.months + ' months' + (t.dates ? ' · ' + t.dates + ' dates guaranteed' : '')), el('h4', null, t.name), el('div', 'amt', t.price));
+    if (!t.voice_included && v.programme.voice_fee) c.append(el('p', 'muted small', 'Voice analysis + ' + v.programme.voice_fee));
+    const ul = el('ul', 'ticks'); (TIER_POINTS[t.code] || [t.summary]).forEach(x => ul.append(el('li', null, x))); c.append(ul);
+    const b = el('button', 'btn' + (v.tier === t.code ? '' : ' ghost'), v.signed ? (v.tier === t.code ? 'Your option' : t.name) : 'Choose ' + t.name + ' →'); b.type = 'button'; b.disabled = !!v.signed;
+    b.onclick = async () => { $('errTier').textContent = ''; b.disabled = true; try { apply(await call('choose_tier', { tier: t.code }), 2); } catch (e) { $('errTier').textContent = e.message; } finally { b.disabled = !!view.signed; } };
+    c.append(b); return c;
+  }));
 }
 
 // ---------- 02 sign ----------
@@ -778,11 +845,11 @@ function renderPortal(v) {
   const c = $('clock'); c.replaceChildren();
   const pr = v.progress;
   if (pr && pr.started && v.stage !== 'completed') {
-    c.append(el('h3', null, v.paused ? 'Paused' : 'Programme day'));
+    c.append(el('h3', null, v.paused ? 'Paused' : isMM(v) ? 'Search day' : 'Programme day'));
     const big = el('div', 'big'); big.append(String(pr.day), el('span', 'muted', ' / ' + pr.of)); big.lastChild.style.fontSize = '.35em'; c.append(big);
     const t = el('div', 'bar-track'), f = el('i', 'bar-fill'); f.style.width = pr.percent + '%'; t.append(f); c.append(t);
-    const pb = el('div', 'phasebar'); ['Understand & Reset', 'Build & Strengthen', 'Integrate & Sustain'].forEach((n, i) => pb.append(el('span', pr.phase === i + 1 ? 'on' : '', n))); c.append(pb);
-    c.append(el('p', 'muted small', 'Day 90 is ' + fmtDay(pr.end_date) + '.')); c.lastChild.style.marginTop = '14px';
+    if (!isMM(v)) { const pb = el('div', 'phasebar'); ['Understand & Reset', 'Build & Strengthen', 'Integrate & Sustain'].forEach((n, i) => pb.append(el('span', pr.phase === i + 1 ? 'on' : '', n))); c.append(pb); }
+    c.append(el('p', 'muted small', 'Day ' + pr.of + ' is ' + fmtDay(pr.end_date) + '.')); c.lastChild.style.marginTop = '14px';
   } else if (v.stage === 'completed') {
     c.append(el('h3', null, 'Complete'), el('div', 'big', '90'), el('p', 'muted small', 'You did the work. Your final review and the system you keep are in your documents.'));
   } else if (pr && !pr.started) {
@@ -796,7 +863,13 @@ function renderPortal(v) {
   }
   // Five steps he can feel moving: enrolled, intake, protocol, tech, Day 1.
   const at = k => ORDER.indexOf(v.stage === 'paused' ? 'active' : v.stage) >= ORDER.indexOf(k);
-  const steps = [
+  const steps = isMM(v) ? [
+    ['Enrolled', !!v.payment.verified_at, v.payment.verified_at ? 'Agreement signed, payment verified.' : v.payment.reported_at ? 'Your transfer is being verified.' : 'Choose, sign and transfer.'],
+    ['Intake and voice', !!v.intake_submitted_at && (!!v.voice.recording || !['requested', 'payment_reported', 'paid', 'included'].includes(v.voice.status)), 'Mind, body and two minutes of your voice.'],
+    ['Your reading', !!v.voice.report_ready || at('bot_configuration'), 'Voice results and intake reviewed together.'],
+    ['Your protocol', at('portal_ready'), 'The exact protocol we recommend, body and mind.'],
+    ['The search begins', at('active'), v.progress && v.progress.start_date ? fmtDay(v.progress.start_date) + '.' : 'Introductions start on the date we agree.'],
+  ] : [
     ['Enrolled', !!v.payment.verified_at, v.payment.verified_at ? 'Agreement signed, payment verified.' : v.payment.reported_at ? 'Your transfer is being verified.' : 'Sign and transfer.'],
     ['Intake complete', !!v.intake_submitted_at, v.intake_submitted_at ? 'Received ' + fmtDay(v.intake_submitted_at) + '.' : 'Your answers shape everything.'],
     ['Your protocol', at('bot_configuration'), 'Your intake, turned into your exact plan for body and mind.'],
@@ -844,7 +917,15 @@ function renderSystem(v) {
   const i = v.intake || {}, pr = v.progress;
   const plus = (iso, d) => { const t = new Date(iso + 'T12:00:00+03:00'); t.setDate(t.getDate() + d); return t.toISOString().slice(0, 10); };
   const times = [i.morning_checkin || i.wake_time, i.evening_checkin || i.bed_time];
-  const rows = [
+  const vs = v.voice.status, voiceOn = ['requested', 'payment_reported', 'paid', 'included'].includes(vs);
+  const rows = isMM(v) ? [
+    ['Voice analysis', v.voice.report_ready ? 'Report ready' : v.voice.recording ? 'Being analysed' : voiceOn ? 'Record in your portal' : 'Optional add-on', 'Two minutes of your voice, read across six chapters. Your report appears here.', !!v.voice.report_ready],
+    ['Mind and body intake', v.intake_submitted_at ? 'Received' : 'To complete', 'Mindset, movement, food, sleep and recovery. It decides the protocol we recommend.', !!v.intake_submitted_at],
+    ['Mindset review and support', at('active') ? 'Ongoing' : 'After your reading', 'Reviews at points we agree, and support through the search.', at('active')],
+    ['Your recommended protocol', at('portal_ready') ? 'Ready' : 'After your reading', 'The exact programme we recommend for your body and mind.', at('portal_ready')],
+    ['Introductions', at('active') ? 'Active' : 'From your start date', 'Every introduction is screened, identity-verified and only made with your approval.', at('active')],
+    ['Notices', 'None yet', 'Updates from Maktoub appear here.', false],
+  ] : [
     ['Telegram accountability bot', v.stage === 'bot_configuration' ? 'Being configured' : at('portal_ready') ? 'Ready to link' : 'Set up in preparation',
       'Your personal check-in bot. You receive a one-time code to link it to this portal. Nothing sensitive is sent through Telegram.', at('portal_ready')],
     ['Daily check-ins', at('active') ? 'Live' : 'Starts on Day 1',
@@ -985,17 +1066,17 @@ $('medBtn').addEventListener('click', async () => {
 
 // ---------- voice ----------
 function renderVoice(v) {
-  const s = v.voice.status, active = ['requested', 'payment_reported', 'paid'].includes(s);
+  const s = v.voice.status, active = ['requested', 'payment_reported', 'paid', 'included'].includes(s);
   $('voiceWrap').hidden = !v.programme.voice_fee;
   $('voiceOffer').hidden = active;
   const hasRec = !!v.voice.recording;
   $('voiceRec').hidden = !active || hasRec || v.voice.report_ready;
   $('voiceDone').hidden = !hasRec || v.voice.report_ready;
   $('replaceBtn').hidden = v.voice.locked;
-  $('voiceState').textContent = v.voice.report_ready ? 'Report ready' : s === 'paid' ? (hasRec ? 'Analysis in progress' : 'Paid · record now') : s === 'payment_reported' ? 'Verifying transfer' : s === 'requested' ? 'Added · transfer pending' : s === 'offered' ? 'Offered to you' : 'Optional';
+  $('voiceState').textContent = v.voice.report_ready ? 'Report ready' : s === 'included' ? (hasRec ? 'Analysis in progress' : 'Included · record now') : s === 'paid' ? (hasRec ? 'Analysis in progress' : 'Paid · record now') : s === 'payment_reported' ? 'Verifying transfer' : s === 'requested' ? 'Added · transfer pending' : s === 'offered' ? 'Offered to you' : 'Optional';
   if (hasRec) {
     $('voiceDoneTitle').textContent = 'Recording received';
-    $('voiceDoneText').textContent = mmss(v.voice.recording.duration_seconds) + ' · ' + fmtDate(v.voice.recording.at) + '. ' + (s === 'paid' ? 'Your report usually takes about seven days.' : 'Analysis starts once your add-on transfer is verified.');
+    $('voiceDoneText').textContent = mmss(v.voice.recording.duration_seconds) + ' · ' + fmtDate(v.voice.recording.at) + '. ' + (s === 'paid' || (s === 'included' && v.payment.verified_at) ? 'Your report usually takes about seven days.' : 'Analysis starts once your add-on transfer is verified.');
   }
   renderReport(v.report);
 }

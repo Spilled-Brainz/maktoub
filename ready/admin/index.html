@@ -69,8 +69,9 @@ pre{white-space:pre-wrap;font:13px/1.55 "Instrument Sans",sans-serif;background:
     <div class="stats" id="stats"></div>
     <div class="grid">
       <div>
+        <div class="card"><label for="prog" style="margin-top:0">Programme</label><select id="prog"><option value="readiness-90">The Readiness Programme</option><option value="matchmaking">Private Matchmaking (two options)</option></select></div>
         <div class="card"><h2>Before real proposals</h2><div class="checks" id="checks"></div>
-          <details><summary>Readiness documents (drafts)</summary><div id="docs"></div>
+          <details><summary id="docsTitle">Documents (drafts)</summary><div id="docs"></div>
             <p style="font-size:13px;color:var(--muted)">Drafts require qualified legal review. Approving makes this set signable by real clients. To change wording, add a new version.</p>
             <button class="b" id="approveDocs">Approve documents</button></details>
           <p class="msg" id="setMsg"></p></div>
@@ -88,7 +89,7 @@ pre{white-space:pre-wrap;font:13px/1.55 "Instrument Sans",sans-serif;background:
           <p class="msg" id="invMsg"></p><div id="urlBox"></div></div>
 
         <div class="card"><h2>Telegram commands</h2>
-          <p style="font-size:13.5px;margin:0 0 6px">Type <b>/ready Anas +9665…</b> to your bot and it replies with his private link. <b>/readiness</b> lists who needs action. Only your chat is accepted.</p>
+          <p style="font-size:13.5px;margin:0 0 6px">Type <b>/ready Anas +9665…</b> (Readiness) or <b>/match Osama +9665…</b> (matchmaking, two options) and the bot replies with the private link. <b>/readiness</b> lists who needs action. Transfers can be verified right in Telegram. Only your chat is accepted.</p>
           <div id="tgState" style="font-size:13.5px;color:var(--muted)"></div>
           <button class="b g" id="tgCheck">Check bot</button><button class="b" id="tgConnect">Connect commands</button>
           <p class="msg" id="tgMsg"></p></div>
@@ -153,7 +154,7 @@ function render() {
   const real = data.records.filter(r => !r.revoked_at);
   const c = data.checks;
   $('checks').replaceChildren(...[['Bank details verified', c.bank_ready], ['Legal entity name', c.legal_name], ['Readiness documents approved', c.documents_approved], ['Telegram bot token (server secret)', c.telegram_token]].map(([k, ok]) => { const d = el('div'); d.append(el('span', k), el('span', ok ? 'Yes' : 'Pending', ok ? 'ok' : 'no')); return d; }));
-  $('approveDocs').hidden = c.documents_approved;
+  $('approveDocs').hidden = c.documents_approved; $('docsTitle').textContent = data.programme.name + ' documents (drafts)';
   $('docs').replaceChildren(...data.documents.map(d => { const det = el('details'); det.append(el('summary', d.title + ' · ' + d.version), el('pre', d.body)); return det; }));
   const live = real.filter(r => !r.is_test && !['completed', 'cancelled'].includes(r.stage));
   const S = [['Pending payments', live.filter(r => (r.payment_reported_at && !r.payment_verified_at) || r.voice_addon_status === 'payment_reported').length, true],
@@ -163,7 +164,7 @@ function render() {
   $('stats').replaceChildren(...S.map(([l, n, hot]) => { const s = el('div', null, 'stat' + (hot && n ? ' hot' : '')); s.append(el('b', n), el('span', l)); return s; }));
   $('rows').replaceChildren(...data.records.map(r => {
     const tr = el('tr', null, 'r' + (r.id === openId ? ' sel' : '')); tr.onclick = () => { location.hash = r.id; openDetail(r.id); };
-    const who = el('td'); who.append(el('div', r.full_name || r.invited_name), el('div', r.reference_code + (r.is_test ? ' · TEST' : ''), r.is_test ? 'test' : '')); who.lastChild.style.cssText = 'font-size:12px;color:var(--muted)';
+    const who = el('td'); who.append(el('div', r.full_name || r.invited_name), el('div', r.reference_code + ' · ' + (r.programme_code === 'matchmaking' ? 'Matchmaking' + (r.tier ? ' (' + r.tier + ')' : '') : 'Readiness') + (r.is_test ? ' · TEST' : ''), r.is_test ? 'test' : '')); who.lastChild.style.cssText = 'font-size:12px;color:var(--muted)';
     const st = el('td'); const ch = el('span', r.revoked_at ? 'Revoked' : data.stage_labels[r.stage], 'chip'); ch.style.color = r.stage === 'active' ? 'var(--ok)' : 'var(--navy)'; st.append(ch);
     const nd = el('td'); needs(r).forEach(([t, col]) => { const x = el('span', t, 'chip'); x.style.cssText = 'color:' + col + ';margin:0 4px 4px 0'; nd.append(x); });
     const dt = el('td', r.start_date ? day(r.start_date) + ' → ' + day(r.end_date) : r.prep_due_at ? 'Prep due ' + day(r.prep_due_at) : 'Sent ' + day(r.created_at)); dt.style.fontSize = '13px';
@@ -201,8 +202,8 @@ function drawDetail() {
   const voiceOpen = ['requested', 'payment_reported'].includes(r.voice_addon_status);
   if (!r.payment_verified_at && r.signed_at) {
     const ref = inp('text', '', 'Bank reference (optional)'), on = inp('date'), bt = inp('text', r.invoice_billed_to || '', 'Billed to (name on transfer)');
-    const amt = s => Number(String(s).replace(/[^\d.]/g, '')) || 0, cur = String(data.programme.price).split(' ')[0];
-    const total = voiceOpen ? cur + ' ' + (amt(data.programme.price) + amt(data.programme.voice_fee)).toLocaleString('en-US') : data.programme.price;
+    const cur = r.currency || 'SAR', fmt = m => cur + ' ' + (m / 100).toLocaleString('en-US');
+    const total = fmt(r.price_minor + (voiceOpen ? (r.voice_addon_minor || 110000) : 0));
     const title = voiceOpen ? 'Verify transfer: ' + total + ' (programme + voice analysis)' : 'Verify programme payment';
     acts.append(act(title, 'Only after the funds appear in the bank statement. Issues the invoice' + (voiceOpen ? 's' : '') + ' and opens the ' + data.programme.prep_days + '-day preparation window.', ref, on, bt,
       btn('Verify ' + total, async () => {
@@ -358,13 +359,13 @@ function showUrl(url) {
 $('invite').onsubmit = async e => {
   e.preventDefault(); say('invMsg', 'Creating…');
   try {
-    const res = await api('admin_invite', { full_name: $('iname').value, phone: $('iphone').value, country_iso2: $('icountry').value, addressed_as: $('iwho').value, voice_offer: $('ivoice').checked, test: $('itest').checked });
+    const res = await api('admin_invite', { programme: $('prog').value, full_name: $('iname').value, phone: $('iphone').value, country_iso2: $('icountry').value, addressed_as: $('iwho').value, voice_offer: $('ivoice').checked, test: $('itest').checked });
     say('invMsg', 'Private link created for ' + res.reference + '.'); showUrl(res.url); $('invite').reset(); await refresh();
   } catch (err) { say('invMsg', err.message, true); }
 };
 $('approveDocs').onclick = async () => {
-  if (!confirm('Approve the Readiness document set for real clients? Confirm they have had the legal review you require.')) return;
-  try { await api('admin_approve_documents', { confirm: true }); say('setMsg', 'Documents approved.'); await refresh(); } catch (err) { say('setMsg', err.message, true); }
+  if (!confirm('Approve the ' + data.programme.name + ' document set for real clients? Confirm they have had the legal review you require.')) return;
+  try { await api('admin_approve_documents', { confirm: true, programme: $('prog').value }); say('setMsg', 'Documents approved.'); await refresh(); } catch (err) { say('setMsg', err.message, true); }
 };
 $('tgCheck').onclick = async () => {
   try { const t = await api('admin_telegram', {}); $('tgState').textContent = t.connected_here ? 'Commands connected.' : t.url ? 'This bot currently sends its updates to another service (' + t.url.replace(/^https?:\/\//, '').split('/')[0] + '). Connecting would replace it.' : 'Bot reachable. Commands not connected yet.'; if (t.last_error_message) $('tgState').textContent += ' Last error: ' + t.last_error_message; }
@@ -378,7 +379,8 @@ $('tgConnect').onclick = async () => {
   }
 };
 
-async function refresh() { data = await api('admin_overview'); render(); }
+async function refresh() { data = await api('admin_overview', { programme: $('prog').value }); render(); }
+$('prog').onchange = () => refresh().catch(e => say('setMsg', e.message, true));
 function signOut() { sessionStorage.removeItem('maktoub_session'); session = null; $('app').hidden = true; $('auth').hidden = false; $('out').hidden = true; }
 $('out').onclick = signOut;
 $('signin').onsubmit = async e => {
