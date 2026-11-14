@@ -360,11 +360,11 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
       <path class="g" d="M10 60 H890"/>
       <path class="s draw" pathLength="100" d="M10 60 C40 20 70 20 100 60 S160 100 190 60 S250 20 280 60 S340 100 370 60 S430 20 460 60 S520 100 550 60 S610 20 640 60 S700 100 730 60 S790 20 820 60 S860 90 890 60"/>
       <circle class="d" cx="55" cy="30" r="4"/><circle class="d" cx="145" cy="90" r="4"/><circle class="d" cx="235" cy="30" r="4"/><circle class="d" cx="325" cy="90" r="4"/><circle class="d" cx="415" cy="30" r="4"/><circle class="d" cx="505" cy="90" r="4"/><circle class="d" cx="595" cy="30" r="4"/><circle class="f" cx="640" cy="60" r="6"/>
-      <text x="55" y="16" text-anchor="middle">AM</text><text x="145" y="114" text-anchor="middle">PM</text><text x="640" y="30" text-anchor="middle">Weekly</text>
+      <text x="55" y="16" text-anchor="middle">Daily</text><text x="640" y="30" text-anchor="middle">Weekly</text>
     </svg>
     <div class="cols three">
-      <div class="phase"><p class="label muted">Every morning</p><h4>Set the day</h4><ul class="ticks"><li>Sleep quality and energy</li><li>Today’s priorities</li><li>Planned movement</li><li>Daily intention</li></ul></div>
-      <div class="phase"><p class="label muted">Every evening</p><h4>Close the loop</h4><ul class="ticks"><li>Movement and nutrition done?</li><li>Reflection completed?</li><li>Wellbeing check</li><li>What challenged you, what went well</li></ul></div>
+      <div class="phase"><p class="label muted">Every day</p><h4>One short check-in</h4><ul class="ticks"><li>Sleep and energy</li><li>Movement and nutrition done?</li><li>What challenged you, what went well</li><li>Two minutes, at a time that suits you</li></ul></div>
+      <div class="phase"><p class="label muted">Every month</p><h4>Review session</h4><ul class="ticks"><li>What held, what slipped</li><li>Your protocol, adjusted</li><li>The next level</li></ul></div>
       <div class="phase"><p class="label muted">Every week</p><h4>Review and adjust</h4><ul class="ticks"><li>What improved</li><li>What kept getting in the way</li><li>Goals completed</li><li>Focus for next week</li></ul></div>
     </div>
     <p class="muted small" style="margin-top:18px;max-width:60ch">Check-ins arrive through your private portal and a personalised Telegram bot, timed to your schedule and time zone. They are automated, they keep you honest, and they never replace a person.</p>
@@ -706,7 +706,7 @@ const QUOTES = [
   }, 9000);
 })();
 
-const INCLUDED = ['Initial readiness and lifestyle assessment', 'Sessions on your nutrition and movement habits', 'Work on mindset barriers and recurring patterns', 'Personalised weekly lifestyle and reflection protocols', 'Curated articles, research, books, podcasts and videos, where useful', 'Customised Telegram check-ins', 'Your private client portal', 'Weekly accountability tracking', 'Agreed programme review sessions', 'Coordination with independent medical and movement professionals', 'Final 90-day progress review'];
+const INCLUDED = ['Initial readiness and lifestyle assessment', 'Sessions on your nutrition and movement habits', 'Work on mindset barriers and recurring patterns', 'Your personalised protocol, adjusted at each review', 'Curated articles, research, books, podcasts and videos, where useful', 'One short daily check-in on Telegram', 'Your private client portal', 'Weekly accountability through your check-ins', 'Agreed programme review sessions', 'Introductions to independent professionals, where needed', 'Final 90-day progress review'];
 $('included').replaceChildren(...INCLUDED.map((t, i) => { const li = el('li'); li.append(el('span', 'label', String(i + 1).padStart(2, '0')), el('span', null, t)); li.style.gridTemplateColumns = '44px 1fr'; return li; }));
 
 function apply(v, goTo) {
@@ -936,8 +936,8 @@ function renderSystem(v) {
     ['Telegram accountability bot', v.stage === 'bot_configuration' ? 'Being configured' : at('portal_ready') ? 'Ready to link' : 'Set up in preparation',
       'Your personal check-in bot. You receive a one-time code to link it to this portal. Nothing sensitive is sent through Telegram.', at('portal_ready')],
     ['Daily check-ins', at('active') ? 'Live' : 'Starts on Day 1',
-      (times[0] || times[1] ? 'Morning ' + (times[0] || 'to agree') + ' · evening ' + (times[1] || 'to agree') + '. ' : 'Timed to your schedule. ') + 'Your answers, streaks and trends appear here.', at('active')],
-    ['Weekly protocol and library', v.stage === 'protocol_preparing' ? 'In preparation' : at('portal_ready') ? 'Ready' : 'Opens on Day 1',
+      (times[0] ? 'Around ' + times[0] + '. ' : 'One short check-in a day, at a time that suits you. ') + 'Your answers, streaks and trends appear here.', at('active')],
+    ['Your protocol and library', v.stage === 'protocol_preparing' ? 'In preparation' : at('portal_ready') ? 'Ready' : 'Opens on Day 1',
       'Movement, nutrition and reflection plan, with curated reading, research, podcasts and videos. Completion is tracked here.', at('portal_ready')],
     ['Monthly reviews', pr && pr.start_date ? 'Scheduled' : 'Dates set at your start',
       pr && pr.start_date ? 'Month 1 review around ' + fmtDay(plus(pr.start_date, 29)) + '. Month 2 around ' + fmtDay(plus(pr.start_date, 59)) + '. Final review ' + fmtDay(pr.end_date) + '.' : 'Month 1, Month 2 and your final 90-day review. Progress summaries land here after each one.', !!(pr && pr.start_date)],
@@ -957,7 +957,7 @@ function buildIntake(v) {
     const det = el('details', 'intake-sec'); if (si === 0) det.open = true; det.dataset.sec = sec.id;
     const sum = el('summary'); sum.append(el('span', null, String(si + 1).padStart(2, '0') + '  ' + sec.title), el('span', 'cnt')); det.append(sum);
     const body = el('div', 'body'); body.append(el('p', 'intro', sec.intro));
-    for (const f of sec.fields) body.append(fieldEl(f));
+    for (const f of sec.fields) { if (f.k === 'evening_checkin') continue; body.append(fieldEl(f.k === 'morning_checkin' ? { ...f, l: 'Best time for your daily check-in' } : f)); }
     det.append(body); form.append(det);
   });
   intakeBuilt = true;
@@ -991,7 +991,7 @@ function fieldEl(f) {
   wrap.append(inp); return wrap;
 }
 function fillIntake(i) {
-  for (const f of schema.flatMap(s => s.fields)) {
+  for (const f of schema.flatMap(s => s.fields).filter(f => f.k !== 'evening_checkin')) {
     const val = i[f.k]; if (val === undefined) continue;
     if (f.t === 'choice' || f.t === 'multi') $$(`input[name="i_${f.k}"]`).forEach(x => x.checked = f.t === 'multi' ? val.includes(x.value) : x.value === val);
     else if (f.t === 'bool') $('i_' + f.k).checked = !!val;
@@ -1001,7 +1001,7 @@ function fillIntake(i) {
 }
 function collect() {
   const o = {};
-  for (const f of schema.flatMap(s => s.fields)) {
+  for (const f of schema.flatMap(s => s.fields).filter(f => f.k !== 'evening_checkin')) {
     if (f.t === 'choice') { const x = document.querySelector(`input[name="i_${f.k}"]:checked`); if (x) o[f.k] = x.value; }
     else if (f.t === 'multi') { const xs = $$(`input[name="i_${f.k}"]:checked`).map(x => x.value); if (xs.length) o[f.k] = xs; }
     else if (f.t === 'bool') o[f.k] = $('i_' + f.k).checked;
@@ -1014,7 +1014,7 @@ function collect() {
 function counts() {
   const o = collect(); let tot = 0, have = 0;
   schema.forEach(sec => {
-    const ks = sec.fields.filter(f => f.t !== 'bool').map(f => f.k), n = ks.filter(k => o[k] !== undefined).length; tot += ks.length; have += n;
+    const ks = sec.fields.filter(f => f.t !== 'bool' && f.k !== 'evening_checkin').map(f => f.k), n = ks.filter(k => o[k] !== undefined).length; tot += ks.length; have += n;
     const det = document.querySelector(`details[data-sec="${sec.id}"] .cnt`); if (det) det.textContent = n + ' / ' + ks.length;
   });
   $('intakePct').textContent = Math.round(have / tot * 100) + '% complete';
