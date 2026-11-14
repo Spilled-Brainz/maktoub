@@ -30,7 +30,12 @@ const MED_BUCKET = 'maktoub-medical'
 const MED_DAYS = 14
 const MAX_MED = 10 * 1024 * 1024
 const MED_TYPES: Record<string, string> = { 'application/pdf': 'pdf', 'image/jpeg': 'jpg', 'image/png': 'png', 'image/heic': 'heic', 'image/heif': 'heif', 'image/webp': 'webp' }
-const BOT = ['MAKTOUB_TELEGRAM_BOT_TOKEN', 'TELEGRAM_BOT_TOKEN', 'TELEGRAM_TOKEN', 'TG_BOT_TOKEN', 'BOT_TOKEN'].map(n => Deno.env.get(n)).find(Boolean) || ''
+// The bot token may be saved under any name: known names first, then any secret shaped like a Telegram token.
+const ENV = Deno.env.toObject()
+const TG_TOKEN_RE = /^\d{6,}:[A-Za-z0-9_-]{30,}$/
+const BOT_KEY = ['MAKTOUB_TELEGRAM_BOT_TOKEN', 'TELEGRAM_BOT_TOKEN', 'TELEGRAM_TOKEN', 'TG_BOT_TOKEN', 'BOT_TOKEN'].find(n => ENV[n])
+  || Object.keys(ENV).find(k => TG_TOKEN_RE.test((ENV[k] || '').trim())) || ''
+const BOT = BOT_KEY ? ENV[BOT_KEY].trim() : ''
 const FOUNDER_CHAT = Deno.env.get('MAKTOUB_TELEGRAM_CHAT_ID') || '970663486'
 const REQUIRED_DOCS = ['programme_agreement', 'programme_terms', 'medical_disclaimer', 'health_consent', 'digital_consent']
 const DOC_ORDER = [...REQUIRED_DOCS, 'programme_voice']
@@ -652,7 +657,7 @@ async function founderAction(req: Request, origin: string, jwt: string) {
     for (const r of data || []) (r as Record<string, unknown>).medical_pending = (meds || []).filter(m => m.enrolment_id === r.id).length
     return json({
       programme: { code: p.code, name: p.name, price: money(p.price_minor, p.currency), voice_fee: p.voice_addon_minor ? money(p.voice_addon_minor, p.currency) : null, documents_approved_at: p.documents_approved_at, duration_days: p.duration_days, prep_days: p.prep_days },
-      checks: { bank_ready: bankReady(s), legal_name: !!s.provider_legal_name, documents_approved: !!p.documents_approved_at, telegram_token: !!BOT, ready_for_real_invites: readyForReal(p, s) },
+      checks: { bank_ready: bankReady(s), legal_name: !!s.provider_legal_name, documents_approved: !!p.documents_approved_at, telegram_token: !!BOT, telegram_token_name: BOT_KEY || null, ready_for_real_invites: readyForReal(p, s) },
       documents: await documents(p, s, { minor: p.price_minor, currency: p.currency }),
       records: data, stage_labels: STAGE_LABELS, today: riyadhDay(),
     }, 200, origin)
