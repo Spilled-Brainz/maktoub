@@ -157,7 +157,8 @@ input[type=range]{width:100%;accent-color:var(--navy);margin:12px 0 6px;height:2
 .copy:hover{background:var(--ink);color:var(--paper)}
 .gate{min-height:70vh;display:flex;flex-direction:column;justify-content:center}
 /* portal */
-.dash{display:grid;grid-template-columns:1fr;gap:18px;margin-top:30px}
+.dash{display:grid;grid-template-columns:1fr;gap:18px;margin-top:30px;align-items:start}
+.track small{display:block;font-size:13px;font-weight:400;color:var(--smoke);margin-top:2px}
 .dash>*{min-width:0}.report{min-width:0;overflow:hidden}
 .tile{border:1px solid var(--ink);background:var(--white);padding:22px}
 .tile.dark{background:var(--night);color:var(--white);border-color:var(--night)}
@@ -491,7 +492,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
 
     <div class="dash">
       <div class="tile dark" id="clock"></div>
-      <div class="tile"><h3>Preparation</h3><ol class="track" id="track"></ol></div>
+      <div class="tile"><h3>Your path</h3><ol class="track" id="track"></ol></div>
 
       <div class="wide" id="intakeWrap">
         <div class="section-head rule" style="margin-top:40px"><h3 style="margin:0">Your intake</h3><span class="label muted" id="intakePct"></span></div>
@@ -793,17 +794,19 @@ function renderPortal(v) {
     if (v.prep_due_at) c.append(el('p', 'muted small', 'Ready by ' + fmtDay(v.prep_due_at) + '. Your 90 days start on the date we agree together.'));
     if (v.planning_meeting_at && !v.planning_meeting_completed_at) c.append(el('p', 'small', 'Planning meeting: ' + fmtDate(v.planning_meeting_at)));
   }
-  // Tracker
-  const idx = ORDER.indexOf(v.stage === 'paused' ? 'active' : v.stage);
+  // Five steps he can feel moving: enrolled, intake, protocol, tech, Day 1.
+  const at = k => ORDER.indexOf(v.stage === 'paused' ? 'active' : v.stage) >= ORDER.indexOf(k);
+  const steps = [
+    ['Enrolled', !!v.payment.verified_at, v.payment.verified_at ? 'Agreement signed, payment verified.' : v.payment.reported_at ? 'Your transfer is being verified.' : 'Sign and transfer.'],
+    ['Intake complete', !!v.intake_submitted_at, v.intake_submitted_at ? 'Received ' + fmtDay(v.intake_submitted_at) + '.' : 'Your answers shape everything.'],
+    ['Your protocol', at('bot_configuration'), 'Your intake, turned into your exact plan for body and mind.'],
+    ['Tech integration', at('start_confirmed'), 'Your portal and Telegram bot, set up together' + (v.planning_meeting_at && !v.planning_meeting_completed_at ? ' · ' + fmtDate(v.planning_meeting_at) : '') + '.'],
+    ['Day 1', at('active'), v.progress && v.progress.start_date ? fmtDay(v.progress.start_date) + '.' : 'The 90 days begin on the date we agree.'],
+  ];
   let nowSet = false;
-  $('track').replaceChildren(...TRACK.map(([k, label]) => {
-    let done = ORDER.indexOf(k) <= idx;
-    if (k === 'meeting_completed') done = !!v.planning_meeting_completed_at || ORDER.indexOf(k) <= idx;
-    if (k === 'medical_pending') done = ['cleared', 'cleared_with_constraints', 'not_required'].includes(v.medical_status);
+  $('track').replaceChildren(...steps.map(([label, done, sub]) => {
     const li = el('li', done ? 'done' : (!nowSet ? (nowSet = true, 'now') : ''));
-    let txt = label;
-    if (k === 'meeting_completed' && v.planning_meeting_at && !v.planning_meeting_completed_at) txt += ' · ' + fmtDate(v.planning_meeting_at);
-    li.append(el('span', null, txt)); return li;
+    const t = el('span', null, label); t.append(el('small', null, sub)); li.append(t); return li;
   }));
   // Next step
   let next = '';
