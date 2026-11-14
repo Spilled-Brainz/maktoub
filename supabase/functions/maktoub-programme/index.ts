@@ -7,8 +7,9 @@
 //      "/ready Anas +9665…" creates a private invitation and replies with the link, on the spot.
 //
 // Isolation: separate tables (maktoub_enrolments…), separate private bucket, no changes to maktoub-onboard.
-// Medical privacy: this function never accepts medical files. Only a clearance status and short,
-// non-diagnostic constraints are stored. The intake asks for limitations "in your own words".
+// Medical privacy: blood results are accepted only as a temporary, consented review. Files go to the private
+// bucket maktoub-medical, are never logged, never sent through Telegram, viewed through 5-minute links, and are
+// permanently deleted (verified by re-listing) once reviewed or at the latest MED_DAYS after upload.
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { parsePhoneNumberFromString } from 'npm:libphonenumber-js@1.11.20'
 
@@ -25,6 +26,10 @@ const AUDIO_TYPES: Record<string, string> = {
   'audio/webm': 'webm', 'audio/mp4': 'm4a', 'audio/x-m4a': 'm4a', 'audio/aac': 'aac',
   'audio/mpeg': 'mp3', 'audio/ogg': 'ogg', 'audio/wav': 'wav',
 }
+const MED_BUCKET = 'maktoub-medical'
+const MED_DAYS = 14
+const MAX_MED = 10 * 1024 * 1024
+const MED_TYPES: Record<string, string> = { 'application/pdf': 'pdf', 'image/jpeg': 'jpg', 'image/png': 'png', 'image/heic': 'heic', 'image/heif': 'heif', 'image/webp': 'webp' }
 const BOT = ['MAKTOUB_TELEGRAM_BOT_TOKEN', 'TELEGRAM_BOT_TOKEN', 'TELEGRAM_TOKEN', 'TG_BOT_TOKEN', 'BOT_TOKEN'].map(n => Deno.env.get(n)).find(Boolean) || ''
 const FOUNDER_CHAT = Deno.env.get('MAKTOUB_TELEGRAM_CHAT_ID') || '970663486'
 const REQUIRED_DOCS = ['programme_agreement', 'programme_terms', 'medical_disclaimer', 'health_consent', 'digital_consent']
@@ -61,6 +66,25 @@ async function limited(key: string, max: number, secs: number) {
 }
 const logEvent = (enrolment_id: string, actor: 'client' | 'founder' | 'system' | 'telegram', action: string, detail: Record<string, unknown> = {}) =>
   db.from('maktoub_enrolment_events').insert({ enrolment_id, actor, action, detail }).then(({ error }) => { if (error) console.error('event log failed', error.message) })
+
+// ---------- temporary medical review ----------
+async function deleteMedical(f: Record<string, any>, by: 'founder' | 'client' | 'expiry', reviewed = false) {
+  if (!f.storage_path) return
+  const { error } = await db.storage.from(MED_BUCKET).remove([f.storage_path])
+  if (error) { console.error('medical delete failed'); throw new Error('medical delete failed') }
+  const name = f.storage_path.split('/').pop()
+  const { data: left } = await db.storage.from(MED_BUCKET).list(f.enrolment_id, { search: name })
+  const verified = !(left || []).some(o => o.name === name)
+  await db.from('maktoub_medical_files').update({ storage_path: null, deleted_at: new Date().toISOString(), deleted_by: by, deletion_verified: verified, ...(reviewed ? { reviewed_at: new Date().toISOString() } : {}) }).eq('id', f.id)
+  logEvent(f.enrolment_id, by === 'client' ? 'client' : by === 'founder' ? 'founder' : 'system', 'medical_deleted', { file: f.id, by, verified, reviewed })
+}
+async function sweepMedical(enrolmentId?: string) {
+  let q = db.from('maktoub_medical_files').select('id,enrolment_id,storage_path').is('deleted_at', null).lte('expires_at', new Date().toISOString()).limit(50)
+  if (enrolmentId) q = q.eq('enrolment_id', enrolmentId)
+  const { data } = await q
+  for (const f of data || []) { try { await deleteMedical(f, 'expiry') } catch (_) { /* retried on next sweep */ } }
+  return (data || []).length
+}
 
 async function telegram(method: string, payload: Record<string, unknown>) {
   if (!BOT) throw new Error('no bot token')
@@ -187,7 +211,7 @@ const INTAKE: { id: string; title: string; intro: string; fields: F[] }[] = [
     { k: 'movement_types', t: 'multi', l: 'Movement you do or would like to do', o: ['Strength', 'Walking', 'Running', 'Swimming', 'Padel or tennis', 'Football', 'Martial arts', 'Mobility or yoga', 'Cycling', 'Hiking', 'Other'] },
     { k: 'movement_enjoy', t: 'long', l: 'What physical activity do you actually enjoy?', max: 1000 },
     { k: 'movement_restricted', t: 'long', l: 'Movements you find difficult or restricted', max: 1000 },
-    { k: 'injuries', t: 'long', l: 'Injuries, accidents or surgeries, in your own words', h: 'Approximate dates. No reports needed.', max: 1500 },
+    { k: 'injuries', t: 'long', l: 'Injuries, accidents or surgeries, in your own words', h: 'Approximate dates, in your own words.', max: 1500 },
     { k: 'pain_now', t: 'choice', l: 'Are you in pain at the moment?', o: YN },
     { k: 'pain_where', t: 'text', l: 'If yes, where and what kind?', max: 300 },
     { k: 'vitality', t: 'choice', l: 'Drive and vitality', o: ['Low', 'Medium', 'High'] },
@@ -234,7 +258,7 @@ const INTAKE: { id: string; title: string; intro: string; fields: F[] }[] = [
     { k: 'hobbies', t: 'long', l: 'Hobbies and recreation', max: 1000 },
     { k: 'travel_upcoming', t: 'long', l: 'Travel or big events in the next 100 days', max: 1000 },
   ] },
-  { id: 'care', title: 'Professional care', intro: 'We never need reports, results or medication lists. Your doctor handles those; we only need to know what to plan around.', fields: [
+  { id: 'care', title: 'Professional care', intro: 'Blood results are uploaded separately in your portal, never here and never on Telegram. Here we only need what to plan around.', fields: [
     { k: 'under_care', t: 'choice', l: 'Are you currently under the care of a doctor, therapist or other professional?', o: YN },
     { k: 'under_care_note', t: 'text', l: 'If yes, what kind of professional?', max: 200 },
     { k: 'has_physician', t: 'choice', l: 'Do you have a doctor you can see for a check-in before you start?', o: YN },
@@ -296,6 +320,10 @@ async function clientView(en: Record<string, any>, p: Record<string, any>, s: Re
   const invoices = []
   if (en.invoice_number && en.payment_verified_at) invoices.push({ number: en.invoice_number, issued_at: en.invoice_issued_at, paid_on: en.payment_received_on, seller, seller_registration: s.provider_registration, billed_to: billedTo, description: `Maktoub | ${p.name} (${p.duration_days} days)`, label: money(en.price_minor, en.currency), method: 'Bank transfer' })
   if (en.voice_addon_invoice_number && en.voice_addon_verified_at) invoices.push({ number: en.voice_addon_invoice_number, issued_at: en.voice_addon_verified_at, paid_on: riyadhDay(new Date(en.voice_addon_verified_at)), seller, seller_registration: s.provider_registration, billed_to: billedTo, description: 'Voice analysis report (add-on)', label: money(en.voice_addon_minor || p.voice_addon_minor, en.currency), method: 'Bank transfer' })
+  const [{ data: medFiles }, { data: healthOk }] = await Promise.all([
+    db.from('maktoub_medical_files').select('id,label,uploaded_at,expires_at,reviewed_at,deleted_at,deleted_by').eq('enrolment_id', en.id).order('uploaded_at', { ascending: false }),
+    db.from('maktoub_enrolment_consents').select('id').eq('enrolment_id', en.id).eq('kind', 'health_consent').eq('document_version', p.documents.health_consent).eq('granted', true).is('withdrawn_at', null).limit(1),
+  ])
   let report = null
   const { data: rep } = await db.from('maktoub_voice_reports').select('data,status,published_at').eq('enrolment_id', en.id).maybeSingle()
   if (rep?.status === 'published') report = { ...rep.data, published_at: rep.published_at }
@@ -319,6 +347,11 @@ async function clientView(en: Record<string, any>, p: Record<string, any>, s: Re
     medical_status: en.medical_status,
     progress: progress(en, p), paused: en.stage === 'paused',
     invoices, report,
+    medical: {
+      can_upload: !!en.signed_at && !!healthOk?.length, days: MED_DAYS,
+      files: (medFiles || []).filter(f => !f.deleted_at).map(({ deleted_at: _d, deleted_by: _b, ...f }) => f),
+      deleted: (medFiles || []).filter(f => f.deleted_at).map(f => ({ label: f.label, uploaded_at: f.uploaded_at, deleted_at: f.deleted_at, reviewed: !!f.reviewed_at })),
+    },
   }
 }
 
@@ -347,7 +380,7 @@ async function clientAction(req: Request, origin: string, ip: string) {
   const form = isForm ? await req.formData().catch(() => null) : null
   const body = isForm ? null : await req.json().catch(() => null)
   const token = isForm ? form?.get('token') : body?.token
-  const action = isForm ? 'voice' : String(body?.action || '')
+  const action = isForm ? (form?.get('kind') === 'medical' ? 'medical_upload' : 'voice') : String(body?.action || '')
   if (typeof token === 'string' && !TOKEN_RE.test(token) && await limited('prg-bad:' + ip, 20, 3600)) throw new HttpError(429, 'Too many attempts.')
   const en = await loadInvite(token)
   const [p, s] = await Promise.all([programme(en.programme_code), bankSettings()])
@@ -360,6 +393,7 @@ async function clientAction(req: Request, origin: string, ip: string) {
   const view = async (row: Record<string, any>) => json(await clientView(row, p, s), 200, origin)
 
   if (action === 'load') {
+    await sweepMedical(en.id)
     const fresh = await update({ last_seen_at: now, ...(en.first_opened_at ? {} : { first_opened_at: now }) })
     if (!en.first_opened_at) logEvent(en.id, 'client', 'opened')
     return view(fresh)
@@ -461,6 +495,38 @@ async function clientAction(req: Request, origin: string, ip: string) {
     return view(fresh)
   }
 
+  if (action === 'medical_upload') {
+    if (!en.signed_at) throw new HttpError(409, 'Please sign the agreement first.')
+    const { data: ok } = await db.from('maktoub_enrolment_consents').select('id').eq('enrolment_id', en.id).eq('kind', 'health_consent').eq('document_version', p.documents.health_consent).eq('granted', true).is('withdrawn_at', null).limit(1)
+    if (!ok?.length) throw new HttpError(409, 'Your health information consent needs updating before you upload results. Please contact Maktoub.')
+    if (await limited('prg-med:' + en.id, 20, 86400)) throw new HttpError(429, 'Too many uploads today. Please try again tomorrow.')
+    const { count } = await db.from('maktoub_medical_files').select('id', { count: 'exact', head: true }).eq('enrolment_id', en.id).is('deleted_at', null)
+    if ((count || 0) >= 6) throw new HttpError(409, 'Up to six files at a time. Delete one, or wait for the current ones to be reviewed.')
+    const file = form?.get('file')
+    if (!(file instanceof File) || file.size < 500 || file.size > MAX_MED) throw new HttpError(400, 'Please choose a PDF or photo under 10 MB.')
+    const mime = (file.type || '').split(';')[0].trim().toLowerCase()
+    const ext = MED_TYPES[mime]
+    if (!ext) throw new HttpError(400, 'Please upload a PDF, JPG, PNG or HEIC file.')
+    const label = str(form?.get('label'), 80) || 'Blood results'
+    const path = `${en.id}/${crypto.randomUUID()}.${ext}`
+    const { error: upErr } = await db.storage.from(MED_BUCKET).upload(path, file, { contentType: mime, upsert: false })
+    if (upErr) throw new HttpError(500, 'The upload did not finish. Please try again.')
+    const { data: row, error } = await db.from('maktoub_medical_files').insert({ enrolment_id: en.id, label, mime, bytes: file.size, storage_path: path, expires_at: new Date(Date.now() + MED_DAYS * 86400e3).toISOString() }).select('id').single()
+    if (error) { await db.storage.from(MED_BUCKET).remove([path]); throw error }
+    logEvent(en.id, 'client', 'medical_uploaded', { file: row.id, bytes: file.size, mime })
+    alertFounder(en, 'Blood results uploaded 🩸', `Review within ${MED_DAYS} days. The file is deleted automatically after that.`)
+    return view(await update({ last_seen_at: now }))
+  }
+
+  if (action === 'medical_delete') {
+    const id = body?.id
+    if (typeof id !== 'string' || !UUID.test(id)) throw new HttpError(400, 'File required.')
+    const { data: f } = await db.from('maktoub_medical_files').select('id,enrolment_id,storage_path').eq('id', id).eq('enrolment_id', en.id).maybeSingle()
+    if (!f) throw new HttpError(404, 'File not found.')
+    await deleteMedical(f, 'client')
+    return view(await update({ last_seen_at: now }))
+  }
+
   throw new HttpError(400, 'Invalid request.')
 }
 
@@ -533,8 +599,11 @@ async function founderAction(req: Request, origin: string, jwt: string) {
   }
 
   if (action === 'admin_overview') {
+    await sweepMedical()
     const { data, error } = await db.from('maktoub_enrolments').select(LIST_COLS).order('created_at', { ascending: false }).limit(300)
     if (error) throw error
+    const { data: meds } = await db.from('maktoub_medical_files').select('enrolment_id').is('deleted_at', null)
+    for (const r of data || []) (r as Record<string, unknown>).medical_pending = (meds || []).filter(m => m.enrolment_id === r.id).length
     return json({
       programme: { code: p.code, name: p.name, price: money(p.price_minor, p.currency), voice_fee: p.voice_addon_minor ? money(p.voice_addon_minor, p.currency) : null, documents_approved_at: p.documents_approved_at, duration_days: p.duration_days, prep_days: p.prep_days },
       checks: { bank_ready: bankReady(s), legal_name: !!s.provider_legal_name, documents_approved: !!p.documents_approved_at, telegram_token: !!BOT, ready_for_real_invites: readyForReal(p, s) },
@@ -556,13 +625,15 @@ async function founderAction(req: Request, origin: string, jwt: string) {
 
   if (action === 'admin_get') {
     const en = await getOne(body.id)
-    const [{ data: consents }, { data: events }, { data: report }] = await Promise.all([
+    await sweepMedical(en.id)
+    const [{ data: consents }, { data: events }, { data: report }, { data: medical }] = await Promise.all([
       db.from('maktoub_enrolment_consents').select('kind,document_version,granted,signature_name,created_at,withdrawn_at').eq('enrolment_id', en.id).order('created_at'),
       db.from('maktoub_enrolment_events').select('actor,action,detail,created_at').eq('enrolment_id', en.id).order('created_at', { ascending: false }).limit(200),
       db.from('maktoub_voice_reports').select('data,status,published_at,updated_at').eq('enrolment_id', en.id).maybeSingle(),
+      db.from('maktoub_medical_files').select('id,label,mime,bytes,uploaded_at,expires_at,view_count,last_viewed_at,reviewed_at,deleted_at,deleted_by,deletion_verified').eq('enrolment_id', en.id).order('uploaded_at', { ascending: false }),
     ])
     const { invite_token_hash: _h, ...record } = en
-    return json({ record, consents, events, report, progress: progress(en, p), stage_labels: STAGE_LABELS, intake_schema: INTAKE }, 200, origin)
+    return json({ record, consents, events, report, medical, medical_days: MED_DAYS, progress: progress(en, p), stage_labels: STAGE_LABELS, intake_schema: INTAKE }, 200, origin)
   }
 
   if (action === 'admin_update') {
@@ -647,6 +718,17 @@ async function founderAction(req: Request, origin: string, jwt: string) {
         logEvent(en.id, 'founder', 'voice_deleted', { submitted_at: en.voice_submitted_at })
         break
       }
+      case 'medical_view': case 'medical_reviewed': {
+        const fid = body.file_id
+        if (typeof fid !== 'string' || !UUID.test(fid)) throw new HttpError(400, 'File required.')
+        const { data: f } = await db.from('maktoub_medical_files').select('*').eq('id', fid).eq('enrolment_id', en.id).maybeSingle()
+        if (!f || !f.storage_path) throw new HttpError(404, 'This file has already been deleted.')
+        if (op === 'medical_reviewed') { await deleteMedical(f, 'founder', true); return json({ success: true }, 200, origin) }
+        const { data } = await db.storage.from(MED_BUCKET).createSignedUrl(f.storage_path, 300)
+        await db.from('maktoub_medical_files').update({ view_count: (f.view_count || 0) + 1, last_viewed_at: now }).eq('id', f.id)
+        logEvent(en.id, 'founder', 'medical_viewed', { file: f.id })
+        return json({ url: data?.signedUrl }, 200, origin)
+      }
       default: throw new HttpError(400, 'Unknown action.')
     }
     const fresh = await save(en.id, changes)
@@ -675,7 +757,9 @@ async function founderAction(req: Request, origin: string, jwt: string) {
     if (!en.is_test) throw new HttpError(403, 'Only synthetic test records can be purged.')
     const { data: files } = await db.storage.from(BUCKET).list(en.id)
     if (files?.length) await db.storage.from(BUCKET).remove(files.map(f => `${en.id}/${f.name}`))
-    for (const t of ['maktoub_voice_reports', 'maktoub_enrolment_consents', 'maktoub_enrolment_events']) {
+    const { data: medFiles } = await db.storage.from(MED_BUCKET).list(en.id)
+    if (medFiles?.length) await db.storage.from(MED_BUCKET).remove(medFiles.map(f => `${en.id}/${f.name}`))
+    for (const t of ['maktoub_medical_files', 'maktoub_voice_reports', 'maktoub_enrolment_consents', 'maktoub_enrolment_events']) {
       const { error } = await db.from(t).delete().eq('enrolment_id', en.id)
       if (error) throw error
     }
@@ -763,6 +847,11 @@ async function telegramAction(req: Request) {
 }
 
 Deno.serve(async (req) => {
+  if (req.headers.has('x-sweep-secret')) {
+    const { data: cfg } = await db.from('maktoub_internal_config').select('value').eq('key', 'medical_sweep_secret').maybeSingle()
+    if (!cfg?.value || req.headers.get('x-sweep-secret') !== cfg.value) return new Response('forbidden', { status: 403 })
+    return Response.json({ swept: await sweepMedical() })
+  }
   if (req.headers.has('x-telegram-bot-api-secret-token')) {
     try { return await telegramAction(req) } catch (e) { console.error('telegram error', (e as Error).message); return new Response('ok') }
   }

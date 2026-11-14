@@ -145,6 +145,7 @@ function needs(r) {
   if (r.payment_verified_at && ['not_started', 'pending'].includes(r.medical_status)) n.push(['Medical check-in', 'var(--navy)']);
   if (r.prep_due_at && !r.start_date && r.prep_due_at.slice(0, 10) < today) n.push(['Preparation overdue', 'var(--err)']);
   if (r.voice_addon_status === 'paid' && r.voice_submitted_at) n.push(['Voice report', 'var(--navy)']);
+  if (r.medical_pending) n.push(['Blood results to review (' + r.medical_pending + ')', 'var(--warn)']);
   if (r.stage === 'start_confirmed' && r.start_date && r.start_date <= today) n.push(['Activate programme', 'var(--warn)']);
   return n;
 }
@@ -226,6 +227,25 @@ function drawDetail() {
   acts.append(linkAct);
   if (r.voice_storage_path) acts.append(act('Voice recording', 'Private 10-minute link. Delete within 30 days of the report being delivered.', btn('Listen', async () => { const x = await upd('voice_link'); if (x?.url) window.open(x.url, '_blank', 'noopener'); }), btn('Delete recording', () => confirm('Permanently delete the recording?') && upd('delete_voice', {}, 'Recording deleted.'), 'b d s')));
   box.append(acts);
+
+  // Blood results: temporary review, then verified deletion
+  const med = detail.medical || [];
+  if (med.length) {
+    const md = el('details'); md.open = med.some(f => !f.deleted_at); md.append(el('summary', 'Blood results (' + med.filter(f => !f.deleted_at).length + ' awaiting review)'));
+    const note = el('p', 'Open through a 5-minute private link. Do not download, forward or paste results anywhere. Record only practical, non-diagnostic constraints under Medical. Files are deleted automatically ' + detail.medical_days + ' days after upload.'); note.style.cssText = 'font-size:13px;color:var(--muted)'; md.append(note);
+    med.forEach(f => {
+      const row = el('div'); row.style.cssText = 'border-top:1px solid var(--line);padding:8px 0';
+      row.append(el('div', f.label + ' · ' + Math.round(f.bytes / 1024) + ' KB · uploaded ' + when(f.uploaded_at)));
+      if (f.deleted_at) row.append(el('div', 'Deleted ' + when(f.deleted_at) + ' by ' + f.deleted_by + (f.reviewed_at ? ' after review' : '') + (f.deletion_verified ? ' · deletion verified' : ' · verification pending'), f.deletion_verified ? 'ok' : 'no'));
+      else {
+        row.append(el('div', 'Auto-deletes ' + when(f.expires_at) + (f.view_count ? ' · viewed ' + f.view_count + '×' : ''), 'no'));
+        row.append(btn('View (5 min)', async () => { try { const x = await api('admin_update', { id: openId, op: 'medical_view', file_id: f.id }); if (x.url) window.open(x.url, '_blank', 'noopener'); } catch (e) { say('dMsg', e.message, true); } }),
+          btn('Reviewed: delete now', () => confirm('Permanently delete this file now?') && upd('medical_reviewed', { file_id: f.id }, 'Reviewed and permanently deleted.'), 'b d s'));
+      }
+      md.append(row);
+    });
+    box.append(md);
+  }
 
   // Intake (readable, grouped by section)
   const intake = r.intake || {};

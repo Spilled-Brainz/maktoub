@@ -81,8 +81,9 @@ section.step{animation:in .4s var(--ease)}
 .steps b{display:block;font-weight:500;font-size:20px;letter-spacing:-.01em;line-height:1.2;color:var(--ink);margin-bottom:2px}
 .steps .dur{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--smoke);padding-top:5px;white-space:nowrap}
 .steps li.key b{color:var(--navy)}
-.notice{border-left:2px solid var(--navy);padding:2px 0 2px 16px;margin:26px 0;font-family:var(--serif);font-size:21px;line-height:1.35}
-.night .notice{border-color:#9fb4d1}
+.notice,.r-test{position:relative;padding:2px 0 2px 30px;margin:26px 0;font-family:var(--serif);font-size:21px;line-height:1.35}
+.notice:before,.r-test:before{content:"";position:absolute;left:0;top:2px;bottom:2px;width:16px;background:no-repeat center/100% 100% url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 100' preserveAspectRatio='none'%3E%3Cpath d='M14 1C8 1 8 6 8 14V40C8 46 6 50 2 50C6 50 8 54 8 60V86C8 94 8 99 14 99' fill='none' stroke='%23142C4B' stroke-width='1.4' vector-effect='non-scaling-stroke' stroke-linecap='round'/%3E%3C/svg%3E")}
+.night .notice:before{filter:invert(.75)}
 .price{display:grid;grid-template-columns:1fr;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);margin:30px 0}
 .price>div{padding:22px 0}.price>div+div{border-top:1px solid var(--hair)}
 .amt{font-size:clamp(34px,5vw,48px);font-weight:500;letter-spacing:-.025em;line-height:1;margin-top:8px;font-variant-numeric:tabular-nums}
@@ -194,9 +195,9 @@ input[type=range]{width:100%;accent-color:var(--navy);margin:12px 0 6px;height:2
 .r-body h5{font-size:clamp(24px,3.4vw,32px);font-weight:500;letter-spacing:-.015em;line-height:1.1;margin:4px 0 12px}
 .r-grid{display:grid;grid-template-columns:1fr;gap:14px;margin:18px 0}
 .r-card{border-top:1px solid var(--ink);padding-top:12px}
-.r-card .val{font-family:var(--serif);font-size:28px;line-height:1.1;margin:6px 0 8px;color:var(--navy)}
+.r-card .val{font-size:clamp(24px,3.2vw,30px);font-weight:500;letter-spacing:-.02em;line-height:1.08;margin:6px 0 8px;color:var(--ink);font-variant-numeric:tabular-nums}
 .r-card p{font-size:15px;color:#3E3B37;margin:0 0 8px}
-.r-test{border-left:2px solid var(--navy);padding:4px 0 4px 14px;margin:22px 0 0;font-family:var(--serif);font-size:19px;line-height:1.35}
+.r-test{margin:22px 0 0;font-size:19px}
 .r-test b{display:block;font-family:var(--sans);font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--smoke);margin-bottom:4px}
 .lvl{display:inline-block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;border:1px solid currentColor;padding:2px 7px;margin-left:8px;vertical-align:middle}
 .lvl.High{color:var(--ok)}.lvl.Good{color:var(--navy)}.lvl.Low{color:var(--err)}
@@ -360,7 +361,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
     <ol class="steps">
       <li><span class="label">01</span><span><b>Accept and sign</b>Review the agreement and consents here, and sign electronically.</span><span class="dur">Today</span></li>
       <li><span class="label">02</span><span><b>Transfer and verification</b>One bank transfer. We verify it by hand.</span><span class="dur">1 working day</span></li>
-      <li><span class="label">03</span><span><b>Preparation</b>Your planning meeting, a medical check-in with your own doctor, your baseline, your protocol, your portal and bot. An interim habit plan keeps you moving.</span><span class="dur">Up to <span class="nprep"></span> days</span></li>
+      <li><span class="label">03</span><span><b>Preparation</b>Your planning meeting, a medical check-in with your own doctor and your blood results, your baseline, your protocol, your portal and bot. An interim habit plan keeps you moving.</span><span class="dur">Up to <span class="nprep"></span> days</span></li>
       <li class="key"><span class="label">04</span><span><b>Day 1</b>The 90 days start on the date we agree together, not before.</span><span class="dur">Agreed date</span></li>
       <li><span class="label">05</span><span><b>Day 90</b>Your final review, and the system you keep.</span><span class="dur">Review</span></li>
     </ol></div>
@@ -397,7 +398,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
       <li>Non-clinical coaching and lifestyle education. Not psychotherapy, medical treatment or emergency support.</li>
       <li>Maktoub is not your medical provider. Any medical interpretation is made by a qualified professional you choose.</li>
       <li>Medical tests, doctors, trainers, nutritionists and other third-party services are not included in the fee, unless agreed in writing.</li>
-      <li>We never ask for medical reports. We only need to know what to plan around.</li>
+      <li>Blood results are uploaded privately in your portal, reviewed, and permanently deleted within 14 days. Never by Telegram or WhatsApp.</li>
       <li>Check-ins are not monitored around the clock. In an emergency, call 911 in Saudi Arabia or 999 in the UAE.</li>
     </ul>
     <button class="btn" data-go="2">Review and sign the agreement →</button>
@@ -489,6 +490,19 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
         <div class="err" id="err4" role="alert"></div>
         <button class="btn" id="intakeBtn" type="button">Submit my intake</button>
         <div id="intakeDone" class="card" hidden><div class="done-mark"><span class="tick">✓</span><div><b>Intake received</b><p class="muted small" id="intakeDoneText" style="margin:4px 0 0"></p></div></div></div>
+      </div>
+
+      <div class="wide" id="medWrap">
+        <div class="section-head rule" style="margin-top:40px"><h3 style="margin:0">Blood results</h3><span class="label muted" id="medState"></span></div>
+        <p class="muted" style="max-width:56ch">Upload your recent blood test results here, and only here. They are reviewed to shape a safe plan, then permanently deleted once reviewed, and at the latest <span class="medDays"></span> days after upload. Any medical interpretation is made by a qualified professional.</p>
+        <div id="medForm">
+          <label class="f" for="medLabel">What is it?</label><input type="text" id="medLabel" maxlength="80" placeholder="e.g. Full blood panel, November">
+          <label class="f" for="medFile">File</label><span class="hint">PDF or photo, up to 10 MB.</span><input type="file" id="medFile" accept="application/pdf,image/jpeg,image/png,image/heic,image/heif,image/webp">
+          <div class="err" id="errMed" role="alert"></div>
+          <button class="btn" id="medBtn" type="button">Upload privately</button>
+        </div>
+        <p class="notice" id="medBlocked" hidden>Your health information consent needs a quick update before you upload. We will send it to you.</p>
+        <ol class="steps" id="medList" style="margin-top:22px"></ol>
       </div>
 
       <div class="wide" id="voiceWrap">
@@ -741,6 +755,7 @@ function renderPortal(v) {
   else next = 'Your programme is being prepared. We will confirm your start date with you.';
   $('nextStep').textContent = next;
   renderIntake(v);
+  renderMedical(v);
   renderVoice(v);
   // Documents
   $('docsList').replaceChildren(...v.documents.filter(d => !d.optional || ['requested', 'payment_reported', 'paid'].includes(v.voice.status)).map(d => {
@@ -849,6 +864,34 @@ $('intakeBtn').addEventListener('click', async () => {
   const b = $('intakeBtn'); b.disabled = true; b.textContent = 'Submitting…';
   try { dirty = false; apply(await call('save_intake', { intake: collect(), submit: true }), 4); window.scrollTo({ top: $('intakeWrap').offsetTop - 80 }); }
   catch (err) { $('err4').textContent = err.message; } finally { b.disabled = false; b.textContent = 'Submit my intake'; }
+});
+
+// ---------- blood results (temporary review) ----------
+function renderMedical(v) {
+  const m = v.medical; if (!m) { $('medWrap').hidden = true; return; }
+  $$('.medDays').forEach(e => e.textContent = m.days);
+  $('medForm').hidden = !m.can_upload; $('medBlocked').hidden = m.can_upload || !v.signed;
+  $('medState').textContent = m.files.length ? m.files.length + ' awaiting review' : m.deleted.length ? 'Reviewed and deleted' : 'Requested';
+  const rows = m.files.map(f => {
+    const li = el('li'); li.style.gridTemplateColumns = '1fr auto';
+    const t = el('span'); t.append(el('b', null, f.label), document.createTextNode('Uploaded ' + fmtDate(f.uploaded_at) + '. Deleted automatically by ' + fmtDay(f.expires_at) + '.'));
+    const del = el('button', 'copy', 'Delete'); del.type = 'button'; del.style.gridRow = 'auto';
+    del.onclick = async () => { if (!confirm('Permanently delete this file?')) return; try { apply(await call('medical_delete', { id: f.id }), 4); } catch (e) { $('errMed').textContent = e.message; } };
+    li.append(t, del); return li;
+  }).concat(m.deleted.map(f => { const li = el('li'); li.style.gridTemplateColumns = '1fr'; const t = el('span'); t.append(el('b', null, f.label), document.createTextNode((f.reviewed ? 'Reviewed and permanently deleted ' : 'Permanently deleted ') + fmtDate(f.deleted_at) + '.')); li.append(t); return li; }));
+  $('medList').replaceChildren(...rows); $('medList').hidden = !rows.length;
+}
+$('medBtn').addEventListener('click', async () => {
+  $('errMed').textContent = ''; const f = $('medFile').files[0];
+  if (!f) { $('errMed').textContent = 'Choose a file first.'; return; }
+  if (f.size > 10 * 1024 * 1024) { $('errMed').textContent = 'Please choose a file under 10 MB.'; return; }
+  const b = $('medBtn'); b.disabled = true; b.textContent = 'Uploading privately…';
+  try {
+    const fd = new FormData(); fd.append('token', token); fd.append('kind', 'medical'); fd.append('label', $('medLabel').value.trim()); fd.append('file', f);
+    const r = await fetch(API, { method: 'POST', body: fd }); const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || 'The upload did not finish. Please try again.');
+    $('medFile').value = ''; $('medLabel').value = ''; apply(j, 4);
+  } catch (e) { $('errMed').textContent = e.message; } finally { b.disabled = false; b.textContent = 'Upload privately'; }
 });
 
 // ---------- voice ----------
