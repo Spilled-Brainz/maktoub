@@ -255,15 +255,15 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
 
 <main>
   <section id="gate" class="gate wrap grain">
-    <div class="kicker">Private proposal</div>
-    <h2 id="gateTitle" style="margin-top:18px">Opening your proposal…</h2>
+    <div class="kicker">Private</div>
+    <h2 id="gateTitle" style="margin-top:18px">Opening your deal…</h2>
     <p id="gateText" class="muted" style="margin-top:16px;max-width:46ch"></p>
   </section>
 
   <!-- ============ 01 PROPOSAL ============ -->
   <section class="step" id="s1" hidden>
    <div class="wrap grain">
-    <div class="section-head s1head"><p class="label" id="propLabel">Private proposal / Upgrade</p><figure class="qrot" id="qrot" aria-live="polite"><blockquote id="qText"></blockquote><figcaption id="qBy"></figcaption></figure></div>
+    <div class="section-head s1head"><p class="label" id="propLabel">Your Upgrade deal</p><figure class="qrot" id="qrot" aria-live="polite"><blockquote id="qText"></blockquote><figcaption id="qBy"></figcaption></figure></div>
     <h1><span class="fname"></span>,<br><span class="u">it’s time.<svg class="uline" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M1 12.4C30 6 64 10 99 3.6"/><path pathLength="100" d="M10 18.4C40 13.2 70 15.6 90 11.6"/></svg></span></h1>
     <div class="hero-grid">
       <div>
@@ -739,7 +739,8 @@ function apply(v, goTo) {
   const mm = isMM(v);
   $('rdBody').hidden = mm; $('mmBody').hidden = !mm;
   document.title = (mm ? 'Private Matchmaking' : 'Upgrade: Mental and Physical Bootcamp') + ' | Maktoub';
-  $('propLabel').textContent = 'Private proposal / ' + (mm ? 'Matchmaking' : 'Upgrade');
+  $('propLabel').textContent = mm ? 'Private proposal / Matchmaking' : 'Your Upgrade deal';
+  $('rail').querySelector('button[data-s="1"]').lastChild.textContent = mm ? 'Proposal' : 'The deal';
   if (mm) {
     $('heroLead').textContent = 'A private search, built on knowing you first. Voice, mind and body, then the right introductions.';
     $('heroSub').textContent = 'Maktoub private matchmaking begins with a deeper read of you: your voice analysis, your mindset and your physical habits. So the search, and the protocol we recommend, fit who you are becoming.';
@@ -1229,7 +1230,7 @@ $$('[data-go]').forEach(b => b.addEventListener('click', () => { const s = +b.da
 async function load() {
   if (!token) { gate('Please open your private link.', 'This page opens only from the private link Maktoub sent you. If you no longer have it, reply to our message and we will send it again.'); return; }
   try { const v = await call('load'); apply(v, current === 1 && !view ? landing(v) : current); }
-  catch (e) { gate(e.status === 401 ? 'This link is no longer active.' : 'We could not open your proposal.', e.message); }
+  catch (e) { gate(e.status === 401 ? 'This link is no longer active.' : 'We could not open your deal.', e.message); }
 }
 load();
 })();
