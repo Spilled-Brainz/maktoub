@@ -93,11 +93,13 @@ async function telegram(method: string, payload: Record<string, unknown>) {
   if (!r.ok || !j.ok) throw new Error(`telegram ${method} ${r.status} ${String(j.description || '').slice(0, 120)}`)
   return j.result
 }
-// Founder alert. Operational only; never includes intake answers or health information.
+// Founder alerts on the founder's own Telegram. Test records are sent too, tagged TEST.
+// Intake answers are sent on submission (founder decision, 14 Nov 2026; disclosed in health consent v3).
+// Blood-result files are never sent through Telegram.
 async function alertFounder(en: Record<string, any>, title: string, extra = '') {
-  if (en.is_test || !BOT) return
+  if (!BOT) { logEvent(en.id, 'system', 'founder_alert_skipped', { title, reason: 'no bot token secret' }); return }
   const name = en.intake?.full_name || en.signature_name || en.invited_name
-  const text = `<b>${esc(title)}</b>\nReadiness · ${esc(name)} · ${esc(en.reference_code)}\n📱 ${esc(en.invited_phone)}${extra ? '\n' + esc(extra) : ''}`
+  const text = `${en.is_test ? '🧪 TEST · ' : ''}<b>${esc(title)}</b>\nReadiness · ${esc(name)} · ${esc(en.reference_code)}\n📱 ${esc(en.invited_phone)}${extra ? '\n' + esc(extra) : ''}`
   try {
     await telegram('sendMessage', { chat_id: FOUNDER_CHAT, text, parse_mode: 'HTML', disable_web_page_preview: true, reply_markup: { inline_keyboard: [[{ text: 'Open record', url: `${SITE}/ready/admin/#${en.id}` }]] } })
     logEvent(en.id, 'system', 'founder_alerted', { title })
@@ -297,6 +299,42 @@ function intakeProblems(i: Record<string, any>) {
   return missing
 }
 
+function intakeMessages(i: Record<string, any>) {
+  const blocks: string[] = []
+  for (const sec of INTAKE) {
+    const lines = sec.fields.filter(f => i[f.k] !== undefined && i[f.k] !== '' && !(Array.isArray(i[f.k]) && !i[f.k].length)).map(f => {
+      let v = i[f.k]
+      if (Array.isArray(v)) v = v.join(', ')
+      else if (typeof v === 'boolean') v = v ? 'Yes' : 'No'
+      else if (f.t === 'score') v = v + '/10'
+      else if (f.unit) v = v + ' ' + f.unit
+      return `<b>${esc(f.l)}</b>\n${esc(v)}`
+    })
+    if (sec.id === 'body' && i.weight_kg && i.height_cm) lines.push(`<b>BMI (indicative)</b>\n${(i.weight_kg / Math.pow(i.height_cm / 100, 2)).toFixed(1)}`)
+    if (lines.length) blocks.push(`<b>— ${esc(sec.title.toUpperCase())} —</b>\n\n` + lines.join('\n\n'))
+  }
+  const out: string[] = []
+  for (const b of blocks) {
+    const last = out.length - 1
+    if (last >= 0 && out[last].length + b.length + 2 < 3800) out[last] += '\n\n' + b
+    else if (b.length < 3800) out.push(b)
+    else { let rest = b; while (rest.length) { out.push(rest.slice(0, 3800)); rest = rest.slice(3800) } }
+  }
+  return out
+}
+async function sendIntakeToFounder(en: Record<string, any>) {
+  if (!BOT) return
+  const parts = intakeMessages(en.intake || {})
+  try {
+    for (let n = 0; n < parts.length; n++) {
+      const head = `${en.is_test ? '🧪 TEST · ' : ''}📋 Intake · ${esc(en.intake?.full_name || en.invited_name)} · ${n + 1}/${parts.length}\n\n`
+      await telegram('sendMessage', { chat_id: FOUNDER_CHAT, text: head + parts[n], parse_mode: 'HTML', disable_web_page_preview: true,
+        ...(n === parts.length - 1 ? { reply_markup: { inline_keyboard: [[{ text: 'Open record', url: `${SITE}/ready/admin/#${en.id}` }]] } } : {}) })
+    }
+    logEvent(en.id, 'system', 'intake_sent_to_founder', { messages: parts.length })
+  } catch (e) { console.error('intake send failed', (e as Error).message); logEvent(en.id, 'system', 'intake_send_failed', {}) }
+}
+
 // ---------- client view ----------
 function progress(en: Record<string, any>, p: Record<string, any>) {
   if (!en.start_date) return null
@@ -416,7 +454,7 @@ async function clientAction(req: Request, origin: string, ip: string) {
       ...(wantVoice ? { voice_addon_status: 'requested', voice_addon_requested_at: now, voice_addon_minor: p.voice_addon_minor } : {}),
     })
     logEvent(en.id, 'client', 'signed', { versions: signing.map(d => d.version), voice_addon: wantVoice })
-    alertFounder(fresh, 'Agreement signed ✍️', wantVoice ? 'Voice analysis add-on requested' : '')
+    await alertFounder(fresh, 'Agreement signed ✍️', wantVoice ? 'Voice analysis add-on requested' : '')
     return view(fresh)
   }
 
@@ -432,7 +470,7 @@ async function clientAction(req: Request, origin: string, ip: string) {
     await recordConsents(en, [voiceDoc], name, req, ip)
     const fresh = await update({ voice_addon_status: 'requested', voice_addon_requested_at: now, voice_addon_minor: p.voice_addon_minor })
     logEvent(en.id, 'client', 'voice_addon_requested')
-    alertFounder(fresh, 'Voice analysis add-on requested 🎙')
+    await alertFounder(fresh, 'Voice analysis add-on requested 🎙')
     return view(fresh)
   }
 
@@ -440,17 +478,24 @@ async function clientAction(req: Request, origin: string, ip: string) {
     if (!en.signed_at) throw new HttpError(409, 'Please sign the agreement first.')
     if (!bankReady(s)) throw new HttpError(409, 'Bank details are being confirmed. Please wait for our message before transferring.')
     const note = [str(body.transfer_date, 20) && 'Date: ' + str(body.transfer_date, 20), str(body.sender_name, 150) && 'Sender: ' + str(body.sender_name, 150)].filter(Boolean).join(' · ') || null
+    if (body.kind === 'both' && en.voice_addon_status === 'requested' && !en.payment_reported_at) {
+      const total = money(en.price_minor + (en.voice_addon_minor || p.voice_addon_minor || 0), en.currency)
+      const fresh = await update({ payment_reported_at: now, payment_client_note: note, stage: en.stage === 'signed' ? 'payment_reported' : en.stage, voice_addon_status: 'payment_reported', voice_addon_reported_at: now })
+      logEvent(en.id, 'client', 'payment_reported', { note, combined: true })
+      await alertFounder(fresh, `Transfer reported 💳 ${total} (programme + voice analysis)`, [note, 'Check your bank, then verify in the console.'].filter(Boolean).join('\n'))
+      return view(fresh)
+    }
     if (body.kind === 'voice') {
       if (en.voice_addon_status !== 'requested') return view(en)
       const fresh = await update({ voice_addon_status: 'payment_reported', voice_addon_reported_at: now })
       logEvent(en.id, 'client', 'voice_payment_reported', { note })
-      alertFounder(fresh, 'Voice add-on transfer reported 💳 check your bank', note || '')
+      await alertFounder(fresh, 'Voice add-on transfer reported 💳 check your bank', note || '')
       return view(fresh)
     }
     if (en.payment_reported_at) return view(en)
     const fresh = await update({ payment_reported_at: now, payment_client_note: note, stage: en.stage === 'signed' ? 'payment_reported' : en.stage })
     logEvent(en.id, 'client', 'payment_reported', { note })
-    alertFounder(fresh, 'Programme transfer reported 💳 check your bank', note || '')
+    await alertFounder(fresh, 'Programme transfer reported 💳 check your bank', note || '')
     return view(fresh)
   }
 
@@ -463,7 +508,8 @@ async function clientAction(req: Request, origin: string, ip: string) {
       if (missing.length) throw new HttpError(400, 'Please add ' + missing.join(', ') + '.')
       const fresh = await update({ intake, intake_saved_at: now, intake_submitted_at: now, ...(intake.timezone && intake.timezone !== 'Other' ? { timezone: intake.timezone } : {}) })
       logEvent(en.id, 'client', 'intake_submitted')
-      alertFounder(fresh, 'Advanced intake submitted 📋')
+      await alertFounder(fresh, 'Intake submitted ✅', 'His answers follow.')
+      await sendIntakeToFounder(fresh)
       return view(fresh)
     }
     await update({ intake, intake_saved_at: now })
@@ -491,7 +537,7 @@ async function clientAction(req: Request, origin: string, ip: string) {
     catch (e) { await db.storage.from(BUCKET).remove([path]); throw e }
     if (previous && previous !== path) await db.storage.from(BUCKET).remove([previous])
     logEvent(en.id, 'client', previous ? 'voice_replaced' : 'voice_submitted', { duration_seconds: duration, bytes: audio.size })
-    if (!previous) alertFounder(fresh, 'Voice recording submitted 🎧', `${Math.floor(duration / 60)}:${String(duration % 60).padStart(2, '0')}`)
+    if (!previous) await alertFounder(fresh, 'Voice recording submitted 🎧', `${Math.floor(duration / 60)}:${String(duration % 60).padStart(2, '0')}`)
     return view(fresh)
   }
 
@@ -514,7 +560,7 @@ async function clientAction(req: Request, origin: string, ip: string) {
     const { data: row, error } = await db.from('maktoub_medical_files').insert({ enrolment_id: en.id, label, mime, bytes: file.size, storage_path: path, expires_at: new Date(Date.now() + MED_DAYS * 86400e3).toISOString() }).select('id').single()
     if (error) { await db.storage.from(MED_BUCKET).remove([path]); throw error }
     logEvent(en.id, 'client', 'medical_uploaded', { file: row.id, bytes: file.size, mime })
-    alertFounder(en, 'Blood results uploaded 🩸', `Review within ${MED_DAYS} days. The file is deleted automatically after that.`)
+    await alertFounder(en, 'Blood results uploaded 🩸', `Review within ${MED_DAYS} days. The file is deleted automatically after that.`)
     return view(await update({ last_seen_at: now }))
   }
 

@@ -64,8 +64,19 @@ section.step{animation:in .4s var(--ease)}
 .rule{border-top:1px solid var(--ink);padding-top:16px;margin-top:clamp(56px,8vw,96px)}
 .hero-grid{display:grid;grid-template-columns:1fr;gap:34px;border-top:1px solid var(--hair);margin-top:28px;padding-top:28px;align-items:end}
 .night{background:var(--night);color:var(--white)}.night .muted{color:var(--grey)}
-.principle{font-family:var(--serif);font-size:clamp(34px,6.4vw,68px);line-height:1.05;letter-spacing:-.02em;margin:22px 0 28px;max-width:18ch}
-.principle em{font-style:italic;color:#C9D6E8}
+.principle{font-size:clamp(38px,7vw,80px);font-weight:500;line-height:.98;letter-spacing:-.035em;margin:22px 0 30px;max-width:15ch}
+.principle .soft{color:#8f897f}
+.principle .uline path{stroke:#9fb4d1}
+/* rotating quotes */
+.qrot{margin:0;flex:1 1 260px;max-width:46ch;text-align:right;min-height:64px;transition:opacity .6s var(--ease)}
+.qrot.out{opacity:0}
+.qrot blockquote{margin:0;font-size:14px;line-height:1.45;color:#3E3B37}
+.qrot figcaption{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--smoke);margin-top:6px}
+.s1head{align-items:flex-start;flex-wrap:wrap}
+@media(max-width:759px){.qrot{text-align:left;max-width:none}}
+.alt-price{font-size:19px;color:#3E3B37;margin:12px 0 0}.alt-price b{font-weight:500;color:var(--ink)}
+.sys li{grid-template-columns:44px 1fr auto}.sys .chip{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--hair);padding:4px 8px;white-space:nowrap;align-self:start;margin-top:4px;color:var(--smoke)}
+.sys .chip.live{border-color:var(--navy);color:var(--navy)}
 .cols{display:grid;grid-template-columns:1fr;gap:28px}
 .phase{border-top:1px solid var(--ink);padding-top:18px}
 .phase .ill{max-width:220px;margin:6px 0 18px}
@@ -245,7 +256,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
   <!-- ============ 01 PROPOSAL ============ -->
   <section class="step" id="s1" hidden>
    <div class="wrap grain">
-    <div class="section-head"><p class="label">Private proposal / Get Ready</p><p class="label muted">It’s written. <span class="ar" lang="ar">مكتوب</span></p></div>
+    <div class="section-head s1head"><p class="label">Private proposal / Get Ready</p><figure class="qrot" id="qrot" aria-live="polite"><blockquote id="qText"></blockquote><figcaption id="qBy"></figcaption></figure></div>
     <h1><span class="fname"></span>,<br><span class="u">it’s time.<svg class="uline" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M1 12.4C30 6 64 10 99 3.6"/><path pathLength="100" d="M10 18.4C40 13.2 70 15.6 90 11.6"/></svg></span></h1>
     <div class="hero-grid">
       <div>
@@ -265,7 +276,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
    <div class="night grain">
     <div class="wrap">
       <p class="label muted">The principle</p>
-      <p class="principle">The programme provides the support. <em>Your commitment drives the progress.</em></p>
+      <p class="principle"><span class="soft">The programme provides the support.</span> Your <span class="u">commitment<svg class="uline" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M1 12.4C30 6 64 10 99 3.6"/><path pathLength="100" d="M10 18.4C40 13.2 70 15.6 90 11.6"/></svg></span> drives the progress.</p>
       <p class="muted" style="max-width:52ch;font-size:16px">Progress depends on your participation, consistency, circumstances and appropriate professional guidance. No result is guaranteed. Effort is expected, and it is met with structure.</p>
     </div>
    </div>
@@ -368,7 +379,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
 
     <div class="rule"><div class="section-head"><h3 style="margin:0">Investment</h3><span class="label muted">Bank transfer</span></div>
     <div class="price">
-      <div><p class="label muted">The Readiness Programme</p><div class="amt price-label"></div><p class="muted small" style="margin-top:10px">Paid once, before preparation begins.</p></div>
+      <div><p class="label muted">The Readiness Programme</p><div class="amt price-label"></div><p class="alt-price" id="altPrice" hidden>or <b id="altPriceAmt"></b> with voice analysis</p><p class="muted small" style="margin-top:10px">Paid once, by bank transfer, before preparation begins.</p></div>
       <div><p class="label muted">Includes</p><p style="margin:8px 0 0">The full 90 days, preparation, <span class="nsessions-l"></span> live sessions, your protocols, portal, Telegram check-ins, learning library and professional coordination.</p></div>
     </div></div>
    </div>
@@ -543,8 +554,10 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
         <div id="report"></div>
       </div>
 
-      <div class="tile soon"><h3>Daily check-ins</h3><p class="muted small">Morning and evening check-ins, here and on Telegram, timed to your schedule.</p><span class="label">Opens on Day 1</span></div>
-      <div class="tile soon"><h3>Weekly protocol and library</h3><p class="muted small">Your movement, nutrition and reflection plan, plus curated reading, research, podcasts and videos for each week.</p><span class="label">Opens on Day 1</span></div>
+      <div class="wide">
+        <div class="section-head rule" style="margin-top:40px"><h3 style="margin:0">Your system</h3><span class="label muted">Updates and data appear here</span></div>
+        <ol class="steps sys" id="sysList"></ol>
+      </div>
 
       <div class="wide">
         <div class="section-head rule" style="margin-top:40px"><h3 style="margin:0">Documents and receipts</h3></div>
@@ -618,6 +631,34 @@ function landing(v) {
   return 4;
 }
 
+// Rotating quotes: verified attributions only. Science notes cite the study they summarise.
+const QUOTES = [
+  ['Wind extinguishes a candle and energizes fire.', 'Nassim Nicholas Taleb, Antifragile'],
+  ['The resilient resists shocks and stays the same; the antifragile gets better.', 'Nassim Nicholas Taleb, Antifragile'],
+  ['The impediment to action advances action. What stands in the way becomes the way.', 'Marcus Aurelius, Meditations 5.20'],
+  ['Men are disturbed not by things, but by the opinions about things.', 'Epictetus, Enchiridion 5'],
+  ['We suffer more often in imagination than in reality.', 'Seneca, Letters to Lucilius 13'],
+  ['When we are no longer able to change a situation, we are challenged to change ourselves.', 'Viktor Frankl, Man’s Search for Meaning'],
+  ['Love is an activity, not a passive affect; it is a “standing in,” not a “falling for.”', 'Erich Fromm, The Art of Loving'],
+  ['We are what we repeatedly do. Excellence, then, is not an act, but a habit.', 'Will Durant, on Aristotle'],
+  ['New daily habits took a median of 66 days to become automatic, with a range of 18 to 254. Missing a single day did not derail the process.', 'Science · Lally et al., 2010'],
+  ['Planning “when X happens, I will do Y” had a medium-to-large effect on reaching goals across 94 studies.', 'Science · Gollwitzer & Sheeran, 2006'],
+  ['Two weeks of six hours’ sleep a night impaired performance about as much as two nights without sleep, and people barely noticed.', 'Science · Van Dongen et al., 2003'],
+  ['Resistance training was associated with a significant reduction in depressive symptoms across 33 trials.', 'Science · Gordon et al., JAMA Psychiatry, 2018'],
+  ['People with stronger social relationships had a 50% greater likelihood of survival over the study periods.', 'Science · Holt-Lunstad et al., 2010'],
+];
+(function rotateQuotes() {
+  const box = $('qrot'); if (!box) return;
+  let i = Math.floor(Math.random() * QUOTES.length);
+  const put = () => { $('qText').textContent = QUOTES[i][0]; $('qBy').textContent = QUOTES[i][1]; };
+  put();
+  setInterval(() => {
+    if (document.hidden) return;
+    box.classList.add('out');
+    setTimeout(() => { i = (i + 1) % QUOTES.length; put(); box.classList.remove('out'); }, 600);
+  }, 9000);
+})();
+
 const INCLUDED = ['Initial readiness and lifestyle assessment', 'Sessions on your nutrition and movement habits', 'Work on mindset barriers and recurring patterns', 'Personalised weekly lifestyle and reflection protocols', 'Curated articles, research, books, podcasts and videos', 'Customised Telegram check-ins', 'Your private client portal', 'Weekly accountability tracking', 'Agreed programme review sessions', 'Coordination with independent medical and movement professionals', 'Final 90-day progress review'];
 $('included').replaceChildren(...INCLUDED.map((t, i) => { const li = el('li'); li.append(el('span', 'label', String(i + 1).padStart(2, '0')), el('span', null, t)); li.style.gridTemplateColumns = '44px 1fr'; return li; }));
 
@@ -630,6 +671,11 @@ function apply(v, goTo) {
   $$('.price-label').forEach(e => e.textContent = v.programme.price);
   $$('.voice-label').forEach(e => e.textContent = v.programme.voice_fee || '');
   $$('.voice-plus').forEach(e => e.textContent = v.programme.voice_fee ? '+ ' + v.programme.voice_fee : '');
+  if (v.programme.voice_fee) {
+    const n = x => Number(String(x).replace(/[^\d.]/g, '')) || 0;
+    $('altPriceAmt').textContent = String(v.programme.price).split(' ')[0] + ' ' + (n(v.programme.price) + n(v.programme.voice_fee)).toLocaleString('en-US');
+    $('altPrice').hidden = false;
+  }
   const words = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
   $$('.nsessions').forEach(e => e.textContent = words[v.programme.live_sessions] || v.programme.live_sessions);
   $$('.nsessions-l').forEach(e => e.textContent = words[v.programme.live_sessions] || v.programme.live_sessions);
@@ -708,9 +754,7 @@ $('payBtn').addEventListener('click', async () => {
   $('err3').textContent = ''; const b = $('payBtn'); b.disabled = true; b.textContent = 'Sending…';
   try {
     const both = combinedTransfer, info = { transfer_date: $('transferDate').value, sender_name: $('senderName').value.trim() };
-    let v = await call('report_payment', { kind: 'programme', ...info });
-    if (both && v.voice.status === 'requested') v = await call('report_payment', { kind: 'voice', ...info });
-    apply(v, 3);
+    apply(await call('report_payment', { kind: both ? 'both' : 'programme', ...info }), 3);
   }
   catch (e) { $('err3').textContent = e.message; } finally { b.disabled = false; b.textContent = combinedTransfer ? 'I have transferred ' + totalLabel : 'I have completed the transfer'; }
 });
@@ -772,6 +816,7 @@ function renderPortal(v) {
   else if (v.stage === 'completed') next = 'Ninety days, done. Keep running the system.';
   else next = 'Your programme is being prepared. We will confirm your start date with you.';
   $('nextStep').textContent = next;
+  renderSystem(v);
   renderIntake(v);
   renderMedical(v);
   renderVoice(v);
@@ -787,6 +832,29 @@ function renderPortal(v) {
     const pbtn = el('button', 'btn ghost noprint', 'Save or print'); pbtn.type = 'button';
     pbtn.onclick = () => { a.classList.add('printing'); window.print(); a.classList.remove('printing'); };
     a.append(head, meta, pbtn); return a;
+  }));
+}
+
+// ---------- your system: automations, check-ins, reviews, notices ----------
+function renderSystem(v) {
+  const at = k => ORDER.indexOf(v.stage) >= ORDER.indexOf(k);
+  const i = v.intake || {}, pr = v.progress;
+  const plus = (iso, d) => { const t = new Date(iso + 'T12:00:00+03:00'); t.setDate(t.getDate() + d); return t.toISOString().slice(0, 10); };
+  const times = [i.morning_checkin || i.wake_time, i.evening_checkin || i.bed_time];
+  const rows = [
+    ['Telegram accountability bot', v.stage === 'bot_configuration' ? 'Being configured' : at('portal_ready') ? 'Ready to link' : 'Set up in preparation',
+      'Your personal check-in bot. You receive a one-time code to link it to this portal. Nothing sensitive is sent through Telegram.', at('portal_ready')],
+    ['Daily check-ins', at('active') ? 'Live' : 'Starts on Day 1',
+      (times[0] || times[1] ? 'Morning ' + (times[0] || 'to agree') + ' · evening ' + (times[1] || 'to agree') + '. ' : 'Timed to your schedule. ') + 'Your answers, streaks and trends appear here.', at('active')],
+    ['Weekly protocol and library', v.stage === 'protocol_preparing' ? 'In preparation' : at('portal_ready') ? 'Ready' : 'Opens on Day 1',
+      'Movement, nutrition and reflection plan, with curated reading, research, podcasts and videos. Completion is tracked here.', at('portal_ready')],
+    ['Monthly reviews', pr && pr.start_date ? 'Scheduled' : 'Dates set at your start',
+      pr && pr.start_date ? 'Month 1 review around ' + fmtDay(plus(pr.start_date, 29)) + '. Month 2 around ' + fmtDay(plus(pr.start_date, 59)) + '. Final review ' + fmtDay(pr.end_date) + '.' : 'Month 1, Month 2 and your final 90-day review. Progress summaries land here after each one.', !!(pr && pr.start_date)],
+    ['Notices', 'None yet', 'Updates from Maktoub about your programme, sessions and system appear here.', false],
+  ];
+  $('sysList').replaceChildren(...rows.map(([t, st, d, live], n) => {
+    const li = el('li'); const body = el('span'); body.append(el('b', null, t), document.createTextNode(d));
+    li.append(el('span', 'label', String(n + 1).padStart(2, '0')), body, el('span', 'chip' + (live ? ' live' : ''), st)); return li;
   }));
 }
 
