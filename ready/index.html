@@ -442,7 +442,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
      <div class="err" id="errTierVR" role="alert"></div>
 
      <div class="rule"><div class="section-head"><h3 style="margin:0">How it works</h3></div>
-     <ol class="steps">
+     <ol class="steps" id="vrSteps">
       <li><span class="label">01</span><span><b>Choose and sign</b>Pick your option, read the agreement and sign here.</span><span class="dur">Today</span></li>
       <li><span class="label">02</span><span><b>Voice and intake</b>Two minutes of your voice, and a short intake on your mindset and your body.</span><span class="dur">Your portal</span></li>
       <li><span class="label">03</span><span><b>Your reading</b>Your voice is read across six chapters: what helps you thrive and what drains you, how your mind processes, how you land with others, the patterns that hold you back, where pressure sits in the body, and how your inner state has moved over the years.</span><span class="dur">About 7 days</span></li>
@@ -450,7 +450,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
       <li><span class="label">05</span><span><b>Upgrade, if chosen</b>The 90-day mental and physical programme builds the routines and systems that make those decisions hold.</span><span class="dur">90 days</span></li>
      </ol></div>
 
-     <div class="rule"><h3>Boundaries, clearly</h3><ul class="ticks">
+     <div class="rule"><h3>Boundaries, clearly</h3><ul class="ticks" id="vrBounds">
       <li>Voice analysis is a signal layer to explore, not a diagnosis or a verdict.</li>
       <li>Not therapy or medical care. Any medical interpretation is made by a qualified professional.</li>
       <li>No particular result is guaranteed. Your commitment drives the progress.</li>
@@ -464,7 +464,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
      <div class="err" id="errTier" role="alert"></div>
 
      <div class="rule"><div class="section-head"><h3 style="margin:0">How it works</h3></div>
-     <ol class="steps">
+     <ol class="steps" id="mmSteps">
       <li><span class="label">01</span><span><b>Review and sign</b>Read the agreement and sign here.</span><span class="dur">Today</span></li>
       <li><span class="label">02</span><span><b>Voice and intake</b>Two minutes of your voice, and an intake on your mindset and your body: movement, food, sleep, recovery.</span><span class="dur">Your portal</span></li>
       <li><span class="label">03</span><span><b>Your reading</b>Voice results and intake reviewed together. We recommend the exact protocol for you, body and mind.</span><span class="dur">About 7 days</span></li>
@@ -473,7 +473,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
      </ol></div>
 
      <div class="rule"><div class="cols two">
-      <div><h3>Built in</h3><ul class="ticks">
+      <div><h3>Built in</h3><ul class="ticks" id="mmBuilt">
         <li>Mind and body intake, to recommend your exact protocol</li>
         <li>Mindset review and support along the way</li>
         <li>Your private portal and direct line to Maktoub</li>
@@ -481,7 +481,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
       <div><p class="notice" style="margin-top:0">We start by knowing you. The right introduction is easier to recognise when you know what you are looking for, and who you are becoming.</p></div>
      </div></div>
 
-     <div class="rule"><h3>Boundaries, clearly</h3><ul class="ticks">
+     <div class="rule"><h3>Boundaries, clearly</h3><ul class="ticks" id="mmBounds">
       <li>Compatibility depends on two people. Beyond the introductions in your agreement, no relationship or outcome is guaranteed.</li>
       <li>Voice analysis is a signal layer to explore, not a diagnosis.</li>
       <li>Not therapy or medical care. Any medical interpretation is made by a qualified professional.</li>
@@ -785,6 +785,15 @@ function apply(v, goTo) {
     $('ill1').textContent = 'Your reading'; $('ill2').textContent = 'The right introduction';
     renderTiers(v);
   }
+  const cu = (v.tiers || []).find(t => t.steps || t.built || t.bounds || t.hero) || {};
+  if (cu.hero) { $('heroLead').textContent = cu.hero[0]; $('heroSub').textContent = cu.hero[1]; }
+  if (cu.page_label) { $('propLabel').textContent = cu.page_label; document.title = cu.page_label + ' | Maktoub'; }
+  if (cu.steps) $(mm ? 'mmSteps' : 'vrSteps').replaceChildren(...cu.steps.map((x, i) => {
+    const li = el('li', x[3] ? 'key' : null), b = el('span'); b.append(el('b', null, x[0]), x[1]);
+    li.append(el('span', 'label', String(i + 1).padStart(2, '0')), b, el('span', 'dur', x[2] || '')); return li;
+  }));
+  if (cu.built && mm) $('mmBuilt').replaceChildren(...cu.built.map(x => el('li', null, x)));
+  if (cu.bounds) $(mm ? 'mmBounds' : 'vrBounds').replaceChildren(...cu.bounds.map(x => el('li', null, x)));
 
   // 02 Agreement
   $('signForm').hidden = !!v.signed; $('signedBox').hidden = !v.signed;
