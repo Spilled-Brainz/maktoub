@@ -280,6 +280,12 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
     </div>
    </div>
 
+   <div class="wrap grain narrow" id="briefBox" hidden style="padding-top:0">
+    <p class="label muted">A note for you</p>
+    <div class="notice" id="briefText" style="white-space:pre-line"></div>
+    <p class="label muted">Deena</p>
+   </div>
+
    <div class="night grain">
     <div class="wrap">
       <p class="label muted">The principle</p>
@@ -429,6 +435,28 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
     <p class="small muted center" style="margin-top:12px">Questions first? Reply to the message that brought you here.</p>
    </div>
    </div>
+   <div id="vrBody" hidden>
+    <div class="wrap grain">
+     <div class="section-head"><h3 style="margin:0">Your options</h3><span class="label muted">Choose yours</span></div>
+     <div class="cols two" id="tierCardsVR"></div>
+     <div class="err" id="errTierVR" role="alert"></div>
+
+     <div class="rule"><div class="section-head"><h3 style="margin:0">How it works</h3></div>
+     <ol class="steps">
+      <li><span class="label">01</span><span><b>Choose and sign</b>Pick your option, read the agreement and sign here.</span><span class="dur">Today</span></li>
+      <li><span class="label">02</span><span><b>Voice and intake</b>Two minutes of your voice, and a short intake on your mindset and your body.</span><span class="dur">Your portal</span></li>
+      <li><span class="label">03</span><span><b>Your reading</b>Your voice is read across six chapters: what helps you thrive and what drains you, how your mind processes, how you land with others, the patterns that hold you back, where pressure sits in the body, and how your inner state has moved over the years.</span><span class="dur">About 7 days</span></li>
+      <li class="key"><span class="label">04</span><span><b>Your session</b>A dedicated session with Deena to turn the reading into decisions.</span><span class="dur">60 min</span></li>
+      <li><span class="label">05</span><span><b>Upgrade, if chosen</b>The 90-day mental and physical programme builds the routines and systems that make those decisions hold.</span><span class="dur">90 days</span></li>
+     </ol></div>
+
+     <div class="rule"><h3>Boundaries, clearly</h3><ul class="ticks">
+      <li>Voice analysis is a signal layer to explore, not a diagnosis or a verdict.</li>
+      <li>Not therapy or medical care. Any medical interpretation is made by a qualified professional.</li>
+      <li>No particular result is guaranteed. Your commitment drives the progress.</li>
+     </ul></div>
+    </div>
+   </div>
    <div id="mmBody" hidden>
     <div class="wrap grain">
      <div class="section-head"><h3 style="margin:0" id="tierHead">Your private search</h3><span class="label muted" id="tierSub"></span></div>
@@ -574,7 +602,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
         </div>
         <div class="voicebox night grain" id="voiceRec" hidden>
           <p class="label muted">At least two minutes · any language</p>
-          <p class="quote">“Tell me about the man you are becoming, and what is standing in his way.”</p>
+          <p class="quote" id="voiceQuote">“Tell me about the man you are becoming, and what is standing in his way.”</p>
           <h3 style="color:var(--grey)">If it helps, you might talk about</h3>
           <ol class="prompts">
             <li>Where you are right now, honestly.</li>
@@ -660,7 +688,8 @@ const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.
 $$('svg.ill').forEach(s => io ? io.observe(s) : s.classList.add('inview'));
 
 const maxStep = v => v.signed ? 4 : (v.tiers && v.tiers.length && !v.tier) ? 1 : 2;
-const isMM = v => v.programme.code === 'matchmaking';
+const isMM = v => v.programme.code === 'matchmaking' || v.programme.code.startsWith('mm-');
+const isVR = v => v.programme.code.startsWith('vr-');
 function show(step) {
   current = step;
   for (let i = 1; i <= 4; i++) $('s' + i).hidden = i !== step;
@@ -735,11 +764,21 @@ function apply(v, goTo) {
   }
   if (docs.programme_voice) renderDoc($('doc_programme_voice_2'), docs.programme_voice.body);
   $('voiceOpt').hidden = !docs.programme_voice || v.voice.status === 'included';
-  const mm = isMM(v);
-  $('rdBody').hidden = mm; $('mmBody').hidden = !mm;
-  document.title = (mm ? 'Private Matchmaking' : 'Upgrade: Mental and Physical Bootcamp') + ' | Maktoub';
-  $('propLabel').textContent = mm ? 'Private proposal / Matchmaking' : 'Your Upgrade protocol';
-  $('rail').querySelector('button[data-s="1"]').lastChild.textContent = mm ? 'Proposal' : 'Protocol';
+  const mm = isMM(v), vr = isVR(v);
+  $('rdBody').hidden = mm || vr; $('mmBody').hidden = !mm; $('vrBody').hidden = !vr;
+  document.title = (mm ? 'Private Matchmaking' : vr ? 'Voice Reading' : 'Upgrade: Mental and Physical Bootcamp') + ' | Maktoub';
+  $('propLabel').textContent = mm ? 'Private proposal / Matchmaking' : vr ? 'Your Voice Reading' : 'Your Upgrade protocol';
+  $('rail').querySelector('button[data-s="1"]').lastChild.textContent = mm || vr ? 'Proposal' : 'Protocol';
+  const brief = (v.tiers || []).map(t => t.brief).find(Boolean);
+  $('briefBox').hidden = !brief; $('briefText').textContent = brief || '';
+  const woman = v.addressed_as === 'woman';
+  $('voiceQuote').textContent = woman ? '“Tell me about the woman you are becoming, and what is standing in her way.”' : '“Tell me about the man you are becoming, and what is standing in his way.”';
+  if (vr) {
+    $('heroLead').textContent = 'Start with a clear read of yourself. Then build from it.';
+    $('heroSub').textContent = 'Your voice analysis maps what is running underneath: what drives you, what drains you, how you process and how you land with others. In a dedicated session we turn it into decisions. If you want to go further, Upgrade turns those decisions into a 90-day mental and physical system.';
+    $('ill1').textContent = 'Your reading'; $('ill2').textContent = 'Your next level';
+    renderTiers(v);
+  }
   if (mm) {
     $('heroLead').textContent = 'A private search, built on knowing you first. Voice, mind and body, then the right introductions.';
     $('heroSub').textContent = 'Maktoub private matchmaking begins with a deeper read of you: your voice analysis, your mindset and your physical habits. So the search, and the protocol we recommend, fit who you are becoming.';
@@ -795,14 +834,15 @@ const TIER_POINTS = {
   premium: ['Three months of an intensified search', 'Three dates guaranteed', 'Voice analysis included', 'Mindset review and support throughout', 'Your recommended protocol, body and mind'],
 };
 function renderTiers(v) {
-  $('tierHead').textContent = v.tiers.length > 1 ? 'Two ways in' : 'Your private search'; $('tierSub').textContent = v.tiers.length > 1 ? 'Choose yours' : '';
-  $('tierCards').replaceChildren(...v.tiers.map(t => {
+  const vr = isVR(v), errBox = vr ? 'errTierVR' : 'errTier';
+  if (!vr) { $('tierHead').textContent = v.tiers.length > 1 ? 'Two ways in' : 'Your private search'; $('tierSub').textContent = v.tiers.length > 1 ? 'Choose yours' : ''; }
+  $(vr ? 'tierCardsVR' : 'tierCards').replaceChildren(...v.tiers.map(t => {
     const c = el('article', 'tier' + (v.tier === t.code ? ' sel' : ''));
     c.append(el('p', 'label muted', (t.label || t.months + ' months') + (t.dates ? ' · ' + t.dates + (v.tiers.length === 1 ? ' introductions' : ' dates guaranteed') : '')), el('h4', null, t.name), el('div', 'amt', t.price));
     if (!t.voice_included && v.programme.voice_fee) c.append(el('p', 'muted small', 'Voice analysis + ' + v.programme.voice_fee));
-    const ul = el('ul', 'ticks'); (TIER_POINTS[t.code] || [t.summary]).forEach(x => ul.append(el('li', null, x))); c.append(ul);
+    const ul = el('ul', 'ticks'); (t.points || TIER_POINTS[t.code] || [t.summary]).forEach(x => ul.append(el('li', null, x))); c.append(ul);
     const b = el('button', 'btn' + (v.tier === t.code ? '' : ' ghost'), v.signed ? (v.tier === t.code ? 'Your option' : t.name) : (v.tiers.length === 1 ? 'Continue to the agreement →' : 'Choose ' + t.name + ' →')); b.type = 'button'; b.disabled = !!v.signed;
-    b.onclick = async () => { $('errTier').textContent = ''; b.disabled = true; try { apply(await call('choose_tier', { tier: t.code }), 2); } catch (e) { $('errTier').textContent = e.message; } finally { b.disabled = !!view.signed; } };
+    b.onclick = async () => { $('errTier').textContent = ''; b.disabled = true; try { apply(await call('choose_tier', { tier: t.code }), 2); } catch (e) { $(errBox).textContent = e.message; } finally { b.disabled = !!view.signed; } };
     c.append(b); return c;
   }));
 }
