@@ -51,6 +51,7 @@ pre{white-space:pre-wrap;font:13px/1.55 "Instrument Sans",sans-serif;background:
 .rb-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr)) 34px;gap:6px;align-items:end;margin-top:6px}
 .rb-row button{margin:0;padding:8px}
 .alert{border-left:3px solid var(--warn);padding:6px 10px;background:#fbf6ea;font-size:13.5px;margin:6px 0}
+.rb-card{border:1px solid var(--line);background:#fff;padding:8px 10px;margin-top:8px}.rb-card textarea,.rb-card input,.rb-card select{margin-bottom:2px}.rb-card .b{margin:4px 0 0}
 </style>
 </head>
 <body>
@@ -102,6 +103,7 @@ pre{white-space:pre-wrap;font:13px/1.55 "Instrument Sans",sans-serif;background:
     </div>
   </section>
 </main>
+<script src="/ready/report/emowave.js"></script>
 <script>
 (() => {
 'use strict';
@@ -271,7 +273,7 @@ function drawDetail() {
   if (intake.weight_kg && intake.height_cm) det.append(el('p', 'BMI (indicative only): ' + (intake.weight_kg / Math.pow(intake.height_cm / 100, 2)).toFixed(1), 'msg'));
   box.append(det);
 
-  if (['requested', 'payment_reported', 'paid'].includes(r.voice_addon_status)) box.append(reportBuilder(report, r));
+  if (['requested', 'payment_reported', 'paid', 'included'].includes(r.voice_addon_status)) box.append(reportBuilder(report, r));
 
   const c = el('details'); c.append(el('summary', 'Consents (' + (consents || []).length + ')'));
   (consents || []).forEach(x => c.append(el('div', when(x.created_at) + ' · ' + x.kind + ' · ' + x.document_version + ' · ' + (x.granted ? 'granted' : 'declined') + ' · ' + (x.signature_name || ''))));
@@ -281,68 +283,163 @@ function drawDetail() {
 }
 
 // ---------- voice report builder ----------
+// Import the EmoWave PDF (read in this browser, never uploaded), mark the journey grid,
+// edit the readings, preview exactly what the client will see, then publish.
 const LEVELS = ['High', 'Good', 'Low'];
+const SLOT = (k, l) => [[k + '.emotion', 'text', l + ' · emotion', 'em'], [k + '.text', 'long', l + ' · reading'], [k + '.deep', 'long', l + ' · deeper read (Read more)'], [k + '.attention', 'long', l + ' · what to pay attention to']];
+const SENSE = (k, l) => [[`sensory.${k}.sense`, 'text', l + ' · sense'], [`sensory.${k}.direction`, 'text', l + ' · direction'], [`sensory.${k}.energy`, 'text', l + ' · energy'], [`sensory.${k}.text`, 'long', l + ' · sense reading'], [`sensory.${k}.direction_text`, 'long', l + ' · direction reading'], [`sensory.${k}.energy_text`, 'long', l + ' · energy reading']];
 const RS = [
-  { k: 'synthesis', title: 'Overview', f: [['headline', 'text', 'Headline'], ['read', 'long', 'Cross-layer read (acoustic + language + context)'], ['signals', 'list', 'Key signals', [['label', 'Signal'], ['value', 'Value'], ['strength', 'Strength']]], ['changes', 'long', 'What this changes for the programme'], ['questions', 'lines', 'Questions to work on (one per line)']] },
-  { k: 'emotional', title: 'Emotional mastery', f: [['thrive.emotion', 'text', 'Thrive · emotion', 'em'], ['thrive.text', 'long', 'Thrive · reading'], ['drain.emotion', 'text', 'Drain · emotion', 'em'], ['drain.text', 'long', 'Drain · reading'], ['visible.emotion', 'text', 'Visible · emotion', 'em'], ['visible.text', 'long', 'Visible · reading'], ['deep.emotion', 'text', 'Deep down · emotion', 'em'], ['deep.text', 'long', 'Deep down · reading'], ['test', 'long', 'Test it this month']] },
-  { k: 'mind', title: 'How your mind works', f: [['processing.style', 'text', 'Processing style'], ['processing.text', 'long', 'Processing · reading'], ['brain.left', 'number', 'Left hemisphere score'], ['brain.right', 'number', 'Right hemisphere score'], ['brain.text', 'long', 'Hemisphere · reading'], ['stress.type', 'text', 'Stress type'], ['stress.level', 'text', 'Stress level (e.g. 17.90 · above baseline)'], ['stress.text', 'long', 'Stress · reading'], ['test', 'long', 'Test it this month']] },
-  { k: 'social', title: 'Social mirror', f: [['archetype.name', 'text', 'Archetype'], ['archetype.text', 'long', 'Archetype · reading'], ['motivator.name', 'text', 'Core motivation'], ['motivator.text', 'long', 'Motivation · reading'], ['perception_summary', 'long', 'How others see him · summary'], ['perception', 'lines', 'Perception traits (one per line)'], ['leadership', 'list', 'Leadership profile', [['t', 'Dimension'], ['level', 'Level', LEVELS], ['d', 'Note']]], ['leadership_summary', 'long', 'Leadership summary'], ['test', 'long', 'Test it this month']] },
-  { k: 'negativity', title: 'Negativity', f: [['core.name', 'text', 'Core pattern (e.g. fear of betrayal)'], ['core.text', 'long', 'Core · reading'], ['core.affects', 'long', 'What it may affect'], ['patterns', 'list', 'Restrictive patterns', [['name', 'Pattern', 'neg'], ['text', 'Reading'], ['notice', 'Notice cue']]], ['test', 'long', 'Test it this month']] },
-  { k: 'body', title: 'Mind and body', f: [['patterns', 'list', 'Body patterns', [['title', 'Pattern', 'body'], ['interpretation', 'Interpretation'], ['asking', 'What it may be asking for']]], ['test', 'long', 'Test it this month']] },
-  { k: 'journey', title: 'Life journey', f: [['points', 'list', 'Imprint curve (age, level 0–10)', [['age', 'Age', 'num'], ['level', 'Level', 'num']]], ['markers', 'list', 'Markers', [['label', 'Label (e.g. Turning point)'], ['value', 'Value (e.g. Age 11–15)']]], ['insight', 'long', 'Insight'], ['meaning', 'long', 'What this may mean'], ['test', 'long', 'Test it this month']] },
-  { k: 'notes', title: 'Notes and next steps', f: [['session', 'long', 'Session notes'], ['recommendations', 'long', 'Recommendations']] },
+  { k: 'synthesis', title: 'Overview', f: [['headline', 'text', 'Headline'], ['intro', 'long', 'Intro (optional)'], ['signals', 'list', 'Executive synthesis cards', [['label', 'Signal'], ['value', 'Value'], ['strength', 'Strength']]], ['read', 'long', 'Cross-layer read'], ['changes', 'long', 'What this changes'], ['questions', 'lines', 'Questions we will work on (one per line)']] },
+  { k: 'emotional', title: '01 Emotional mastery', f: [...SLOT('thrive', 'Thrive'), ['thrive.also', 'lines', 'Thrive · other empowering emotions (one per line)'], ...SLOT('drain', 'Drain'), ['drain.also', 'lines', 'Drain · other draining emotions (one per line)'], ...SLOT('visible', 'Visible'), ...SLOT('deep', 'Deep down'), ['tones', 'list', 'Tonal signature (notes)', [['note', 'Note'], ['text', 'How it lands', 'long']]], ['test', 'long', 'Test it this month']] },
+  { k: 'mind', title: '02 How your mind works', f: [...SENSE('base', 'Take in (base)'), ...SENSE('next', 'Process (next)'), ['sensory.text', 'long', 'Process summary'], ['brain.left', 'number', 'Left hemisphere'], ['brain.right', 'number', 'Right hemisphere'], ['brain.label', 'text', 'Brain result (e.g. Right-brain led)'], ['brain.text', 'long', 'What this suggests'], ['brain.line', 'text', 'Closing line'], ['stress.value', 'number', 'Stress value'], ['stress.type', 'text', 'Stress type'], ['stress.text', 'long', 'Stress reading'], ['stress.source', 'long', 'In EmoWave’s words (optional)'], ['test', 'long', 'Test it this month']] },
+  { k: 'social', title: '03 Social mirror', f: [['archetype.name', 'text', 'Present character'], ['archetype.sub', 'text', 'Traits'], ['archetype.text', 'long', 'Reading'], ['perception_summary', 'long', 'How others may experience you · summary'], ['perception', 'list', 'Constructive qualities', [['t', 'Quality'], ['d', 'Note (optional)', 'long']]], ['motivator.name', 'text', 'Real intention'], ['motivator.sub', 'text', 'Traits'], ['motivator.text', 'long', 'Reading'], ['motivator.force', 'long', 'Driving force'], ['leadership', 'list', 'Seven leadership dynamics', [['t', 'Dynamic'], ['sub', 'Subtitle'], ['level', 'Level', LEVELS], ['d', 'Note', 'long']]], ['leadership_summary', 'long', 'Leadership summary'], ['test', 'long', 'Test it this month']] },
+  { k: 'negativity', title: '04 Negativity', f: [['core.name', 'text', 'Core emotion (your reading, e.g. Fear of betrayal; leave empty to hide)'], ['core.text', 'long', 'Core · reading'], ['core.affects', 'long', 'What this may affect'], ['core.cues', 'list', 'Awareness cues', [['t', 'Cue'], ['d', 'Description', 'long']]], ['patterns', 'list', 'Restrictive patterns', [['name', 'Short name'], ['summary', 'One line'], ['text', 'Reading', 'long'], ['notice', 'Notice cue', 'long']]], ['test', 'long', 'Test it this month']] },
+  { k: 'body', title: '05 Mind and body', f: [['patterns', 'list', 'Body patterns', [['title', 'Pattern'], ['interpretation', 'Interpretation', 'long'], ['meaning', 'What this may mean', 'long'], ['asking', 'What it may be asking for', 'long'], ['closing', 'Closing line']]], ['organs', 'lines', 'Organ indicators (one per line)'], ['test', 'long', 'Test it this month']] },
+  { k: 'journey', title: '06 Life journey', f: [['@grid'], ['markers', 'list', 'Markers', [['label', 'Label'], ['value', 'Value']]], ['insight', 'long', 'Journey insight'], ['meaning', 'long', 'What this may mean'], ['test', 'long', 'Test it this month']] },
+  { k: 'notes', title: 'Session notes and recommendations (after the session)', f: [['session', 'long', 'Session notes'], ['recommendations', 'long', 'Recommendations']] },
 ];
-const SUGGEST = { em: ['Passion', 'Resolve', 'Joy', 'Calm', 'Confidence', 'Fear', 'Anger', 'Sadness', 'Anxiety', 'Cheerfulness', 'Determination'], neg: ['Perfectionist', 'Harsh self-critic', 'Combative', 'Overthinker', 'Guarded'], body: ['Overstimulated nervous system', 'Digestive / assimilation stress', 'Endocrine stress'] };
+const SUGGEST = { em: Object.keys((window.MaktoubEmowave || { LIB: { EMO: {} } }).LIB.EMO) };
 const getP = (o, p) => p.split('.').reduce((a, k) => a == null ? undefined : a[k], o);
 const setP = (o, p, v) => { const ks = p.split('.'); let a = o; ks.slice(0, -1).forEach(k => { a[k] = a[k] && typeof a[k] === 'object' ? a[k] : {}; a = a[k]; }); a[ks.at(-1)] = v; };
+const hasContent = o => JSON.stringify(o || {}).replace(/[{}\[\]":,]|null|journey|levels|ages|age/g, '').length > 20;
+let pdfjsReady = null;
+function loadPdfjs() {
+  if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+  return pdfjsReady = pdfjsReady || new Promise((res, rej) => {
+    const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    s.onload = () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; res(window.pdfjsLib); };
+    s.onerror = () => { pdfjsReady = null; rej(new Error('Could not load the PDF reader. Check the connection and try again.')); };
+    document.head.append(s);
+  });
+}
 function reportBuilder(report, r) {
-  const wrap = el('details'); wrap.open = r.voice_addon_status === 'paid';
+  const E = window.MaktoubEmowave;
+  const wrap = el('details'); wrap.open = ['paid', 'included'].includes(r.voice_addon_status);
   wrap.append(el('summary', 'Voice report · ' + (report ? report.status + (report.published_at ? ' ' + when(report.published_at) : '') : 'not started')));
-  const note = el('p', 'Enter the Emowave signals and your reading. Saving a draft locks his recording. He sees nothing until you publish. Write findings as patterns to test, not verdicts.');
+  const note = el('p', '1 Import the EmoWave PDF. 2 Tick the life-journey grid from page 5. 3 Read every chapter and make it yours. 4 Preview, then publish. Nothing is visible to the client until you publish; saving a draft locks the recording.');
   note.style.cssText = 'font-size:13px;color:var(--muted)'; wrap.append(note);
   const dls = el('div'); Object.entries(SUGGEST).forEach(([k, opts]) => { const d = el('datalist'); d.id = 'dl_' + k; opts.forEach(o => { const op = el('option'); op.value = o; d.append(op); }); dls.append(d); }); wrap.append(dls);
   let model = JSON.parse(JSON.stringify(report?.data || {}));
-  if (!model.social?.leadership) setP(model, 'social.leadership', ['Purpose', 'Self-awareness', 'Self-development', 'Self-management', 'Self-belief', 'Self-esteem', 'Being'].map(t => ({ t, level: 'Good', d: '' })));
-  const form = el('div');
+  if (!model.journey) model.journey = {};
+
+  // 1. Import
+  const imp = el('div', null, 'rb-sec'); imp.append(el('h3', 'Import EmoWave PDF'));
+  const file = inp('file'); file.accept = 'application/pdf,.pdf';
+  const impMsg = el('p', '', 'msg');
+  file.onchange = async () => {
+    const f = file.files[0]; if (!f) return;
+    if (hasContent(model) && !confirm('Replace the current draft with this import? Session notes and the journey grid are kept.')) { file.value = ''; return; }
+    impMsg.className = 'msg'; impMsg.textContent = 'Reading ' + f.name + '…';
+    try {
+      const lib = await loadPdfjs();
+      const raw = await E.extract(lib, new Uint8Array(await f.arrayBuffer()));
+      const keepNotes = model.notes, j = model.journey || {};
+      model = E.compose(raw, { fileName: f.name, age: j.age, levels: j.levels });
+      if (keepNotes) model.notes = keepNotes;
+      const got = [raw.stress && 'stress ' + raw.stress.value, raw.brain && 'brain ' + raw.brain.left + '/' + raw.brain.right, raw.present && raw.present.name, (raw.leadership || []).length + ' dynamics', (raw.restrictive || []).length + ' restrictive', (raw.wellness || []).length + ' wellness'].filter(Boolean);
+      impMsg.textContent = 'Imported ' + (model.meta.name || f.name) + (model.meta.date ? ' (' + model.meta.date + ')' : '') + ': ' + got.join(', ') + '. ' + raw.warnings.join(' ');
+      build();
+    } catch (e) { impMsg.className = 'msg e'; impMsg.textContent = 'Could not read this PDF: ' + e.message; }
+    file.value = '';
+  };
+  imp.append(file, impMsg); wrap.append(imp);
+
+  const lintBox = el('div'), form = el('div');
+  const runLint = () => {
+    lintBox.replaceChildren(); const hits = E ? E.lint(model) : [];
+    if (hits.length) { const a = el('div', null, 'alert'); a.append(el('b', 'Review before publishing: ' + hits.length + ' passage' + (hits.length > 1 ? 's' : '') + ' read as clinical or third-person.')); hits.forEach(h => a.append(el('div', h.path + ' · ' + h.words.join(', ')))); lintBox.append(a); }
+    return hits;
+  };
+
+  // Journey grid (EmoWave page 5): twelve periods, levels 1–7.
+  const journeyGrid = () => {
+    const j = model.journey = model.journey || {};
+    const box = el('div');
+    const age = inp('number', j.age ?? '', 'Age'); age.style.maxWidth = '120px';
+    const ages = inp('text', (j.ages || []).join(', '), 'Ages, oldest first');
+    age.oninput = () => { j.age = age.value === '' ? '' : +age.value; j.ages = E.journeyAges(j.age); ages.value = j.ages.join(', '); paint(); };
+    ages.onchange = () => { j.ages = ages.value.split(/[,\s]+/).map(Number).filter(n => n > 0); paint(); };
+    const grid = el('div'); grid.style.cssText = 'display:grid;gap:3px;margin-top:8px;overflow-x:auto';
+    const colr = l => l >= 6 ? '#9b2c2c' : l >= 4 ? '#a8741a' : '#2f6b4f';
+    const paint = () => {
+      const a = j.ages || []; j.levels = (j.levels || []).slice(0, a.length);
+      grid.style.gridTemplateColumns = '28px repeat(' + Math.max(a.length, 1) + ', minmax(26px,1fr))'; grid.replaceChildren();
+      for (let l = 7; l >= 1; l--) {
+        grid.append(el('span', l, '')); grid.lastChild.style.cssText = 'font-size:11px;color:var(--muted);align-self:center';
+        a.forEach((_, i) => { const b = el('button', ''); b.type = 'button'; const on = +j.levels[i] === l;
+          b.style.cssText = `height:24px;border:1.5px solid ${colr(l)};border-radius:50%;background:${on ? colr(l) : '#fff'};cursor:pointer;padding:0;width:24px;justify-self:center`;
+          b.title = 'Age ' + a[i] + ' · level ' + l; b.onclick = () => { j.levels[i] = on ? null : l; paint(); runLint(); }; grid.append(b); });
+      }
+      grid.append(el('span', '')); a.forEach(x => { const s = el('span', x); s.style.cssText = 'font-size:11px;text-align:center;color:var(--muted)'; grid.append(s); });
+    };
+    paint();
+    const write = btn('Write journey reading from the grid', () => {
+      const jr = E.journeyRead(j.ages || [], j.levels || []);
+      if (!jr) return say('rbMsg', 'Tick at least four periods first.', true);
+      if ((j.insight || j.meaning) && !confirm('Replace the journey markers, insight and meaning?')) return;
+      Object.assign(j, { markers: jr.markers, insight: jr.insight, meaning: jr.meaning }); build();
+    }, 'b g s');
+    const hint = el('p', 'From page 5: enter the age written in the box, then tick the circle for each period, childhood on the left. Green 1–3 constructive, orange 4–5 mixed, red 6–7 restrictive.'); hint.style.cssText = 'font-size:12.5px;color:var(--muted);margin:4px 0';
+    box.append(el('label', 'Life journey grid'), hint, el('label', 'Age'), age, el('label', 'Period ages (childhood → now)'), ages, grid, write);
+    return box;
+  };
+
+  const field = (full, type, label, extra) => {
+    const out = [el('label', label)];
+    if (type === 'list') {
+      const rows = getP(model, full) || [], list = el('div');
+      rows.forEach((row, i) => {
+        const stacked = extra.some(x => x[2] === 'long'), rr = el('div', null, stacked ? 'rb-card' : 'rb-row');
+        extra.forEach(([k, l, opt]) => {
+          let x;
+          if (Array.isArray(opt)) { x = el('select'); opt.forEach(o => { const op = el('option', o); op.selected = row[k] === o; x.append(op); }); }
+          else if (opt === 'long') { x = el('textarea'); x.value = row[k] ?? ''; x.placeholder = l; x.style.minHeight = '54px'; }
+          else { x = inp(opt === 'num' ? 'number' : 'text', row[k] ?? '', l); if (opt && SUGGEST[opt]) x.setAttribute('list', 'dl_' + opt); }
+          x.oninput = x.onchange = () => { row[k] = opt === 'num' ? (x.value === '' ? '' : +x.value) : x.value; runLint(); };
+          if (stacked) { const lb = el('span', l); lb.style.cssText = 'font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-top:6px'; rr.append(lb); }
+          rr.append(x);
+        });
+        const bar = el('div'); bar.style.cssText = 'display:flex;gap:4px;justify-content:flex-end';
+        if (i > 0) bar.append(btn('↑', () => { rows.splice(i - 1, 0, rows.splice(i, 1)[0]); build(); }, 'b g s'));
+        bar.append(btn('×', () => { rows.splice(i, 1); build(); }, 'b g s')); rr.append(bar);
+        list.append(rr);
+      });
+      out.push(list, btn('+ Add', () => { const arr = getP(model, full) || []; arr.push({}); setP(model, full, arr); build(); }, 'b g s'));
+      return out;
+    }
+    let x;
+    if (type === 'long' || type === 'lines') { x = el('textarea'); x.value = type === 'lines' ? (getP(model, full) || []).join('\n') : (getP(model, full) ?? ''); }
+    else { x = inp(type === 'number' ? 'number' : 'text', getP(model, full) ?? ''); if (type === 'number') x.step = 'any'; if (extra && SUGGEST[extra]) x.setAttribute('list', 'dl_' + extra); }
+    x.oninput = () => { setP(model, full, type === 'lines' ? x.value.split('\n').map(t => t.trim()).filter(Boolean) : type === 'number' ? (x.value === '' ? '' : +x.value) : x.value); runLint(); };
+    out.push(x); return out;
+  };
+  const openSecs = new Set();
   const build = () => {
     form.replaceChildren();
+    if (model.meta && (model.meta.name || model.meta.ref)) { const m = el('p', 'Source: ' + [model.meta.source, model.meta.name, model.meta.date, model.meta.ref].filter(Boolean).join(' · ')); m.style.cssText = 'font-size:13px;margin:10px 0 0'; form.append(m); }
     for (const sec of RS) {
-      const s = el('details', null, 'rb-sec'); s.append(el('summary', sec.title));
-      for (const [path, type, label, extra] of sec.f) {
-        const full = sec.k + '.' + path; s.append(el('label', label));
-        if (type === 'list') {
-          const rows = getP(model, full) || []; const list = el('div');
-          rows.forEach((row, i) => {
-            const rr = el('div', null, 'rb-row');
-            extra.forEach(([k, l, opt]) => {
-              let x;
-              if (Array.isArray(opt)) { x = el('select'); opt.forEach(o => { const op = el('option', o); op.selected = row[k] === o; x.append(op); }); }
-              else { x = inp(opt === 'num' ? 'number' : 'text', row[k] ?? '', l); if (opt && SUGGEST[opt]) x.setAttribute('list', 'dl_' + opt); }
-              x.oninput = x.onchange = () => { row[k] = opt === 'num' ? (x.value === '' ? '' : +x.value) : x.value; }; rr.append(x);
-            });
-            rr.append(btn('×', () => { rows.splice(i, 1); build(); }, 'b g'));
-            list.append(rr);
-          });
-          s.append(list, btn('+ Add', () => { const arr = getP(model, full) || []; arr.push({}); setP(model, full, arr); build(); }, 'b g s'));
-          continue;
-        }
-        let x;
-        if (type === 'long' || type === 'lines') { x = el('textarea'); x.value = type === 'lines' ? (getP(model, full) || []).join('\n') : (getP(model, full) || ''); }
-        else { x = inp(type === 'number' ? 'number' : 'text', getP(model, full) ?? ''); if (extra && SUGGEST[extra]) x.setAttribute('list', 'dl_' + extra); }
-        x.oninput = () => setP(model, full, type === 'lines' ? x.value.split('\n').map(t => t.trim()).filter(Boolean) : type === 'number' ? (x.value === '' ? '' : +x.value) : x.value);
-        s.append(x);
-      }
+      const s = el('details', null, 'rb-sec'); s.open = openSecs.has(sec.k); s.ontoggle = () => s.open ? openSecs.add(sec.k) : openSecs.delete(sec.k);
+      s.append(el('summary', sec.title));
+      for (const [path, type, label, extra] of sec.f) path === '@grid' ? s.append(journeyGrid()) : s.append(...field(sec.k + '.' + path, type, label, extra));
       form.append(s);
     }
+    runLint();
   };
-  build(); wrap.append(form);
+  build(); wrap.append(lintBox, form);
+
   const io = el('details'); io.append(el('summary', 'Import / export JSON'));
-  const ta = el('textarea'); ta.style.minHeight = '160px'; ta.placeholder = 'Paste report JSON (e.g. extracted from the Emowave report), then Import.';
+  const ta = el('textarea'); ta.style.minHeight = '160px'; ta.placeholder = 'Paste report JSON, then Import.';
   io.append(ta, btn('Export current', () => { ta.value = JSON.stringify(model, null, 2); }, 'b g s'), btn('Import', () => { try { model = JSON.parse(ta.value); build(); say('rbMsg', 'Imported. Review, then save.'); } catch (_) { say('rbMsg', 'That is not valid JSON.', true); } }, 'b g s'));
   wrap.append(io);
-  const clean = o => JSON.parse(JSON.stringify(o, (k, v) => (v === '' || (Array.isArray(v) && !v.length)) ? undefined : v));
+  const clean = o => JSON.parse(JSON.stringify(o, (k, v) => (v === '' || v === null || (Array.isArray(v) && !v.length)) ? undefined : v));
   const save = async (extra, msg) => { try { await api('admin_save_report', { id: r.id, data: clean(model), ...extra }); say('rbMsg', msg); const d = await api('admin_get', { id: r.id }); detail = d; } catch (e) { say('rbMsg', e.message, true); } };
-  wrap.append(btn('Save draft', () => save({}, 'Draft saved.')), btn('Publish to his portal', () => confirm('Publish the report? He will see it in his portal immediately.') && save({ publish: true }, 'Published.'), 'b s'));
+  const preview = () => {
+    try { localStorage.setItem('maktoub_report_preview', JSON.stringify({ data: clean(model), at: new Date().toISOString(), name: String(r.intake?.preferred_name || r.invited_name || '').split(/\s+/)[0], reference: r.reference_code })); }
+    catch (_) { return say('rbMsg', 'This browser blocked the preview.', true); }
+    window.open('/ready/report/?preview', 'maktoub_preview');
+  };
+  wrap.append(btn('Preview as client', preview, 'b g'), btn('Save draft', () => save({}, 'Draft saved.')),
+    btn('Publish to client portal', () => { const n = runLint().length; if (confirm((n ? n + ' passage(s) are flagged for review. ' : '') + 'Publish the report? The client sees it in their portal immediately.')) save({ publish: true }, 'Published. The client can open it from their portal.'); }, 'b s'));
   if (report?.status === 'published') wrap.append(btn('Unpublish', () => save({ unpublish: true }, 'Unpublished.'), 'b g s'));
   const m = el('p', '', 'msg'); m.id = 'rbMsg'; wrap.append(m);
   return wrap;

@@ -1193,83 +1193,15 @@ $('sendBtn').addEventListener('click', async () => {
 window.addEventListener('beforeunload', e => { if (rec && rec.state === 'recording') { e.preventDefault(); e.returnValue = ''; } });
 
 // ---------- voice report ----------
-const CHAPTERS = [['synthesis', 'Overview'], ['emotional', 'Emotional mastery'], ['mind', 'How your mind works'], ['social', 'Social mirror'], ['negativity', 'Negativity'], ['body', 'Mind and body'], ['journey', 'Life journey'], ['notes', 'Notes and next steps']];
+// The full report lives at /ready/report/ and reads the same private link from this device.
 function renderReport(r) {
   const box = $('report'); box.replaceChildren(); if (!r) return;
   const wrap = el('div', 'report'), head = el('div', 'r-head night grain');
+  const sig = (r.synthesis && r.synthesis.signals || []).slice(0, 2);
   head.append(el('p', 'label muted', 'Your voice report'), el('h4', null, r.synthesis?.headline || 'Six chapters. One operating map.'), el('p', 'muted small', 'Released ' + fmtDate(r.published_at) + '. A signal layer to explore and test during the programme, not a diagnosis.'));
-  const tabs = el('div', 'r-tabs'), body = el('div', 'r-body');
-  const avail = CHAPTERS.filter(([k]) => r[k] && Object.keys(r[k]).length);
-  avail.forEach(([k, label], i) => { const b = el('button', i === 0 ? 'on' : '', label); b.type = 'button'; b.onclick = () => { tabs.querySelectorAll('button').forEach(x => x.classList.remove('on')); b.classList.add('on'); chapter(body, k, r[k]); }; tabs.append(b); });
-  wrap.append(head, tabs, body); box.append(wrap);
-  if (avail.length) chapter(body, avail[0][0], r[avail[0][0]]);
-}
-const card = (label, val, text, extra) => { const c = el('div', 'r-card'); c.append(el('p', 'label muted', label)); if (val) c.append(el('div', 'val', val)); if (text) c.append(el('p', null, text)); if (extra) c.append(extra); return c; };
-const test = t => { if (!t) return null; const d = el('div', 'r-test'); d.append(el('b', null, 'Test it this month'), t); return d; };
-function chapter(body, k, d) {
-  body.replaceChildren(); const g = el('div', 'r-grid'); const add = (...n) => n.filter(Boolean).forEach(x => body.append(x));
-  if (k === 'synthesis') {
-    add(el('h5', null, 'The pattern is not one score.'), d.read && el('p', null, d.read));
-    (d.signals || []).forEach(s => g.append(card(s.label, s.value, s.strength))); add(g);
-    if (d.changes) add(el('h3', null, 'What this changes'), el('p', null, d.changes));
-    if (d.questions?.length) { const ul = el('ul', 'ticks'); d.questions.forEach(q => ul.append(el('li', null, q))); add(el('h3', null, 'Questions we will work on'), ul); }
-  }
-  if (k === 'emotional') {
-    add(el('h5', null, 'The emotions shaping your energy and decisions.'));
-    [['thrive', 'Helps you thrive'], ['drain', 'Drains your energy'], ['visible', 'What others see'], ['deep', 'Drives you deep down']].forEach(([x, l]) => d[x] && g.append(card(l, d[x].emotion, d[x].text))); add(g, test(d.test));
-  }
-  if (k === 'mind') {
-    add(el('h5', null, 'How you take in, process and carry information.'));
-    if (d.processing) g.append(card('Processing style', d.processing.style, d.processing.text));
-    if (d.stress) g.append(card('Stress signature', d.stress.type + (d.stress.level ? ' · ' + d.stress.level : ''), d.stress.text));
-    add(g);
-    if (d.brain && (d.brain.left || d.brain.right)) {
-      const L = +d.brain.left || 0, R = +d.brain.right || 0, tot = L + R || 1, bal = el('div', 'balance'), trk = el('div', 'trk'), fill = el('i');
-      fill.style.left = '0'; fill.style.width = (L / tot * 100) + '%';
-      trk.append(fill); bal.append(el('span', null, 'Left ' + L), trk, el('span', null, R + ' Right'));
-      add(el('h3', null, 'Hemisphere balance'), bal, d.brain.text && el('p', null, d.brain.text));
-    }
-    add(test(d.test));
-  }
-  if (k === 'social') {
-    add(el('h5', null, 'Personality, motivation and how you land.'));
-    if (d.archetype) g.append(card('Archetype', d.archetype.name, d.archetype.text));
-    if (d.motivator) g.append(card('Core motivation', d.motivator.name, d.motivator.text));
-    add(g);
-    if (d.perception_summary || d.perception?.length) { const ul = el('ul', 'ticks'); (d.perception || []).forEach(p => ul.append(el('li', null, p))); add(el('h3', null, 'How others may experience you'), d.perception_summary && el('p', null, d.perception_summary), ul); }
-    if (d.leadership?.length) { const ul = el('ul', 'ticks'); d.leadership.forEach(x => { const li = el('li', null, x.t); li.append(el('span', 'lvl ' + x.level, x.level)); if (x.d) li.append(el('div', 'muted small', x.d)); ul.append(li); }); add(el('h3', null, 'Leadership profile'), d.leadership_summary && el('p', null, d.leadership_summary), ul); }
-    add(test(d.test));
-  }
-  if (k === 'negativity') {
-    add(el('h5', null, 'What your system may still be protecting.'));
-    if (d.core) { g.append(card('Core pattern', d.core.name, d.core.text)); if (d.core.affects) g.append(card('What it may affect', null, d.core.affects)); add(g); }
-    (d.patterns || []).forEach(p => { const c = card('Restrictive pattern', p.name, p.text); if (p.notice) c.append(el('p', 'muted small', 'Notice: ' + p.notice)); add(c); });
-    add(test(d.test));
-  }
-  if (k === 'body') {
-    add(el('h5', null, 'Where pressure may be landing physically.'));
-    (d.patterns || []).forEach(p => { const c = card(p.title, null, p.interpretation); if (p.asking) c.append(el('p', 'muted small', 'What it may be asking for: ' + p.asking)); g.append(c); }); add(g, test(d.test));
-  }
-  if (k === 'journey') {
-    add(el('h5', null, 'How your inner state has moved across the years.'));
-    const pts = (d.points || []).filter(p => isFinite(p.age) && isFinite(p.level));
-    if (pts.length > 1) {
-      const W = 640, H = 200, ax = pts.map(p => +p.age), minA = Math.min(...ax), maxA = Math.max(...ax), X = a => 30 + (a - minA) / ((maxA - minA) || 1) * (W - 60), Y = l => H - 30 - (l / 10) * (H - 60);
-      const ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg'); svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('class', 'ill inview'); svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', 'Life journey line by age');
-      const base = document.createElementNS(ns, 'path'); base.setAttribute('class', 'g'); base.setAttribute('d', `M30 ${H - 30} H${W - 30}`); svg.append(base);
-      const line = document.createElementNS(ns, 'path'); line.setAttribute('class', 's'); line.setAttribute('d', pts.map((p, i) => (i ? 'L' : 'M') + X(p.age) + ' ' + Y(p.level)).join(' ')); svg.append(line);
-      pts.forEach(p => { const c = document.createElementNS(ns, 'circle'); c.setAttribute('class', 'd'); c.setAttribute('cx', X(p.age)); c.setAttribute('cy', Y(p.level)); c.setAttribute('r', 4); svg.append(c); const t = document.createElementNS(ns, 'text'); t.setAttribute('x', X(p.age)); t.setAttribute('y', H - 10); t.setAttribute('text-anchor', 'middle'); t.textContent = p.age; svg.append(t); });
-      add(svg);
-    }
-    (d.markers || []).forEach(m => g.append(card(m.label, m.value, null))); add(g);
-    if (d.insight) add(el('h3', null, 'Insight'), el('p', null, d.insight));
-    if (d.meaning) add(el('h3', null, 'What this may mean'), el('p', null, d.meaning));
-    add(test(d.test));
-  }
-  if (k === 'notes') {
-    if (d.session) add(el('h3', null, 'Session notes'), el('div', 'r-note', d.session));
-    if (d.recommendations) add(el('h3', null, 'Recommendations'), el('div', 'r-note', d.recommendations));
-  }
+  if (sig.length) { const ul = el('ul', 'ticks'); sig.forEach(s => { const li = el('li', null, (s.label ? s.label + ': ' : '') + (s.value || '')); ul.append(li); }); head.append(ul); }
+  const a = el('a', 'btn', 'Open your report'); a.href = '/ready/report/'; a.style.cssText = 'display:inline-block;margin-top:18px;background:var(--white);color:var(--ink);text-decoration:none';
+  head.append(a); wrap.append(head); box.append(wrap);
 }
 
 // ---------- navigation ----------

@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F4F1EA">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Your voice report | Maktoub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F4F1EA;--paper-2:#EAE5DC;--card:#FBF9F5;--ink:#111111;--ink-2:#34322F;--navy:#142C4B;--navy-soft:#9fb4d1;--grey:#C9C1B7;--hair:#CFC8BD;--smoke:#6B665F;--white:#fff;
+  --ok:#2f6b4f;--mid:#a8741a;--err:#9b2c2c;--ok-bg:rgba(47,107,79,.08);--mid-bg:rgba(168,116,26,.09);--err-bg:rgba(155,44,44,.08);
+  --pad:clamp(20px,4vw,56px);--sans:"Instrument Sans","Helvetica Neue",Arial,sans-serif;--serif:"Newsreader","Iowan Old Style","Times New Roman",serif;--ease:cubic-bezier(.2,.7,.2,1)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0}a{color:inherit}
+:focus-visible{outline:2px solid var(--navy);outline-offset:3px}[hidden]{display:none!important}
+::selection{background:var(--navy);color:var(--white)}
+.k{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--smoke);margin:0;line-height:1.4;font-family:var(--sans)}
+.k.ink{color:var(--ink)}
+p{margin:0 0 14px}
+.muted{color:var(--smoke)}
+
+/* chrome */
+header.top{position:sticky;top:0;z-index:30;background:rgba(244,241,234,.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--hair)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;height:58px;padding:0 var(--pad);max-width:1240px;margin:0 auto}
+.brand{font-size:14px;font-weight:500;letter-spacing:.14em;text-decoration:none}
+.who{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--smoke);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who a{text-decoration:none;border-bottom:1px solid var(--hair);padding-bottom:1px;margin-left:12px;color:var(--ink)}
+.views{display:flex;gap:26px;padding:0 var(--pad);max-width:1240px;margin:0 auto;border-top:1px solid var(--hair);overflow-x:auto;scrollbar-width:none}
+.views::-webkit-scrollbar,.chapters::-webkit-scrollbar{display:none}
+.views button{flex-shrink:0;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--smoke);padding:14px 0 12px;border-bottom:2px solid transparent}
+.views button[aria-selected=true]{color:var(--ink);border-color:var(--navy)}
+.chapters{position:sticky;top:58px;z-index:20;background:rgba(244,241,234,.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--hair)}
+.chapters .in{display:flex;gap:24px;padding:0 var(--pad);max-width:1240px;margin:0 auto;overflow-x:auto;scrollbar-width:none;scroll-behavior:smooth}
+.chapters button{flex-shrink:0;font-size:15px;color:var(--smoke);padding:13px 0 11px;border-bottom:2px solid transparent;white-space:nowrap}
+.chapters button .n{font-size:10px;letter-spacing:.1em;margin-right:6px;vertical-align:2px}
+.chapters button[aria-selected=true]{color:var(--ink);border-color:var(--ink)}
+.preview{background:var(--navy);color:var(--white);font-size:11px;letter-spacing:.1em;text-transform:uppercase;text-align:center;padding:7px 12px}
+
+main{max-width:1240px;margin:0 auto;padding:0 var(--pad) 80px;min-height:70vh}
+.chapter{animation:in .45s var(--ease)}
+@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* hero */
+.hero{padding:clamp(40px,8vw,104px) 0 clamp(28px,4vw,48px);border-bottom:1px solid var(--hair);display:grid;gap:22px}
+.hero h1{font-size:clamp(46px,10.5vw,112px);font-weight:500;letter-spacing:-.04em;line-height:.94;margin:10px 0 0;max-width:12ch}
+.hero .lead{font-size:clamp(18px,2.2vw,23px);line-height:1.38;color:var(--ink-2);max-width:40ch;margin:0}
+.hero .meta{display:flex;flex-wrap:wrap;gap:6px 22px}
+@media(min-width:900px){.hero{grid-template-columns:1.35fr 1fr;align-items:end}.hero .side{padding-bottom:6px}}
+
+/* pills */
+.pills{display:flex;border-bottom:1px solid var(--hair);overflow-x:auto;scrollbar-width:none;margin:0 calc(-1 * var(--pad));padding:0 var(--pad)}
+.pills::-webkit-scrollbar{display:none}
+.pills button{flex:1 0 auto;min-width:82px;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--smoke);padding:17px 12px 15px;border-bottom:2px solid transparent;text-align:center}
+.pills button[aria-selected=true]{color:var(--ink);border-color:var(--navy)}
+@media(min-width:900px){.pills button{flex:0 0 auto;padding:17px 22px 15px}}
+.panel{padding:clamp(28px,5vw,56px) 0 0;animation:in .35s var(--ease)}
+.panel+.panel{border-top:1px solid var(--hair);margin-top:40px}
+.panel-title{display:none}
+
+/* type */
+.q{font-size:clamp(22px,2.6vw,30px);font-weight:500;letter-spacing:-.02em;line-height:1.15;margin:8px 0 18px;max-width:26ch}
+.big{font-size:clamp(44px,8vw,84px);font-weight:500;letter-spacing:-.035em;line-height:.98;margin:6px 0 10px}
+.word{font-family:var(--serif);font-weight:400;letter-spacing:-.025em}
+.sub{font-size:19px;color:var(--smoke);margin:0 0 16px}
+.body{font-size:17px;line-height:1.65;color:var(--ink-2);max-width:60ch}
+.line{font-family:var(--serif);font-style:italic;font-size:21px;line-height:1.35;color:var(--ink);border-top:1px solid var(--hair);padding-top:16px;margin-top:20px;max-width:46ch}
+.split{display:grid;gap:clamp(28px,5vw,64px)}
+@media(min-width:900px){.split{grid-template-columns:1fr 1fr}.split.wide{grid-template-columns:1.2fr 1fr}}
+.block{border-top:1px solid var(--ink);padding-top:14px;margin-top:28px}
+.block .k{margin-bottom:8px}
+.block p{font-size:16px;color:var(--ink-2);line-height:1.6;max-width:60ch}
+
+.more{display:inline-flex;align-items:center;gap:10px;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--ink);padding-bottom:4px;margin-top:10px}
+.more svg{width:14px;height:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0}
+.chip{display:inline-block;border:1px solid var(--hair);padding:6px 11px;font-size:12px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);background:var(--card)}
+.test{position:relative;margin:48px 0 0;padding:22px 24px;background:var(--card);border:1px solid var(--hair)}
+.test .k{color:var(--navy);margin-bottom:8px}
+.test p{font-family:var(--serif);font-size:21px;line-height:1.38;margin:0}
+.next{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:64px;padding:22px 0;border-top:1px solid var(--ink);border-bottom:1px solid var(--hair);width:100%;text-align:left}
+.next b{display:block;font-weight:500;font-size:clamp(22px,3vw,30px);letter-spacing:-.02em;line-height:1.1}
+.next svg{width:28px;height:28px;flex-shrink:0;transition:transform .3s var(--ease)}
+.next:hover svg{transform:translateX(4px)}
+
+/* overview */
+.signals{display:grid;grid-template-columns:1fr;border-top:1px solid var(--ink);margin-top:28px}
+.signals article{padding:20px 0;border-bottom:1px solid var(--hair);display:grid;gap:6px}
+.signals strong{font-weight:500;font-size:clamp(22px,2.4vw,28px);letter-spacing:-.02em;line-height:1.12}
+.signals small{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--navy)}
+@media(min-width:700px){.signals{grid-template-columns:1fr 1fr}.signals article:nth-child(odd){padding-right:28px;border-right:1px solid var(--hair)}.signals article:nth-child(even){padding-left:28px}}
+@media(min-width:1100px){.signals{grid-template-columns:repeat(4,1fr)}.signals article{padding:22px 22px 22px 0!important;border-right:1px solid var(--hair)}.signals article+article{padding-left:22px!important}.signals article:last-child{border-right:0}}
+.layers{display:grid;gap:0;border-top:1px solid var(--hair);margin-top:48px}
+.layers article{padding:22px 0;border-bottom:1px solid var(--hair)}
+.layers h3{font-size:22px;font-weight:500;letter-spacing:-.015em;margin:6px 0 6px}
+.layers p{font-size:15.5px;color:var(--smoke);margin:0}
+@media(min-width:900px){.layers{grid-template-columns:repeat(3,1fr)}.layers article{padding:24px 24px 24px 0;border-right:1px solid var(--hair)}.layers article+article{padding-left:24px}.layers article:last-child{border-right:0}}
+ol.qs{list-style:none;counter-reset:q;margin:12px 0 0;padding:0}
+ol.qs li{counter-increment:q;display:grid;grid-template-columns:44px 1fr;gap:8px;padding:16px 0;border-bottom:1px solid var(--hair);font-family:var(--serif);font-size:clamp(19px,2vw,23px);line-height:1.35}
+ol.qs li:before{content:counter(q,decimal-leading-zero);font-family:var(--sans);font-size:11px;letter-spacing:.1em;color:var(--smoke);padding-top:7px}
+.toc{list-style:none;margin:12px 0 0;padding:0;border-top:1px solid var(--ink)}
+.toc button{display:grid;grid-template-columns:44px 1fr 24px;gap:8px;align-items:baseline;width:100%;text-align:left;padding:16px 0;border-bottom:1px solid var(--hair)}
+.toc .n{font-size:11px;letter-spacing:.1em;color:var(--smoke)}
+.toc b{font-weight:500;font-size:20px;letter-spacing:-.01em;display:block}
+.toc span.d{font-size:14.5px;color:var(--smoke);display:block;margin-top:2px}
+.toc svg{width:18px;height:18px;align-self:center}
+.disc{font-size:13px;color:var(--smoke);margin-top:48px;max-width:70ch}
+
+/* emotional */
+.emo{max-width:760px}
+.tones{display:grid;gap:0;border-top:1px solid var(--hair);margin-top:12px}
+.tones article{display:grid;grid-template-columns:64px 1fr;gap:14px;padding:18px 0;border-bottom:1px solid var(--hair)}
+.tones .note{font-family:var(--serif);font-size:44px;line-height:1;color:var(--navy)}
+.tones p{margin:0;font-size:15.5px;color:var(--ink-2)}
+@media(min-width:900px){.tones{grid-template-columns:1fr 1fr}.tones article:first-child{padding-right:28px;border-right:1px solid var(--hair)}.tones article+article{padding-left:28px}}
+
+/* sensory flow */
+.flow{display:grid;gap:12px;align-items:stretch;margin:4px 0 22px}
+.flow .stage{background:var(--card);border:1px solid var(--hair);padding:20px}
+.flow .stage h4{font-family:var(--serif);font-weight:400;font-size:clamp(34px,5vw,46px);letter-spacing:-.02em;line-height:1;margin:8px 0 14px}
+.flow .arrow{display:flex;align-items:center;justify-content:center;color:var(--smoke)}
+.flow .arrow svg{width:26px;height:26px;transform:rotate(90deg)}
+.node{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;text-align:left;padding:11px 0;border-top:1px solid var(--hair);font-size:15px}
+.node span.t{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--smoke);min-width:70px}
+.node b{font-weight:500;flex:1}
+.node svg{width:16px;height:16px;color:var(--smoke)}
+@media(min-width:760px){.flow{grid-template-columns:1fr 48px 1fr}.flow .arrow svg{transform:none}}
+
+/* brain */
+.hemi{margin:22px 0 26px}
+.hemi .row{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:10px}
+.hemi .num{font-size:clamp(34px,5vw,48px);font-weight:500;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.hemi .side.dim .num{color:var(--grey)}
+.hemi .side.r{text-align:right}
+.hemi .side small{display:block;font-size:13px;color:var(--smoke);margin-top:4px}
+.hemi .trk{display:flex;height:10px;background:var(--paper-2)}
+.hemi .trk i{display:block;height:100%;transition:width 1.2s var(--ease)}
+.hemi .trk i.l{background:var(--grey)}.hemi .trk i.r{background:var(--navy)}
+.hemi .trk.lead-l i.l{background:var(--navy)}.hemi .trk.lead-l i.r{background:var(--grey)}
+
+/* stress */
+.gauge{margin:20px 0 28px}
+.gauge .val{display:flex;align-items:baseline;gap:14px;margin-bottom:18px}
+.gauge .val b{font-size:clamp(64px,11vw,104px);font-weight:500;letter-spacing:-.045em;line-height:.9;font-variant-numeric:tabular-nums}
+.gauge .scale{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:3px;padding-top:26px}
+.gauge .seg{height:8px;background:var(--paper-2)}
+.gauge .seg.on{background:var(--navy)}
+.gauge .seg.past{background:var(--navy-soft)}
+.gauge .lab{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin-top:8px}
+.gauge .lab span{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--smoke);line-height:1.3}
+.gauge .lab span.on{color:var(--ink);font-weight:600}
+.gauge .lab em{display:block;font-style:normal;letter-spacing:0;font-size:11px;color:var(--grey);margin-top:2px}
+.gauge .pin{position:absolute;top:0;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;transition:left 1.2s var(--ease)}
+.gauge .pin:after{content:"";width:1.5px;height:16px;background:var(--ink);margin-top:2px}
+.gauge .pin span{font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;white-space:nowrap}
+blockquote.src{margin:24px 0 0;padding:18px 0 0;border-top:1px solid var(--hair);font-size:15px;color:var(--smoke);max-width:62ch}
+blockquote.src .k{margin-bottom:6px}
+
+/* lists / accordion */
+.acc{border-top:1px solid var(--ink);margin-top:12px}
+.acc .it{border-bottom:1px solid var(--hair)}
+.acc .hd{display:grid;grid-template-columns:36px 1fr auto;gap:10px;align-items:center;width:100%;text-align:left;padding:15px 0}
+.acc .hd .n{font-size:11px;letter-spacing:.1em;color:var(--smoke)}
+.acc .hd b{font-weight:500;font-size:17px;line-height:1.3}
+.acc .hd small{display:block;font-size:12.5px;color:var(--smoke);margin-top:2px}
+.acc .hd .ic{width:18px;height:18px;transition:transform .25s var(--ease);color:var(--smoke)}
+.acc .it.open .ic{transform:rotate(45deg)}
+.acc .bd{display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s var(--ease)}
+.acc .it.open .bd{grid-template-rows:1fr}
+.acc .bd>div{overflow:hidden}
+.acc .bd p{padding:0 0 16px 46px;margin:0;font-size:15.5px;color:var(--ink-2);max-width:62ch}
+.acc .plain .hd{cursor:default}
+.lvl{display:flex;align-items:center;gap:8px;font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+.lvl i{width:7px;height:7px;border-radius:50%;background:var(--paper-2);border:1px solid var(--grey)}
+.lvl i.f{background:currentColor;border-color:currentColor}
+.lvl.High{color:var(--ok)}.lvl.Good{color:var(--navy)}.lvl.Low{color:var(--err)}
+.lvl .dots{display:flex;gap:3px}
+
+/* pattern map */
+.pmap{position:relative;width:100%;max-width:520px;aspect-ratio:4/3;margin:8px auto 8px}
+.pmap svg{position:absolute;inset:0;width:100%;height:100%}
+.pmap svg line{stroke:var(--grey);stroke-width:1;stroke-dasharray:3 4;transition:stroke .3s}
+.pmap svg line.on{stroke:var(--navy);stroke-dasharray:none;stroke-width:1.4}
+.pmap .core{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:72px;height:72px;border-radius:50%;border:1px solid var(--hair);background:var(--paper);display:flex;align-items:center;justify-content:center;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--smoke);text-align:center;line-height:1.2}
+.pmap .pn{position:absolute;transform:translate(-50%,-50%);background:var(--card);border:1px solid var(--hair);padding:8px 12px;font-size:13px;font-weight:500;line-height:1.2;max-width:42%;text-align:center;transition:background .25s,color .25s,border-color .25s}
+.pmap .pn[aria-pressed=true]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.pdetail{max-width:640px;margin:18px auto 0;min-height:220px}
+.pdetail h3{font-size:clamp(26px,3vw,34px);font-weight:500;letter-spacing:-.02em;margin:8px 0 12px}
+.pdetail .sum{font-weight:500;font-size:17px;margin-bottom:8px}
+.cues{display:grid;gap:0;border-top:1px solid var(--hair);margin-top:8px}
+.cues>div{padding:12px 0;border-bottom:1px solid var(--hair)}
+.cues b{font-weight:500;display:block}
+.cues p{margin:2px 0 0;font-size:15px;color:var(--smoke)}
+
+/* body */
+.bsel{border-top:1px solid var(--ink)}
+.bsel button{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;text-align:left;padding:17px 4px 17px 0;border-bottom:1px solid var(--hair);font-size:17px;transition:padding .25s var(--ease)}
+.bsel button svg{width:18px;height:18px;color:var(--grey)}
+.bsel button[aria-selected=true]{font-weight:500;padding-left:12px;box-shadow:inset 2px 0 0 var(--navy)}
+.bsel button[aria-selected=true] svg{color:var(--ink)}
+.bdetail{background:var(--card);border:1px solid var(--hair);padding:clamp(20px,3vw,32px);animation:in .3s var(--ease)}
+.bdetail h3{font-size:clamp(24px,3vw,32px);font-weight:500;letter-spacing:-.02em;margin:8px 0 12px;line-height:1.1}
+.bdetail .k{margin-top:18px;margin-bottom:6px}
+.bdetail p{font-size:15.5px;color:var(--ink-2);margin:0}
+.bdetail p.int{font-size:18px;color:var(--ink)}
+.bdetail .line{font-size:19px}
+@media(min-width:900px){.bodygrid{display:grid;grid-template-columns:.9fr 1.1fr;gap:40px;align-items:start}}
+
+/* journey */
+.jchart{background:var(--card);border:1px solid var(--hair);padding:20px 16px 14px;margin-top:24px;max-width:980px}
+.jchart svg{width:100%;height:auto;display:block;overflow:visible}
+.jchart .band{opacity:1}
+.jchart text{font-family:var(--sans);font-size:10px;letter-spacing:.06em;fill:var(--smoke)}
+.jchart .ln{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:var(--len);stroke-dashoffset:var(--len);transition:stroke-dashoffset 1.8s var(--ease)}
+.jchart.on .ln{stroke-dashoffset:0}
+.jchart .dot{stroke:var(--card);stroke-width:2;opacity:0;transition:opacity .4s}
+.jchart.on .dot{opacity:1}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:12px;font-size:12px;color:var(--smoke)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:9px;height:9px;border-radius:50%}
+.markers{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--ink);margin-top:28px}
+.markers>div{padding:16px 12px 16px 0;border-bottom:1px solid var(--hair)}
+.markers b{display:block;font-weight:500;font-size:19px;letter-spacing:-.01em;margin-top:4px;line-height:1.2}
+@media(min-width:760px){.markers{grid-template-columns:repeat(var(--n,3),1fr)}.markers>div+div{padding-left:16px;border-left:1px solid var(--hair)}}
+.jcard{max-width:720px}
+.jcard p:not(.k){font-family:var(--serif);font-size:clamp(21px,2.4vw,26px);line-height:1.38;color:var(--ink);margin:8px 0 0}
+
+/* notes */
+.empty{text-align:center;padding:clamp(60px,12vw,140px) 0;max-width:420px;margin:0 auto}
+.empty .mark{width:56px;height:56px;margin:0 auto 18px;border:1px solid var(--hair);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--navy)}
+.empty h2{font-size:26px;font-weight:500;letter-spacing:-.02em;margin:0 0 8px}
+.prose{max-width:68ch;padding-top:clamp(28px,5vw,48px)}
+.prose p{font-size:17.5px;line-height:1.7;color:var(--ink-2)}
+
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(17,17,17,.38);z-index:60;opacity:0;pointer-events:none;transition:opacity .3s}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:61;background:var(--paper);max-height:88vh;overflow:auto;padding:12px var(--pad) calc(28px + env(safe-area-inset-bottom));transform:translateY(102%);visibility:hidden;transition:transform .38s var(--ease),visibility 0s .38s;border-top:1px solid var(--hair)}
+.sheet.on{transform:none;visibility:visible;transition:transform .38s var(--ease)}
+.sheet .grab{width:40px;height:4px;background:var(--grey);margin:0 auto 22px}
+.sheet .x{position:absolute;top:14px;right:var(--pad);font-size:11px;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--ink)}
+.sheet h2{font-size:clamp(40px,8vw,64px);font-weight:500;letter-spacing:-.035em;line-height:1;margin:6px 0 20px}
+.sheet .block:first-of-type{margin-top:10px}
+@media(min-width:760px){.sheet{left:50%;right:auto;bottom:auto;top:50%;width:min(640px,92vw);transform:translate(-50%,-46%);opacity:0;pointer-events:none;transition:opacity .3s,transform .35s var(--ease);border:1px solid var(--hair);padding:40px 44px}.sheet.on{transform:translate(-50%,-50%);opacity:1;pointer-events:auto}.sheet .grab{display:none}.sheet .x{top:22px}}
+
+/* gate */
+.gate{max-width:560px;margin:0 auto;padding:clamp(80px,14vw,160px) 0;text-align:center}
+.gate h1{font-size:clamp(34px,6vw,52px);font-weight:500;letter-spacing:-.03em;line-height:1.02;margin:12px 0 14px}
+.gate p{color:var(--smoke)}
+.gate a.btn{display:inline-block;margin-top:14px;background:var(--ink);color:var(--paper);text-decoration:none;padding:13px 20px;font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.spin{width:28px;height:28px;border:1.5px solid var(--hair);border-top-color:var(--navy);border-radius:50%;margin:0 auto;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+footer{max-width:1240px;margin:0 auto;padding:22px var(--pad) 40px;border-top:1px solid var(--hair);display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:12px;color:var(--smoke)}
+footer button{font-size:11px;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--smoke)}
+
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+
+/* print: every chapter, every panel */
+#print{display:none}
+@media print{
+  @page{margin:16mm 14mm}
+  body{background:#fff;font-size:12pt}
+  header.top,.chapters,.preview,main,footer,.scrim,.sheet{display:none!important}
+  #print{display:block}
+  #print .chapter{break-before:page;animation:none}
+  #print .chapter:first-child{break-before:auto}
+  #print .pills,#print .more,#print .next{display:none!important}
+  #print .panel-title{display:block;margin:0 0 6px}
+  #print .panel{padding-top:22px;animation:none;break-inside:avoid-page}
+  #print .hero{padding:0 0 18px}
+  #print .hero h1{font-size:44pt}
+  #print .acc .bd{grid-template-rows:1fr}
+  #print .jchart .ln{stroke-dashoffset:0}#print .jchart .dot{opacity:1}
+  #print .sheetcopy{display:block!important}
+}
+.sheetcopy{display:none}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="bar"><a class="brand" href="/ready/" id="brand">MAKTOUB</a><div class="who" id="who"></div></div>
+  <div class="views" role="tablist" aria-label="Report sections" id="views" hidden>
+    <button role="tab" data-v="report" aria-selected="true">Voice report</button>
+    <button role="tab" data-v="notes" aria-selected="false">Session notes</button>
+    <button role="tab" data-v="recs" aria-selected="false">Recommendations</button>
+  </div>
+</header>
+<div class="preview" id="previewBar" hidden>Founder preview · not visible to the client until published</div>
+<nav class="chapters" id="chapters" hidden aria-label="Chapters"><div class="in" role="tablist" id="chapterTabs"></div></nav>
+<main id="main"><div class="gate" id="gate"><div class="spin" aria-hidden="true"></div><p style="margin-top:18px">Opening your report…</p></div></main>
+<div id="print"></div>
+<footer id="foot" hidden><span id="footText">A signal layer to explore during the programme. Not a diagnosis.</span><button id="printBtn" type="button">Save as PDF</button></footer>
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" tabindex="-1"><div class="grab"></div><button class="x" id="sheetX" type="button">Close</button><div id="sheetBody"></div></div>
+
+<script>
+(() => {
+'use strict';
+const API = 'https://pmjvpnqmklxxpswwvbmv.supabase.co/functions/v1/maktoub-programme';
+const KEY = 'maktoub_ready', PREVIEW_KEY = 'maktoub_report_preview';
+const $ = id => document.getElementById(id);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null && text !== '') e.textContent = text; return e; };
+const add = (parent, ...kids) => { kids.flat().forEach(k => k && parent.append(k)); return parent; };
+const has = v => v != null && v !== '' && !(Array.isArray(v) && !v.length) && !(typeof v === 'object' && !Array.isArray(v) && !Object.values(v).some(has));
+const NS = 'http://www.w3.org/2000/svg';
+const svg = (tag, attrs) => { const e = document.createElementNS(NS, tag); Object.entries(attrs || {}).forEach(([k, v]) => e.setAttribute(k, v)); return e; };
+const icon = d => { const s = svg('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.5', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true' }); s.append(svg('path', { d })); return s; };
+const ARROW = 'M4 12h15M13 6l6 6-6 6', CHEV = 'M9 6l6 6-6 6', PLUS = 'M12 5v14M5 12h14';
+const K = (t, ink) => el('div', 'k' + (ink ? ' ink' : ''), t);
+const P = (t, cls) => t ? el('p', cls || 'body', t) : null;
+const block = (label, text) => text ? add(el('div', 'block'), K(label, true), el('p', null, text)) : null;
+
+let R = null, who = {}, printing = false;
+
+// ---------- data ----------
+async function getData() {
+  const params = new URLSearchParams(location.search);
+  if (params.has('preview')) {
+    let p = null; try { p = JSON.parse(localStorage.getItem(PREVIEW_KEY) || 'null'); } catch (_) {}
+    if (!p || !p.data || Date.now() - Date.parse(p.at || 0) > 6 * 3600e3) { try { localStorage.removeItem(PREVIEW_KEY); } catch (_) {} throw Object.assign(new Error('Open the preview from the founder console.'), { title: 'No preview loaded.' }); }
+    $('previewBar').hidden = false;
+    return { report: { ...p.data, published_at: p.at }, who: { first_name: p.name || (p.data.meta && p.data.meta.name || '').split(' ')[0], reference: p.reference || '' } };
+  }
+  if (params.has('sample')) {
+    $('previewBar').hidden = false; $('previewBar').textContent = 'Sample report · fictional client';
+    return { report: SAMPLE(), who: { first_name: 'Sample client', reference: 'SAMPLE' } };
+  }
+  const q = (params.get('invite') || '').trim().toLowerCase();
+  let token = null;
+  try { if (q) { localStorage.setItem(KEY, q); sessionStorage.setItem(KEY, q); } token = q || sessionStorage.getItem(KEY) || localStorage.getItem(KEY); } catch (_) { token = q || null; }
+  if (q) history.replaceState(null, '', location.pathname + location.hash);
+  if (!token) throw Object.assign(new Error('This report opens from the private link Maktoub sent you. Open that link once on this device and your report will be here.'), { title: 'Please open your private link.' });
+  const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'load', token }) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw Object.assign(new Error(j.error || 'Please try again in a moment.'), { title: r.status === 401 ? 'This link is no longer active.' : 'We could not open your report.' });
+  if (!j.report) throw Object.assign(new Error('Your voice report appears here once it has been written and released. We will let you know.'), { title: 'Your report is being prepared.', portal: true });
+  return { report: j.report, who: { first_name: j.first_name, reference: j.reference } };
+}
+
+// ---------- chapters ----------
+const CH = [
+  { k: 'overview', n: '', t: 'Your report', short: 'Overview' },
+  { k: 'emotional', n: '01', t: 'Emotional Mastery', lead: 'The emotions most likely to shape your energy, decisions and relationships.' },
+  { k: 'mind', n: '02', t: 'How Your Mind Works', lead: 'How you take information in, how you process it, and what kind of stress your system is carrying.' },
+  { k: 'social', n: '03', t: 'Social Mirror', lead: 'How you show up, what you are really reaching for, and your leadership profile.' },
+  { k: 'negativity', n: '04', t: 'Negativity', lead: 'The patterns that may quietly restrict your energy, trust and decisions.' },
+  { k: 'body', n: '05', t: 'Mind & Body', lead: 'Your continuing emotional states shape how your body holds stress. This is where it may be landing, and what it may be asking for.' },
+  { k: 'journey', n: '06', t: 'Life Journey', lead: 'Your emotional journey across the years: where strain appeared, where you steadied, and where you are now.' },
+];
+
+// Each chapter returns panels: [{ k, label, build() }]
+const PANELS = {
+  emotional(d) {
+    const slots = [
+      ['thrive', 'Thrive', 'What helps you thrive', 'Which emotion helps you thrive best?'],
+      ['drain', 'Drain', 'What drains your energy', 'Which emotion costs you the most energy?'],
+      ['visible', 'Visible', 'What others see', 'Which emotion keeps showing up?'],
+      ['deep', 'Deep down', 'What drives you deep down', 'What sits underneath the emotion that shows?'],
+    ].filter(([k]) => d[k] && d[k].emotion);
+    return slots.map(([k, label, kicker, q]) => ({ k, label, build() {
+      const s = d[k], w = add(el('div', 'emo'), K(kicker), el('p', 'q', q), el('div', 'big word', s.emotion), P(s.text));
+      if (s.also && s.also.length) add(w, add(el('div', 'chips'), s.also.map(a => el('span', 'chip', a))));
+      const detail = [block('The deeper read', s.deep), block('What this may mean', s.meaning), block('What to pay attention to', s.attention)].filter(Boolean);
+      if (detail.length) {
+        const b = add(el('button', 'more'), document.createTextNode('Read more'), icon(ARROW)); b.type = 'button';
+        b.onclick = () => openSheet(kicker, s.emotion, detail.map(n => n.cloneNode(true)), true);
+        add(w, b, add(el('div', 'sheetcopy'), detail.map(n => n.cloneNode(true))));
+      }
+      return w;
+    } })).concat(has(d.tones) ? [{ k: 'tone', label: 'Tone', build() {
+      return add(el('div'), K('Your tonal signature'), el('p', 'q', 'How your voice tends to land with people.'),
+        add(el('div', 'tones'), d.tones.map(t => add(el('article'), el('div', 'note', t.note || '·'), P(t.text, ' ')))));
+    } }] : []);
+  },
+  mind(d) {
+    const out = [];
+    const se = d.sensory;
+    if (se && (se.base && se.base.sense || se.next && se.next.sense)) out.push({ k: 'process', label: 'Process', build() {
+      const w = add(el('div'), K('Sensory attributes'), el('p', 'q', 'How do you take information in, and how do you work with it?'));
+      const stage = (lab, s, which) => {
+        const st = add(el('div', 'stage'), K(lab), el('h4', null, s.sense || '·'));
+        [['Sense', s.sense, s.text], ['Direction', s.direction, s.direction_text], ['Energy', s.energy, s.energy_text]].forEach(([t, v, txt]) => {
+          if (!v) return; const b = add(el('button', 'node'), el('span', 't', t), el('b', null, v), txt ? icon(CHEV) : null); b.type = 'button';
+          if (txt) b.onclick = () => openSheet(lab + ' · ' + t, v, [el('p', 'body', txt)]); else b.disabled = true;
+          st.append(b);
+        });
+        return st;
+      };
+      add(w, add(el('div', 'flow'), se.base && stage('First: take in', se.base), add(el('div', 'arrow'), icon(ARROW)), se.next && stage('Then: process', se.next)));
+      add(w, P(se.text));
+      return w;
+    } });
+    if (d.brain && (+d.brain.left || +d.brain.right)) out.push({ k: 'brain', label: 'Brain', build() {
+      const L = +d.brain.left || 0, Rr = +d.brain.right || 0, tot = (L + Rr) || 1, leadR = Rr >= L;
+      const w = add(el('div'), K('Brain activity'), el('p', 'q', 'Which side of your brain is leading?'), el('div', 'big', d.brain.label || (leadR ? 'Right-brain led' : 'Left-brain led')));
+      const h = el('div', 'hemi'), row = el('div', 'row');
+      add(row, add(el('div', 'side' + (leadR ? ' dim' : '')), K('Left'), el('div', 'num', String(L)), el('small', null, 'Structure, sequence, logic')),
+        add(el('div', 'side r' + (leadR ? '' : ' dim')), K('Right'), el('div', 'num', String(Rr)), el('small', null, 'Pattern, intuition, synthesis')));
+      const trk = el('div', 'trk' + (leadR ? '' : ' lead-l')), il = el('i', 'l'), ir = el('i', 'r');
+      il.style.width = '50%'; ir.style.width = '50%'; trk.append(il, ir);
+      requestAnimationFrame(() => requestAnimationFrame(() => { il.style.width = (L / tot * 100) + '%'; ir.style.width = (Rr / tot * 100) + '%'; }));
+      add(h, row, trk); add(w, h, K('What this suggests', true), P(d.brain.text), d.brain.line ? el('p', 'line', d.brain.line) : null);
+      return w;
+    } });
+    if (d.stress && (d.stress.value != null || d.stress.type)) out.push({ k: 'stress', label: 'Stress', build() {
+      const v = d.stress.value != null && d.stress.value !== '' ? +d.stress.value : null;
+      const w = add(el('div'), K('Stress level'), el('p', 'q', 'What kind of stress is your system carrying?'), el('div', 'big', d.stress.type || d.stress.band || ''));
+      if (v != null && isFinite(v)) {
+        const bands = [['Logical', 0, 6, '0–5'], ['Stable', 6, 12, '6–11'], ['Accumulated', 12, 20, '12–20'], ['Emotional', 20, 54, '20–54'], ['Extreme', 54, 90, '54+']];
+        const bi = Math.max(0, bands.findIndex(b => v < b[2]) < 0 ? 4 : bands.findIndex(b => v < b[2]));
+        const pos = (bi + Math.min(1, Math.max(0, (v - bands[bi][1]) / (bands[bi][2] - bands[bi][1])))) / 5 * 100;
+        const g = el('div', 'gauge'), val = add(el('div', 'val'), el('b', null, v.toFixed(2)), K(bands[bi][0] + ' range'));
+        const sc = el('div', 'scale'), lab = el('div', 'lab'), pin = add(el('div', 'pin'), el('span', null, 'You'));
+        pin.style.left = '0%'; sc.append(pin);
+        bands.forEach((b, i) => { sc.append(el('div', 'seg' + (i === bi ? ' on' : i < bi ? ' past' : ''))); const s = el('span', i === bi ? 'on' : '', b[0]); s.append(el('em', null, b[3])); lab.append(s); });
+        requestAnimationFrame(() => requestAnimationFrame(() => { pin.style.left = pos + '%'; }));
+        add(g, val, sc, lab); w.append(g);
+      }
+      add(w, P(d.stress.text));
+      if (d.stress.source) add(w, add(el('blockquote', 'src'), K('In EmoWave’s words'), el('p', null, d.stress.source)));
+      return w;
+    } });
+    return out;
+  },
+  social(d) {
+    const out = [];
+    if (d.archetype && d.archetype.name) out.push({ k: 'archetype', label: 'Archetype', build() {
+      const w = add(el('div'), K('Present character · how you show up'), el('div', 'big', d.archetype.name), el('p', 'sub', d.archetype.sub), P(d.archetype.text));
+      const rows = (d.perception || []).map(p => typeof p === 'string' ? { t: p } : p).filter(p => p.t);
+      if (rows.length || d.perception_summary) add(w, el('div', null), add(el('div', 'block'), K('How others may experience you', true), d.perception_summary ? el('p', null, d.perception_summary) : null), rows.length ? acc(rows.map(r => ({ t: r.t, d: r.d }))) : null);
+      return w;
+    } });
+    if (d.motivator && d.motivator.name) out.push({ k: 'motivator', label: 'Motivation', build() {
+      return add(el('div'), K('Real intention · what you are reaching for'), el('div', 'big', d.motivator.name), el('p', 'sub', d.motivator.sub), P(d.motivator.text), block('Driving force', d.motivator.force));
+    } });
+    if (has(d.leadership)) out.push({ k: 'leadership', label: 'Leadership', build() {
+      const w = add(el('div'), K('Leadership profile'), el('div', 'big', 'Seven dynamics'), d.leadership_summary ? P(d.leadership_summary) : null);
+      return add(w, acc(d.leadership.map(x => ({ t: x.t, sub: x.sub, d: x.d, level: x.level }))));
+    } });
+    return out;
+  },
+  negativity(d) {
+    const out = [];
+    if (d.core && d.core.name) out.push({ k: 'core', label: 'Core emotion', build() {
+      const w = add(el('div', 'emo'), K('Core emotion'), el('p', 'q', 'What may your system still be protecting?'), el('div', 'big word', d.core.name), P(d.core.text), block('What this may affect', d.core.affects));
+      if (has(d.core.cues)) add(w, add(el('div', 'block'), K('Awareness cues', true), add(el('div', 'cues'), d.core.cues.filter(c => c.t).map(c => add(el('div'), el('b', null, c.t), c.d ? el('p', null, c.d) : null)))));
+      return w;
+    } });
+    const pats = (d.patterns || []).filter(p => p.name);
+    if (pats.length) out.push({ k: 'patterns', label: 'Restrictive patterns', build() {
+      const w = add(el('div'), K('Restrictive patterns'), el('p', 'q', 'Past experiences can block present action. Tap a pattern.'));
+      if (printing) { pats.forEach(p => add(w, add(el('div', 'block'), K('Restrictive pattern', true), el('h3', null, p.name), p.summary ? el('p', null, p.summary) : null, el('p', null, p.text), p.notice ? el('p', 'line', p.notice) : null))); return w; }
+      const map = el('div', 'pmap'), s = svg('svg', { viewBox: '0 0 400 300', preserveAspectRatio: 'none', 'aria-hidden': 'true' }), det = el('div', 'pdetail');
+      const n = pats.length, lines = [], btns = [];
+      pats.forEach((p, i) => {
+        const a = -Math.PI / 2 + i * 2 * Math.PI / n, x = 50 + 32 * Math.cos(a), y = 50 + 38 * Math.sin(a);
+        const l = svg('line', { x1: 200, y1: 150, x2: x * 4, y2: y * 3 }); s.append(l); lines.push(l);
+        const b = el('button', 'pn', p.name); b.type = 'button'; b.style.left = x + '%'; b.style.top = y + '%'; b.setAttribute('aria-pressed', 'false');
+        b.onclick = () => pick(i); btns.push(b);
+      });
+      const pick = i => {
+        btns.forEach((b, j) => b.setAttribute('aria-pressed', String(i === j))); lines.forEach((l, j) => l.classList.toggle('on', i === j));
+        const p = pats[i]; det.replaceChildren(); det.style.animation = 'none'; void det.offsetWidth; det.style.animation = 'in .3s var(--ease)';
+        add(det, K('Restrictive pattern'), el('h3', null, p.name), p.summary ? el('p', 'sum', p.summary) : null, P(p.text), p.notice ? el('p', 'line', p.notice) : null);
+      };
+      add(map, s, el('div', 'core', 'What holds you back'), btns); add(w, map, det); pick(0);
+      return w;
+    } });
+    return out;
+  },
+  body(d) {
+    const pats = (d.patterns || []).filter(p => p.title);
+    if (!pats.length) return [];
+    return [{ k: 'patterns', label: 'Body patterns', build() {
+      const w = el('div'), det = el('div', 'bdetail');
+      const show = p => { det.replaceChildren(); det.style.animation = 'none'; void det.offsetWidth; det.style.animation = '';
+        add(det, K('Body pattern'), el('h3', null, p.title), p.interpretation ? el('p', 'int', p.interpretation) : null,
+          p.meaning ? K('What this may mean') : null, p.meaning ? el('p', null, p.meaning) : null,
+          p.asking ? K('What your body may be asking for') : null, p.asking ? el('p', null, p.asking) : null,
+          p.closing ? el('p', 'line', p.closing) : null); };
+      if (printing) { pats.forEach(p => { show(p); const c = det.cloneNode(true); c.style.marginBottom = '14px'; w.append(c); }); }
+      else {
+        const sel = el('div', 'bsel'); sel.setAttribute('role', 'tablist');
+        pats.forEach((p, i) => { const b = add(el('button'), el('span', null, p.title), icon(CHEV)); b.type = 'button'; b.setAttribute('role', 'tab'); b.setAttribute('aria-selected', String(i === 0));
+          b.onclick = () => { sel.querySelectorAll('button').forEach(x => x.setAttribute('aria-selected', String(x === b))); show(p); if (innerWidth < 900) det.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }; sel.append(b); });
+        show(pats[0]);
+        const left = add(el('div'), sel);
+        if (has(d.organs)) add(left, add(el('div', 'block'), K('Organ indicators', true), add(el('div', 'chips'), d.organs.map(o => el('span', 'chip', o)))));
+        add(w, add(el('div', 'bodygrid'), left, add(el('div'), el('div'), det)));
+      }
+      if (printing && has(d.organs)) add(w, add(el('div', 'block'), K('Organ indicators', true), add(el('div', 'chips'), d.organs.map(o => el('span', 'chip', o)))));
+      return w;
+    } }];
+  },
+  journey(d) {
+    const out = [];
+    const ages = d.ages || [], lv = (d.levels || []).map(Number);
+    const pts = ages.map((a, i) => ({ a: +a, l: lv[i] })).filter(p => isFinite(p.a) && p.l >= 1 && p.l <= 7);
+    const legacy = (d.points || []).filter(p => isFinite(p.age) && isFinite(p.level));
+    const chart = () => pts.length > 1 ? journeyChart(pts, +d.age) : legacy.length > 1 ? journeyChart(legacy.map(p => ({ a: +p.age, l: 1 + Math.round(+p.level / 10 * 6) })), 0) : null;
+    const markers = () => has(d.markers) ? (() => { const m = el('div', 'markers'); m.style.setProperty('--n', Math.min(4, d.markers.length)); d.markers.forEach(x => add(m, add(el('div'), K(x.label), el('b', null, x.value)))); return m; })() : null;
+    if (d.insight) out.push({ k: 'insight', label: 'Journey insight', build() { return add(el('div'), add(el('div', 'jcard'), K('Journey insight'), el('p', null, d.insight)), chart(), markers()); } });
+    if (d.meaning) out.push({ k: 'meaning', label: 'What this means', build() { return add(el('div'), add(el('div', 'jcard'), K('What this may mean'), el('p', null, d.meaning)), printing && d.insight ? null : chart(), printing && d.insight ? null : markers()); } });
+    if (!out.length && (pts.length > 1 || legacy.length > 1)) out.push({ k: 'graph', label: 'Journey', build() { return add(el('div'), chart(), markers()); } });
+    return out;
+  },
+};
+
+function acc(rows) {
+  const box = el('div', 'acc');
+  rows.forEach((r, i) => {
+    const it = el('div', 'it' + (r.d ? '' : ' plain')), hd = el('button', 'hd'); hd.type = 'button';
+    const name = add(el('span'), el('b', null, r.t), r.sub ? el('small', null, r.sub) : null);
+    let right = null;
+    if (r.level) { right = el('span', 'lvl ' + r.level); const dots = el('span', 'dots'); const n = { Low: 1, Good: 2, High: 3 }[r.level] || 0; for (let j = 0; j < 3; j++) dots.append(el('i', j < n ? 'f' : '')); add(right, dots, document.createTextNode(r.level)); }
+    const ic = r.d ? icon(PLUS) : null; if (ic) ic.classList.add('ic');
+    add(hd, el('span', 'n', String(i + 1).padStart(2, '0')), name, add(el('span', null), right, right && ic ? document.createTextNode(' ') : null));
+    if (ic) { hd.lastChild.style.cssText = 'display:flex;align-items:center;gap:12px'; hd.lastChild.append(ic); }
+    it.append(hd);
+    if (r.d) {
+      const bd = add(el('div', 'bd'), add(el('div'), el('p', null, r.d))); it.append(bd);
+      hd.setAttribute('aria-expanded', 'false');
+      hd.onclick = () => { const open = !it.classList.contains('open'); box.querySelectorAll('.it.open').forEach(x => { x.classList.remove('open'); x.firstChild.setAttribute('aria-expanded', 'false'); }); it.classList.toggle('open', open); hd.setAttribute('aria-expanded', String(open)); };
+    } else hd.tabIndex = -1;
+    box.append(it);
+  });
+  return box;
+}
+
+function journeyChart(pts, age) {
+  const W = innerWidth < 600 ? 380 : 640, H = innerWidth < 600 ? 230 : 260, L = 30, Rm = 14, T = 12, B = 34, n = pts.length;
+  const X = i => L + i * (W - L - Rm) / (n - 1), Y = l => T + (7 - l) * (H - T - B) / 6;
+  const col = l => l >= 6 ? 'var(--err)' : l >= 4 ? 'var(--mid)' : 'var(--ok)';
+  const wrap = el('div', 'jchart'), s = svg('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Life journey: ' + pts.map(p => 'age ' + p.a + ' level ' + p.l).join(', ') });
+  const clampY = y => Math.max(T - 6, Math.min(H - B + 6, y));
+  [[5.5, 7.5, 'var(--err-bg)'], [3.5, 5.5, 'var(--mid-bg)'], [0.5, 3.5, 'var(--ok-bg)']].forEach(([lo, hi, f]) => { const y1 = clampY(Y(hi)), y2 = clampY(Y(lo)); s.append(svg('rect', { x: L, y: y1, width: W - L - Rm, height: y2 - y1, fill: f })); });
+  for (let l = 1; l <= 7; l++) { s.append(svg('line', { x1: L, x2: W - Rm, y1: Y(l), y2: Y(l), stroke: 'var(--hair)', 'stroke-width': .6, 'stroke-dasharray': '2 4' })); const t = svg('text', { x: L - 12, y: Y(l) + 3.5, 'text-anchor': 'end' }); t.textContent = l; s.append(t); }
+  if (age > 0) { const half = age / 2; const i = pts.findIndex(p => p.a >= half); if (i > 0) { const x = (X(i - 1) + X(i)) / 2; s.append(svg('line', { x1: x, x2: x, y1: T - 4, y2: H - B + 4, stroke: 'var(--navy)', 'stroke-width': 1, 'stroke-dasharray': '4 4' })); } }
+  const d = pts.map((p, i) => (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(p.l).toFixed(1)).join(' ');
+  const path = svg('path', { d, class: 'ln' }); s.append(path);
+  pts.forEach((p, i) => {
+    s.append(svg('circle', { cx: X(i), cy: Y(p.l), r: i === n - 1 ? 6.5 : 5, fill: col(p.l), class: 'dot', style: `transition-delay:${(0.2 + i * 1.5 / n).toFixed(2)}s` }));
+    const t = svg('text', { x: X(i), y: H - B + 20, 'text-anchor': 'middle' }); t.textContent = p.a; s.append(t);
+  });
+  const nowT = svg('text', { x: X(n - 1), y: Y(pts[n - 1].l) - 13, 'text-anchor': 'middle', style: 'font-weight:600;fill:var(--ink);letter-spacing:.1em' }); nowT.textContent = 'NOW'; s.append(nowT);
+  const ax = svg('text', { x: (L + W - Rm) / 2, y: H - 2, 'text-anchor': 'middle', style: 'letter-spacing:.16em' }); ax.textContent = 'AGE · CHILDHOOD TO NOW'; s.append(ax);
+  add(wrap, K('Imprint level'), el('div', null), s, add(el('div', 'legend'), ...[['var(--ok)', 'Constructive · gaining energy'], ['var(--mid)', 'Mixed'], ['var(--err)', 'Restrictive · losing energy']].map(([c, t]) => { const sp = el('span'); const i = el('i'); i.style.background = c; add(sp, i, document.createTextNode(t)); return sp; })));
+  wrap.firstChild.style.marginBottom = '12px';
+  requestAnimationFrame(() => { try { path.style.setProperty('--len', Math.ceil(path.getTotalLength())); } catch (_) { path.style.setProperty('--len', 2000); } requestAnimationFrame(() => obs(wrap)); });
+  return wrap;
+}
+const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('on'); io.unobserve(e.target); } }), { threshold: .12 }) : null;
+const obs = n => io ? io.observe(n) : n.classList.add('on');
+
+// ---------- overview ----------
+function overview() {
+  const s = R.synthesis || {}, m = R.meta || {};
+  const w = el('section', 'chapter');
+  const meta = add(el('div', 'meta'), who.first_name ? K('Prepared for ' + who.first_name) : null, R.published_at ? K('Released ' + new Date(R.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })) : null, m.ref ? K(m.ref) : null);
+  add(w, add(el('div', 'hero'), add(el('div'), K('Your voice report'), el('h1', null, s.headline || 'Six chapters. One operating map.')),
+    add(el('div', 'side'), el('p', 'lead', s.intro || 'Your voice, your words and your context are read across six layers. The value is not one score. It is the relationship between the signals.'), el('div', null), meta)));
+  meta.style.marginTop = '18px';
+  if (has(s.signals)) add(w, el('div', null), add(el('div', 'block'), K('Executive synthesis', true), el('p', 'q', 'The pattern is not one score.')),
+    add(el('div', 'signals'), s.signals.filter(x => x.label || x.value).map(x => add(el('article'), K(x.label), el('strong', null, x.value), x.strength ? el('small', null, x.strength) : null))));
+  if (s.read || s.changes) add(w, add(el('div', 'split'), s.read ? add(el('div', 'block'), K('Cross-layer read', true), el('p', null, s.read)) : null, s.changes ? add(el('div', 'block'), K('What this changes', true), el('p', null, s.changes)) : null));
+  add(w, add(el('div', 'layers'), ...[['Acoustic layer', 'What the voice is doing.', 'Pitch, variation, intensity, pace and resonance, read for patterns across your recording.'], ['Emotional layer', 'What the emotions are doing.', 'Which emotions carry you, which cost you, and which sit underneath, read from the tonal signature.'], ['Human layer', 'What it means for you.', 'Read alongside your situation, history and goals. The technology adds signal. It does not replace judgement.']].map(([a, b, c]) => add(el('article'), K(a), el('h3', null, b), el('p', null, c)))));
+  if (has(s.questions)) add(w, add(el('div', 'block'), K('Questions we will work on together', true), add(el('ol', 'qs'), s.questions.map(q => el('li', null, q)))));
+  const avail = CH.slice(1).filter(c => panelsFor(c.k).length);
+  if (avail.length && !printing) add(w, add(el('div', 'block'), K('The chapters', true), add(el('ul', 'toc'), avail.map(c => { const li = el('li'), b = add(el('button'), el('span', 'n', c.n), add(el('span'), el('b', null, c.t), el('span', 'd', c.lead)), icon(ARROW)); b.type = 'button'; b.onclick = () => go(c.k); li.append(b); return li; }))));
+  add(w, el('p', 'disc', 'Voice analysis is an additional signal layer, not a diagnosis or a verdict. Treat each finding as a pattern to test during the programme. Nothing here replaces advice from a qualified medical or mental-health professional.'));
+  return w;
+}
+
+// ---------- routing ----------
+let panelState = {};
+const panelsFor = k => { const d = R[k]; return d && PANELS[k] ? PANELS[k](d) : []; };
+function chapter(c, all) {
+  if (c.k === 'overview') return overview();
+  const ps = panelsFor(c.k), w = el('section', 'chapter');
+  add(w, add(el('div', 'hero'), add(el('div'), K('Chapter ' + c.n), el('h1', null, c.t)), add(el('div', 'side'), el('p', 'lead', c.lead))));
+  if (!ps.length) { add(w, el('p', 'body', 'This chapter will appear here once it has been written.')); return w; }
+  if (all) { ps.forEach(p => { const pn = add(el('div', 'panel'), el('p', 'k panel-title', p.label)); pn.append(p.build()); w.append(pn); }); }
+  else {
+    const holder = el('div');
+    if (ps.length > 1) {
+      const pills = el('div', 'pills'); pills.setAttribute('role', 'tablist');
+      const cur = ps.find(p => p.k === panelState[c.k]) ? panelState[c.k] : ps[0].k;
+      ps.forEach(p => { const b = el('button', null, p.label); b.type = 'button'; b.setAttribute('role', 'tab'); b.setAttribute('aria-selected', String(p.k === cur));
+        b.onclick = () => { panelState[c.k] = p.k; pills.querySelectorAll('button').forEach(x => x.setAttribute('aria-selected', String(x === b))); paint(p); }; pills.append(b); });
+      w.append(pills);
+      const paint = p => { holder.replaceChildren(add(el('div', 'panel'), p.build())); };
+      paint(ps.find(p => p.k === cur));
+    } else holder.append(add(el('div', 'panel'), ps[0].build()));
+    w.append(holder);
+  }
+  const t = (R[c.k] || {}).test; if (t) add(w, add(el('div', 'test'), K('Test it this month'), el('p', null, t)));
+  if (!all) {
+    const list = CH.filter(x => x.k === 'overview' || panelsFor(x.k).length), i = list.findIndex(x => x.k === c.k), nx = list[i + 1];
+    const b = add(el('button', 'next'), add(el('span'), K(nx ? 'Next · Chapter ' + nx.n : 'Back to the start'), el('b', null, nx ? nx.t : 'Your report')), icon(ARROW)); b.type = 'button';
+    b.onclick = () => go(nx ? nx.k : 'overview'); w.append(b);
+  }
+  return w;
+}
+function notesView(kind) {
+  const n = R.notes || {}, text = kind === 'notes' ? n.session : n.recommendations;
+  const w = el('section', 'chapter');
+  if (!text) {
+    const mk = el('div', 'mark'); mk.append(icon('M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1'));
+    return add(w, add(el('div', 'empty'), mk, el('h2', null, kind === 'notes' ? 'Session notes' : 'Recommendations'), el('p', 'muted', kind === 'notes' ? 'Your private notes from our live session will appear here afterwards.' : 'Your personal recommendations will appear here after our session.')));
+  }
+  add(w, add(el('div', 'hero'), add(el('div'), K(kind === 'notes' ? 'After our session' : 'What to do next'), el('h1', null, kind === 'notes' ? 'Session notes' : 'Recommendations'))));
+  const pr = el('div', 'prose'); String(text).split(/\n{2,}|\n(?=[-•])/).forEach(par => { par = par.trim(); if (par) pr.append(el('p', null, par)); }); w.append(pr);
+  return w;
+}
+function go(k, keepScroll) { if (location.hash.slice(1) !== k) history.pushState(null, '', '#' + k); route(keepScroll); }
+function route(keepScroll) {
+  const h = location.hash.slice(1) || 'overview';
+  const view = h === 'notes' || h === 'recs' ? h : 'report';
+  document.querySelectorAll('#views button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.v === view)));
+  $('chapters').hidden = view !== 'report';
+  const main = $('main'); main.replaceChildren();
+  if (view !== 'report') main.append(notesView(view));
+  else {
+    const c = CH.find(x => x.k === h) || CH[0];
+    document.querySelectorAll('#chapterTabs button').forEach(b => { const on = b.dataset.k === c.k; b.setAttribute('aria-selected', String(on)); if (on) b.scrollIntoView({ block: 'nearest', inline: 'center', behavior: keepScroll ? 'auto' : 'smooth' }); });
+    main.append(chapter(c));
+    document.title = (c.k === 'overview' ? 'Your voice report' : c.t) + ' | Maktoub';
+  }
+  if (!keepScroll) scrollTo({ top: 0 });
+}
+
+// ---------- sheet ----------
+let lastFocus = null;
+function openSheet(label, titleText, nodes) {
+  lastFocus = document.activeElement;
+  const b = $('sheetBody'); b.replaceChildren(K(label), (() => { const h = el('h2', 'word', titleText); h.id = 'sheetTitle'; return h; })(), ...nodes);
+  $('sheet').classList.add('on'); $('scrim').classList.add('on'); document.body.style.overflow = 'hidden'; $('sheet').focus();
+}
+function closeSheet() { $('sheet').classList.remove('on'); $('scrim').classList.remove('on'); document.body.style.overflow = ''; if (lastFocus) lastFocus.focus(); }
+$('scrim').onclick = closeSheet; $('sheetX').onclick = closeSheet;
+addEventListener('keydown', e => { if (e.key === 'Escape' && $('sheet').classList.contains('on')) closeSheet(); });
+
+// ---------- print ----------
+function buildPrint() {
+  printing = true; const p = $('print'); p.replaceChildren();
+  CH.filter(c => c.k === 'overview' || panelsFor(c.k).length).forEach(c => p.append(chapter(c, true)));
+  ['notes', 'recs'].forEach(k => { if ((R.notes || {})[k === 'notes' ? 'session' : 'recommendations']) p.append(notesView(k)); });
+  printing = false;
+}
+addEventListener('beforeprint', () => R && buildPrint());
+$('printBtn').onclick = () => { buildPrint(); print(); };
+
+// ---------- boot ----------
+function gate(e) {
+  const g = add(el('div', 'gate'), K('Maktoub'), el('h1', null, e.title || 'We could not open your report.'), el('p', null, e.message));
+  if (e.portal || /private link/.test(e.title || '')) { const a = el('a', 'btn', 'Go to your portal'); a.href = '/ready/'; g.append(a); }
+  $('main').replaceChildren(g);
+}
+async function start() {
+  try {
+    const d = await getData(); R = d.report; who = d.who || {};
+    $('who').textContent = [who.first_name, who.reference].filter(Boolean).join(' · ');
+    if (!new URLSearchParams(location.search).has('preview')) { const a = el('a', null, 'Portal'); a.href = '/ready/'; $('who').append(a); }
+    const tabs = $('chapterTabs');
+    CH.filter(c => c.k === 'overview' || panelsFor(c.k).length).forEach(c => { const b = el('button'); b.type = 'button'; b.dataset.k = c.k; b.setAttribute('role', 'tab'); if (c.n) b.append(el('span', 'n', c.n)); b.append(document.createTextNode(c.short || c.t)); b.onclick = () => go(c.k); tabs.append(b); });
+    document.querySelectorAll('#views button').forEach(b => b.onclick = () => go(b.dataset.v === 'report' ? 'overview' : b.dataset.v));
+    $('views').hidden = false; $('foot').hidden = false;
+    addEventListener('popstate', () => route());
+    route(true);
+  } catch (e) { gate(e); }
+}
+
+// ---------- sample (fictional) ----------
+function SAMPLE() {
+  return {
+    meta: { name: 'Sample client', source: 'EmoWave Full', ref: 'SAMPLE' },
+    synthesis: { headline: 'Six chapters. One operating map.', signals: [{ label: 'Dominant processing', value: 'Seeing-led, right-brain', strength: 'High signal' }, { label: 'Stress signature', value: 'Emotional stress · 24.10', strength: 'High signal' }, { label: 'Public / private delta', value: 'Leader outside, Nurturer inside', strength: 'Moderate signal' }, { label: 'Current trajectory', value: 'Mixed, load easing', strength: 'Cross-chapter signal' }],
+      read: 'Outwardly you lead with drive and decisiveness, while what you are really reaching for is care and belonging. You take the world in visually and process with a right-brain bias, so you often know before you can explain. Your stress reads as emotional rather than task-based.',
+      changes: 'We do not start from "what is wrong". We start from the biggest gap between how you feel inside, how you act outside, and the outcome you want.',
+      questions: ['Where is "proving" costing you most right now?', 'What would self-management look like if it were as strong as your purpose?', 'What changed when the load started easing, and how do you keep choosing it?'] },
+    emotional: { thrive: { emotion: 'Joy', text: 'Joy is your fuel. When it is present your energy multiplies and others feel it.', also: ['Trust'], deep: 'Alongside joy, trust also registers as empowering for you. You thrive where you can trust and be trusted.' }, drain: { emotion: 'Fear', text: 'Fear drains you most when it is anticipating rather than responding.', also: ['Anger'] }, visible: { emotion: 'Resolve', text: 'This is the emotion that keeps showing up, and the one people around you are most likely to notice.' }, deep: { emotion: 'Sadness', text: 'This is the stronger emotion underneath the one that shows. Unprocessed sadness quietly lowers your energy.' }, tones: [{ note: 'A', text: 'Warm, direct and energising. Can be impatient when things move slowly.' }, { note: 'E', text: 'Thoughtful and steady. Likes depth over small talk.' }], test: 'Each evening this week, name the emotion that carried you and the one that cost you. Nothing else.' },
+    mind: { sensory: { base: { sense: 'Seeing', direction: 'Outward', energy: 'Extrovert', text: 'You take the world in visually first: pictures, layout and what is in front of you.', direction_text: 'Your attention moves out toward people and the environment.', energy_text: 'Energy comes from engagement.' }, next: { sense: 'Feeling', direction: 'Inward', energy: 'Introvert', text: 'You make sense of things by checking how they sit with you.', direction_text: 'Your attention turns inward.', energy_text: 'Energy comes from quiet.' }, text: 'You take information in through seeing first, then process it through feeling. People may see the outgoing first half and miss how much quiet you need for the second.' },
+      brain: { left: 402, right: 1096, label: 'Right-brain led', text: 'Your right hemisphere appears to lead. You absorb broadly and synthesise before you can break things into steps.', line: 'You may understand the whole before you can explain the steps.' },
+      stress: { value: 24.1, band: 'Emotional', type: 'Emotional stress', text: 'Your stress appears to be emotional rather than task-based. You may be carrying atmosphere and other people’s signals that have not had space to be processed.' } },
+    social: { archetype: { name: 'Leader', sub: 'Drive, Decisiveness', text: 'Takes charge, moves quickly and sets direction for others.' }, motivator: { name: 'Nurturer', sub: 'Care, Belonging', text: 'Underneath the drive, wants people to feel looked after.', force: 'Outwardly you lead as the Leader; underneath, what you are really reaching for is the Nurturer’s care and belonging.' },
+      perception_summary: 'Others may first meet the qualities below.', perception: [{ t: 'Decisive under pressure' }, { t: 'Generous with time' }, { t: 'Sets a clear standard' }],
+      leadership: [['Purpose', 'Values, Passion, Purpose', 'High'], ['Self-awareness', 'Insights to Beliefs', 'Good'], ['Self-development', 'Knowledge to Communicate', 'High'], ['Self-management', 'Relationships to Love', 'Low'], ['Self-belief', 'Willpower to Wealth', 'Good'], ['Self-esteem', 'Belonging to Pleasure', 'Low'], ['Being', 'Experience to Foundation', 'Good']].map(([t, sub, level]) => ({ t, sub, level, d: level === 'High' ? 'A clear strength to build from.' : level === 'Low' ? 'An area that may need more conscious support right now.' : 'Present and developing.' })),
+      leadership_summary: 'Strong in purpose and self-development, with more development needed in self-management and self-esteem.' },
+    negativity: { core: { name: 'Fear of not being enough', text: 'Your drive may be quietly powered by a fear of falling short.', affects: 'How much rest you allow yourself, and whether praise lands.', cues: [{ t: 'Over-preparing', d: 'Doing three times the work to feel safe.' }, { t: 'Deflecting praise', d: 'Moving on before it can land.' }] },
+      patterns: [{ name: 'Proving', summary: 'Worth feels like something to earn.', text: 'Always trying to prove yourself.', notice: 'Notice who you are still trying to convince.' }, { name: 'Perfectionist', summary: 'Mistakes feel dangerous.', text: 'Polishing replaces progress.', notice: 'Notice where waiting for the perfect version is a form of hiding.' }, { name: 'Guarded', summary: 'Distance feels safer than being known.', text: 'Keeps the walls up.', notice: 'Notice the moment you decide to hold something back.' }, { name: 'Overthinker', summary: 'Analysis can become a way of not deciding.', text: 'Runs every outcome.', notice: 'Notice how much energy goes on "what if".' }] },
+    body: { patterns: [{ title: 'Overstimulated nervous system', interpretation: 'Your system may be taking in more than it can settle.', meaning: 'Insufficient own space. Always trying to prove yourself.', asking: 'More protected space, fewer demands, and permission to stop proving.', closing: 'A radio tuned to every station at once.' }, { title: 'Endocrine stress', interpretation: 'Your inner authority may be handed outward.', meaning: 'When there is stress, there is imbalance.', asking: 'Your own rhythm back.', closing: 'A body waiting for permission that only you can give.' }], organs: ['Liver', 'Stomach'] },
+    journey: { age: 36, ages: [4, 6, 8, 11, 13, 15, 18, 22, 25, 29, 32, 36], levels: [2, 3, 6, 7, 6, 4, 3, 2, 3, 5, 4, 3], markers: [{ label: 'Hardest period', value: 'Age 8–13' }, { label: 'Steadiest period', value: 'Age 18–25' }, { label: 'Now', value: 'Gaining energy, load easing' }], insight: 'The strongest strain registers at age 8–13, followed by a long constructive stretch at age 18–25. In recent years the load has been easing.', meaning: 'The direction is toward steadier ground. The work is to understand what changed so you can keep choosing it on purpose.' },
+    notes: {},
+  };
+}
+
+start();
+})();
+</script>
+</body>
+</html>
