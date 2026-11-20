@@ -273,6 +273,7 @@ function drawDetail() {
   if (intake.weight_kg && intake.height_cm) det.append(el('p', 'BMI (indicative only): ' + (intake.weight_kg / Math.pow(intake.height_cm / 100, 2)).toFixed(1), 'msg'));
   box.append(det);
 
+  if ((detail.assessments || []).length) box.append(assessmentView(detail.assessments, detail.instruments || {}));
   if (['requested', 'payment_reported', 'paid', 'included'].includes(r.voice_addon_status)) box.append(reportBuilder(report, r));
 
   const c = el('details'); c.append(el('summary', 'Consents (' + (consents || []).length + ')'));
@@ -280,6 +281,26 @@ function drawDetail() {
   const ev = el('details'); ev.append(el('summary', 'Audit trail (' + (events || []).length + ')'));
   (events || []).forEach(x => { const d = el('div', when(x.created_at) + ' · ' + x.actor + ' · ' + x.action + (Object.keys(x.detail || {}).length ? ' · ' + JSON.stringify(x.detail) : '')); d.style.fontSize = '13px'; ev.append(d); });
   box.append(c, ev);
+}
+
+// ---------- assessment results (founder only) ----------
+function assessmentView(list, ins) {
+  const d = el('details'); d.open = list.some(a => a.completed_at);
+  d.append(el('summary', 'Assessments (' + list.filter(a => a.completed_at).length + ' of ' + list.length + ' completed)'));
+  list.forEach(a => {
+    const I = ins[a.kind] || { name: a.kind, scales: {}, max: 5 };
+    const c = el('div', null, 'rb-sec'); c.append(el('h3', I.name + ' · ' + (a.completed_at ? 'completed ' + when(a.completed_at) : 'in progress, ' + (a.answers || []).filter(x => x != null).length + ' answered, last saved ' + when(a.saved_at))));
+    if (a.scores) Object.entries(I.scales).forEach(([k, label]) => {
+      const v = a.scores[k], row = el('div'); row.style.cssText = 'display:grid;grid-template-columns:150px 1fr 44px;gap:10px;align-items:center;font-size:13.5px;padding:4px 0';
+      const trk = el('div'); trk.style.cssText = 'height:8px;background:#ece7de;position:relative';
+      const f = el('div'); f.style.cssText = `position:absolute;left:0;top:0;bottom:0;width:${((v - 1) / (I.max - 1) * 100).toFixed(1)}%;background:var(--navy)`;
+      const mid = el('div'); mid.style.cssText = 'position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--muted)';
+      trk.append(f, mid); row.append(el('span', label), trk, el('b', v.toFixed(2))); c.append(row);
+    });
+    if (a.scores) { const n = el('p', 'Mean per scale, 1 to ' + I.max + '. The line marks the scale midpoint, not a norm.'); n.style.cssText = 'font-size:12px;color:var(--muted);margin:6px 0 0'; c.append(n); }
+    d.append(c);
+  });
+  return d;
 }
 
 // ---------- voice report builder ----------
@@ -298,7 +319,7 @@ const RS = [
   { k: 'negativity', title: '04 Negativity', f: [IMG(), ['core.name', 'text', 'Your own reading (optional; e.g. Fear of betrayal; leave empty to hide)'], ['core.text', 'long', 'Core · reading'], ['core.affects', 'long', 'What this may affect'], ['core.cues', 'list', 'Awareness cues', [['t', 'Cue'], ['d', 'Description', 'long']]], ['patterns', 'list', 'Top 5 restrictive attributes', [['name', 'Short name (for the map)'], ['text', 'EmoWave wording', 'long'], ['summary', 'Your one line (optional)'], ['notice', 'Your notice cue (optional)', 'long']]], ['test', 'long', 'Test it this month']] },
   { k: 'body', title: '05 Mind and body', f: [IMG(), ['patterns', 'list', 'Wellness challenges', [['title', 'Wellness'], ['meaning', 'EmoWave description', 'long'], ['interpretation', 'Your reading (optional)', 'long'], ['asking', 'What it may be asking for (optional)', 'long'], ['closing', 'Closing line (optional)']]], ['organs', 'lines', 'Organ indicators (one per line)'], ['test', 'long', 'Test it this month']] },
   { k: 'journey', title: '06 Life journey', f: [IMG(), ['@grid'], ['markers', 'list', 'Markers', [['label', 'Label'], ['value', 'Value']]], ['insight', 'long', 'Journey insight'], ['meaning', 'long', 'What this may mean'], ['test', 'long', 'Test it this month']] },
-  { k: 'notes', title: 'Session notes and recommendations (after the session)', f: [['session', 'long', 'Session notes'], ['recommendations', 'long', 'Recommendations']] },
+  { k: 'notes', title: 'Session notes and recommendations', f: [['booking_url', 'text', 'Booking link for the 60–90 minute review (Google Calendar appointment page; leave empty to use the default)'], ['session', 'long', 'Session notes (after the session)'], ['tests', 'checks', 'Assessments the client takes in their report', [['six_factor', 'Six-factor personality (HEXACO model)'], ['dark_triad', 'Dark Triad']]], ['recommendations', 'long', 'Recommendations']] },
 ];
 const SUGGEST = { em: Object.keys((window.MaktoubEmowave || { LIB: { EMO: {} } }).LIB.EMO) };
 const getP = (o, p) => p.split('.').reduce((a, k) => a == null ? undefined : a[k], o);
@@ -337,7 +358,7 @@ function reportBuilder(report, r) {
       const raw = await E.extract(lib, new Uint8Array(await f.arrayBuffer()));
       const keepNotes = model.notes, j = model.journey || {};
       model = E.compose(raw, { fileName: f.name, age: j.age, levels: j.levels });
-      if (keepNotes) model.notes = keepNotes;
+      if (keepNotes) model.notes = { ...model.notes, ...keepNotes };
       const got = [raw.stress && 'stress ' + raw.stress.value, raw.brain && 'brain ' + raw.brain.left + '/' + raw.brain.right, raw.present && raw.present.name, (raw.leadership || []).length + ' dynamics', (raw.restrictive || []).length + ' restrictive', (raw.wellness || []).length + ' wellness'].filter(Boolean);
       impMsg.textContent = 'Imported ' + (model.meta.name || f.name) + (model.meta.date ? ' (' + model.meta.date + ')' : '') + ': ' + got.join(', ') + '. ' + raw.warnings.join(' ');
       build();
@@ -410,6 +431,12 @@ function reportBuilder(report, r) {
       return out;
     }
     let x;
+    if (type === 'checks') {
+      const box = el('div'); const cur = () => getP(model, full) || [];
+      extra.forEach(([v, l]) => { const row = el('label'); row.style.cssText = 'display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:14px;color:var(--ink);font-weight:400';
+        const c = inp('checkbox'); c.style.width = 'auto'; c.checked = cur().includes(v); c.onchange = () => setP(model, full, c.checked ? [...new Set([...cur(), v])] : cur().filter(x => x !== v)); row.append(c, document.createTextNode(l)); box.append(row); });
+      out.push(box); return out;
+    }
     if (type === 'select') {
       x = el('select'); [['', 'Automatic'], ...extra].forEach(([v, l]) => { const o = el('option', l); o.value = v; o.selected = (getP(model, full) || '') === v; x.append(o); });
       x.onchange = () => setP(model, full, x.value); out.push(x); return out;

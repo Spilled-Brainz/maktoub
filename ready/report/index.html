@@ -261,6 +261,36 @@ blockquote.src .k{margin-bottom:6px}
 .prose{max-width:68ch;padding-top:clamp(28px,5vw,48px)}
 .prose p{font-size:17.5px;line-height:1.7;color:var(--ink-2)}
 
+/* booking */
+.book{margin-top:clamp(28px,5vw,48px);border-top:1px solid var(--ink);padding-top:16px}
+.calframe{margin:18px 0 6px;border:1px solid var(--hair);background:var(--white)}
+.calframe iframe{display:block;width:100%;height:640px;border:0}
+.cta{display:inline-flex;align-items:center;gap:12px;background:var(--ink);color:var(--paper);text-decoration:none;padding:15px 22px;font-size:12px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;margin-top:14px}
+.cta svg{width:16px;height:16px}.cta:disabled{opacity:.5}
+/* assessments */
+.tests{display:grid;gap:14px;margin-top:14px}
+@media(min-width:860px){.tests{grid-template-columns:1fr 1fr}}
+.test-card{background:var(--card);border:1px solid var(--hair);padding:22px;display:flex;flex-direction:column;gap:6px}
+.test-card h3{font-size:clamp(24px,3vw,30px);font-weight:500;letter-spacing:-.02em;margin:4px 0 4px}
+.test-card p{font-size:15.5px;color:var(--ink-2);margin:0}
+.test-card .meta{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--smoke);margin-top:8px}
+.test-card .meta .ok{color:var(--ok);font-weight:600}
+.test-card .cta{align-self:flex-start}
+.quiz{position:fixed;inset:0;z-index:70;background:var(--paper);display:flex;flex-direction:column;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+.qtop{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px var(--pad)}
+.qtop .x{font-size:11px;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--ink)}
+.qbar{height:3px;background:var(--paper-2)}.qbar i{display:block;height:100%;width:0;background:var(--navy);transition:width .4s var(--ease)}
+.qbody{flex:1;overflow:auto;padding:clamp(28px,7vw,72px) var(--pad);max-width:760px;width:100%;margin:0 auto;animation:in .3s var(--ease)}
+.qbody h2{font-size:clamp(30px,5vw,48px);font-weight:500;letter-spacing:-.03em;line-height:1.08;margin:10px 0 24px}
+.qbody h2.stmt{font-family:var(--serif);font-weight:400;letter-spacing:-.015em}
+.likert{display:grid;gap:8px}
+.opt{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:14px 16px;border:1px solid var(--hair);background:var(--card);font-size:16px;transition:background .15s,border-color .15s}
+.opt .n{width:26px;height:26px;border-radius:50%;border:1px solid var(--grey);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--smoke);flex-shrink:0}
+.opt:hover{border-color:var(--ink)}
+.opt[aria-checked=true]{background:var(--ink);color:var(--paper);border-color:var(--ink)}.opt[aria-checked=true] .n{border-color:var(--paper);color:var(--paper)}
+.qnav{display:flex;justify-content:space-between;margin-top:18px}
+.qback{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--smoke);padding:8px 0}.qback:disabled{opacity:.3}
+.qmsg{font-size:14px;color:var(--err);min-height:20px;margin-top:12px}
 /* sheet */
 .scrim{position:fixed;inset:0;background:rgba(17,17,17,.38);z-index:60;opacity:0;pointer-events:none;transition:opacity .3s}
 .scrim.on{opacity:1;pointer-events:auto}
@@ -318,7 +348,9 @@ footer button{font-size:11px;letter-spacing:.1em;text-transform:uppercase;border
 <nav class="chapters" id="chapters" hidden aria-label="Chapters"><div class="in" role="tablist" id="chapterTabs"></div></nav>
 <main id="main"><div class="gate" id="gate"><div class="spin" aria-hidden="true"></div><p style="margin-top:18px">Opening your report…</p></div></main>
 <div id="print"></div>
+<script src="/ready/report/assessments.js"></script>
 <footer id="foot" hidden><span id="footText">A signal layer to explore during the programme. Not a diagnosis.</span><button id="printBtn" type="button">Save as PDF</button></footer>
+<div class="quiz" id="quiz" hidden role="dialog" aria-modal="true" aria-labelledby="quizName"><div class="qtop"><span class="k" id="quizName"></span><span class="k" id="quizCount"></span><button class="x" id="quizClose" type="button">Save and close</button></div><div class="qbar"><i id="quizBar"></i></div><div class="qbody" id="quizBody"></div></div>
 <div class="scrim" id="scrim"></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" tabindex="-1"><div class="grab"></div><button class="x" id="sheetX" type="button">Close</button><div id="sheetBody"></div></div>
 
@@ -327,6 +359,9 @@ footer button{font-size:11px;letter-spacing:.1em;text-transform:uppercase;border
 'use strict';
 const API = 'https://pmjvpnqmklxxpswwvbmv.supabase.co/functions/v1/maktoub-programme';
 const KEY = 'maktoub_ready', PREVIEW_KEY = 'maktoub_report_preview';
+// Google Calendar appointment page for the report review (60–90 minutes). A report can override it (notes.booking_url).
+const BOOKING_URL = '';
+let TOKEN = null, LIVE = false, ASSESS = {};
 const $ = id => document.getElementById(id);
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null && text !== '') e.textContent = text; return e; };
 const add = (parent, ...kids) => { kids.flat().forEach(k => k && parent.append(k)); return parent; };
@@ -357,7 +392,7 @@ async function getData() {
     return { report: SAMPLE(), who: { first_name: 'Sample client', reference: 'SAMPLE' } };
   }
   const q = (params.get('invite') || '').trim().toLowerCase();
-  let token = null;
+  let token = null; LIVE = true;
   try { if (q) { localStorage.setItem(KEY, q); sessionStorage.setItem(KEY, q); } token = q || sessionStorage.getItem(KEY) || localStorage.getItem(KEY); } catch (_) { token = q || null; }
   if (q) history.replaceState(null, '', location.pathname + location.hash);
   if (!token) throw Object.assign(new Error('This report opens from the private link Maktoub sent you. Open that link once on this device and your report will be here.'), { title: 'Please open your private link.' });
@@ -365,6 +400,7 @@ async function getData() {
   const j = await r.json().catch(() => ({}));
   if (!r.ok) throw Object.assign(new Error(j.error || 'Please try again in a moment.'), { title: r.status === 401 ? 'This link is no longer active.' : 'We could not open your report.' });
   if (!j.report) throw Object.assign(new Error('Your voice report appears here once it has been written and released. We will let you know.'), { title: 'Your report is being prepared.', portal: true });
+  TOKEN = token; (j.assessments || []).forEach(a => { ASSESS[a.kind] = a; });
   return { report: j.report, who: { first_name: j.first_name, reference: j.reference } };
 }
 
@@ -656,17 +692,107 @@ function chapter(c, all) {
   }
   return w;
 }
-function notesView(kind) {
-  const n = R.notes || {}, text = kind === 'notes' ? n.session : n.recommendations;
-  const w = el('section', 'chapter');
-  if (!text) {
-    const mk = el('div', 'mark'); mk.append(icon('M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1'));
-    return add(w, add(el('div', 'empty'), mk, el('h2', null, kind === 'notes' ? 'Session notes' : 'Recommendations'), el('p', 'muted', kind === 'notes' ? 'Your private notes from our live session will appear here afterwards.' : 'Your personal recommendations will appear here after our session.')));
+const prose = text => { const pr = el('div', 'prose'); String(text).split(/\n{2,}|\n(?=[-•])/).forEach(par => { par = par.trim(); if (par) pr.append(el('p', null, par)); }); return pr; };
+function bookingBlock(follow) {
+  const url = (R.notes || {}).booking_url || BOOKING_URL;
+  const box = add(el('div', 'book'), K(follow ? 'Book a follow-up' : 'Book your report review', true),
+    el('p', 'q', follow ? 'Book another session to go deeper.' : 'An hour to an hour and a half together, going through your report and your recommendations.'));
+  if (!url) { add(box, el('p', 'body', 'Your booking link will appear here. Reply to the message that brought you here and we will find a time.')); return box; }
+  if (/calendar\.google\.com\/calendar\/(u\/\d+\/)?appointments\/schedules\//.test(url) && !EMBED_OFF) {
+    const f = el('iframe'); f.src = url + (url.includes('?') ? '&' : '?') + 'gv=true'; f.title = 'Book your session'; f.loading = 'lazy';
+    add(box, add(el('div', 'calframe'), f));
   }
-  add(w, add(el('div', 'hero'), add(el('div'), K(kind === 'notes' ? 'After our session' : 'What to do next'), el('h1', null, kind === 'notes' ? 'Session notes' : 'Recommendations'))));
-  const pr = el('div', 'prose'); String(text).split(/\n{2,}|\n(?=[-•])/).forEach(par => { par = par.trim(); if (par) pr.append(el('p', null, par)); }); w.append(pr);
+  const a = add(el('a', 'cta'), document.createTextNode('Choose a time'), icon(ARROW)); a.href = url; a.target = '_blank'; a.rel = 'noopener';
+  return add(box, a);
+}
+const EMBED_OFF = false;
+function notesView(kind) {
+  const n = R.notes || {}, w = el('section', 'chapter');
+  if (kind === 'notes') {
+    add(w, add(el('div', 'hero'), add(el('div'), K('Your session'), el('h1', null, 'Session notes')), add(el('div', 'side'), el('p', 'lead', n.session ? 'Your private notes from our session.' : 'Book your session below. Your private notes from it will appear here afterwards.'))));
+    if (n.session) add(w, prose(n.session), bookingBlock(true)); else add(w, bookingBlock(false));
+    return w;
+  }
+  const tests = (n.tests || []).filter(k => window.MaktoubAssessments && MaktoubAssessments[k]);
+  add(w, add(el('div', 'hero'), add(el('div'), K('What to do next'), el('h1', null, 'Recommendations')), add(el('div', 'side'), el('p', 'lead', tests.length ? 'Start with the assessments below. Your answers come to us privately and we go through them together.' : 'Your personal recommendations will appear here after our session.'))));
+  if (tests.length) {
+    const list = el('div', 'tests');
+    tests.forEach(k => {
+      const T = MaktoubAssessments[k], st = ASSESS[k] || {}, done = !!st.completed_at, started = !done && (st.answers || []).some(x => x != null);
+      const answered = (st.answers || []).filter(x => x != null).length;
+      const card = add(el('article', 'test-card' + (done ? ' done' : '')), K(T.kicker), el('h3', null, T.name), el('p', null, T.about),
+        add(el('div', 'meta'), el('span', null, T.items.length + ' statements'), el('span', null, 'About ' + T.minutes + ' minutes'), done ? el('span', 'ok', 'Completed') : started ? el('span', null, answered + ' of ' + T.items.length + ' answered') : null));
+      if (!done) { const b = add(el('button', 'cta'), document.createTextNode(started ? 'Continue' : 'Start'), icon(ARROW)); b.type = 'button'; b.onclick = () => runTest(k); card.append(b); }
+      list.append(card);
+    });
+    add(w, add(el('div', 'block'), K('Your assessments', true)), list);
+  }
+  if (n.recommendations) add(w, add(el('div', 'block'), K('Our recommendations', true)), prose(n.recommendations));
   return w;
 }
+
+// ---------- assessments: one statement per screen, saved as you go ----------
+let saveTimer = null;
+async function saveTest(k, submit) {
+  const st = ASSESS[k];
+  if (!LIVE || !TOKEN) { if (submit) st.completed_at = new Date().toISOString(); return { ok: true, local: true }; }
+  const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'save_assessment', token: TOKEN, kind: k, answers: st.answers, submit: !!submit }) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || 'Your answers could not be saved. Check your connection and try again.');
+  st.saved_at = j.saved_at; if (j.completed_at) st.completed_at = j.completed_at;
+  return j;
+}
+function runTest(k) {
+  const T = MaktoubAssessments[k], n = T.items.length;
+  const st = ASSESS[k] = ASSESS[k] || {};
+  if (!Array.isArray(st.answers) || st.answers.length !== n) st.answers = Array(n).fill(null);
+  let i = st.answers.findIndex(a => a == null); if (i < 0) i = n;
+  const q = $('quiz'), body = $('quizBody'), bar = $('quizBar'), cnt = $('quizCount');
+  $('quizName').textContent = T.name; q.hidden = false; document.body.style.overflow = 'hidden';
+  const msg = el('p', 'qmsg');
+  const close = () => { clearTimeout(saveTimer); if (LIVE && TOKEN && !st.completed_at) saveTest(k).catch(() => {}); q.hidden = true; document.body.style.overflow = ''; route(true); };
+  $('quizClose').onclick = close;
+  const queueSave = () => { clearTimeout(saveTimer); saveTimer = setTimeout(() => saveTest(k).then(() => { msg.textContent = ''; }).catch(e => { msg.textContent = e.message; }), 900); };
+  const show = () => {
+    const answered = st.answers.filter(a => a != null).length;
+    bar.style.width = (answered / n * 100) + '%'; cnt.textContent = Math.min(i + 1, n) + ' / ' + n;
+    body.replaceChildren();
+    if (i === -1) { // intro
+      add(body, el('p', 'k', T.kicker), el('h2', null, T.name), el('p', 'body', T.intro), (!LIVE ? el('p', 'qmsg', 'Preview: answers are not saved.') : null));
+      const b = add(el('button', 'cta'), document.createTextNode('Begin'), icon(ARROW)); b.type = 'button'; b.onclick = () => { i = 0; show(); }; body.append(b); return;
+    }
+    if (i >= n) { // review and submit
+      const missing = st.answers.map((a, j) => a == null ? j : -1).filter(j => j >= 0);
+      add(body, el('p', 'k', 'All done'), el('h2', null, missing.length ? missing.length + ' left to answer' : 'Ready to send'), el('p', 'body', missing.length ? 'Go back to the statements you skipped, then send your answers.' : 'Your answers go to us privately. We will go through them with you in your session.'));
+      if (missing.length) { const b = el('button', 'cta', 'Go to the first one'); b.type = 'button'; b.onclick = () => { i = missing[0]; show(); }; body.append(b); }
+      else {
+        const b = add(el('button', 'cta'), document.createTextNode('Send my answers'), icon(ARROW)); b.type = 'button';
+        b.onclick = async () => { b.disabled = true; msg.textContent = 'Sending…'; clearTimeout(saveTimer);
+          try { await saveTest(k, true); body.replaceChildren(add(el('div', 'qdone'), el('p', 'k', 'Sent'), el('h2', null, 'Thank you.'), el('p', 'body', 'Your answers have reached us. We will go through them together.'))); const c = el('button', 'cta', 'Back to recommendations'); c.type = 'button'; c.onclick = close; body.append(c); bar.style.width = '100%'; }
+          catch (e) { msg.textContent = e.message; b.disabled = false; } };
+        body.append(b);
+      }
+      const back = el('button', 'qback', '← Back'); back.type = 'button'; back.onclick = () => { i = n - 1; show(); };
+      add(body, msg, back); return;
+    }
+    const it = T.items[i];
+    add(body, el('p', 'k', T.stem), el('h2', 'stmt', it.t));
+    const opts = el('div', 'likert'); opts.setAttribute('role', 'radiogroup'); opts.setAttribute('aria-label', it.t);
+    T.labels.forEach((lab, j) => {
+      const v = j + 1, b = add(el('button', 'opt'), el('span', 'n', String(v)), el('span', null, lab)); b.type = 'button';
+      b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', String(st.answers[i] === v));
+      b.onclick = () => { st.answers[i] = v; queueSave(); opts.querySelectorAll('.opt').forEach(x => x.setAttribute('aria-checked', String(x === b))); setTimeout(() => { i++; show(); }, 220); };
+      opts.append(b);
+    });
+    const nav = el('div', 'qnav');
+    const back = el('button', 'qback', '← Back'); back.type = 'button'; back.disabled = i === 0; back.onclick = () => { i--; show(); };
+    const skip = el('button', 'qback', 'Skip →'); skip.type = 'button'; skip.onclick = () => { i++; show(); };
+    add(body, opts, add(nav, back, skip), msg);
+  };
+  if (!st.answers.some(a => a != null)) i = -1;
+  show();
+}
+
 function go(k, keepScroll) { if (location.hash.slice(1) !== k) history.pushState(null, '', '#' + k); route(keepScroll); }
 function route(keepScroll) {
   const h = location.hash.slice(1) || 'overview';

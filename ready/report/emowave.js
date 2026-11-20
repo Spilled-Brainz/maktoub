@@ -416,7 +416,7 @@ function compose(raw, opts) {
       lo.length ? `${cap(joinList(lo))} ${lo.length > 1 ? 'read' : 'reads'} low. Where do you feel that most in your week?` : '',
     ].filter(Boolean),
   };
-  out.notes = {};
+  out.notes = { tests: ['six_factor', 'dark_triad'] };
   adapt(out, { lead, strong, ratio, jr });
   return out;
 }

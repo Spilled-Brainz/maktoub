@@ -141,6 +141,24 @@ async function alertFounder(en: Record<string, any>, title: string, extra = '') 
   } catch (e) { console.error('founder alert failed', (e as Error).message); logEvent(en.id, 'system', 'founder_alert_failed', { title }) }
 }
 
+// ---------- psychometric assessments ----------
+// Recommended by the founder in the published voice report (data.notes.tests), answered in the client's report,
+// scored here on submission, shown to the founder only. Item wording lives with the questionnaire in
+// ready/report/assessments.js; this file holds only the scoring key, item by item in the same order.
+type Instrument = { name: string, version: string, max: number, scales: Record<string, string>, key: [string, boolean][] }
+const INSTRUMENTS: Record<string, Instrument> = /*INSTRUMENTS*/{}/*END*/
+function scoreAssessment(ins: Instrument, answers: number[]) {
+  const sums: Record<string, number[]> = {}
+  ins.key.forEach(([scale, reversed], i) => { (sums[scale] ||= []).push(reversed ? ins.max + 1 - answers[i] : answers[i]) })
+  return Object.fromEntries(Object.keys(ins.scales).map(k => [k, Math.round(sums[k].reduce((a, b) => a + b, 0) / sums[k].length * 100) / 100]))
+}
+const scoreLine = (ins: Instrument, scores: Record<string, number>) => Object.entries(ins.scales).map(([k, label]) => `${label} ${scores[k].toFixed(2)}`).join(' · ') + ` (scale 1–${ins.max})`
+async function assessmentsOf(enrolmentId: string, withScores = false) {
+  const { data, error } = await db.from('maktoub_assessments').select('kind,instrument,answers,scores,started_at,saved_at,completed_at').eq('enrolment_id', enrolmentId)
+  if (error) throw error
+  return (data || []).map(a => withScores ? a : { kind: a.kind, saved_at: a.saved_at, completed_at: a.completed_at, answers: a.completed_at ? undefined : a.answers })
+}
+
 // ---------- programme, settings, documents ----------
 async function bankSettings() {
   const { data, error } = await db.from('maktoub_onboarding_settings').select('provider_legal_name,provider_registration,bank_account_name,bank_name,bank_iban,bank_swift,bank_verified_at').eq('id', true).single()
@@ -422,7 +440,7 @@ async function clientView(en: Record<string, any>, p: Record<string, any>, s: Re
     prep_due_at: en.prep_due_at, planning_meeting_at: en.planning_meeting_at, planning_meeting_completed_at: en.planning_meeting_completed_at,
     medical_status: en.medical_status,
     progress: progress(en, p), paused: en.stage === 'paused',
-    invoices, report,
+    invoices, report, assessments: report ? await assessmentsOf(en.id) : [],
     medical: {
       can_upload: !!en.signed_at && !!healthOk?.length, days: MED_DAYS,
       files: (medFiles || []).filter(f => !f.deleted_at).map(({ deleted_at: _d, deleted_by: _b, ...f }) => f),
@@ -549,6 +567,28 @@ async function clientAction(req: Request, origin: string, ip: string) {
     logEvent(en.id, 'client', 'payment_reported', { note })
     await alertFounder(fresh, 'Programme transfer reported 💳 check your bank', note || '')
     return view(fresh)
+  }
+
+  if (action === 'save_assessment') {
+    const kind = String(body.kind || ''), ins = INSTRUMENTS[kind]
+    if (!ins) throw new HttpError(400, 'Unknown assessment.')
+    const { data: rep } = await db.from('maktoub_voice_reports').select('data,status').eq('enrolment_id', en.id).maybeSingle()
+    if (rep?.status !== 'published' || !(rep.data?.notes?.tests || []).includes(kind)) throw new HttpError(409, 'This assessment has not been recommended for you yet.')
+    const n = ins.key.length
+    const answers = Array.isArray(body.answers) && body.answers.length === n ? body.answers.map((v: unknown) => Number.isInteger(v) && (v as number) >= 1 && (v as number) <= ins.max ? v as number : null) : null
+    if (!answers) throw new HttpError(400, 'Your answers could not be read. Please try again.')
+    const { data: prev } = await db.from('maktoub_assessments').select('completed_at').eq('enrolment_id', en.id).eq('kind', kind).maybeSingle()
+    if (prev?.completed_at) throw new HttpError(409, 'You have already submitted this assessment.')
+    const submit = body.submit === true
+    if (submit && answers.some((a: number | null) => a == null)) throw new HttpError(400, 'Please answer every statement before submitting.')
+    const scores = submit ? scoreAssessment(ins, answers as number[]) : null
+    const { error } = await db.from('maktoub_assessments').upsert({ enrolment_id: en.id, kind, instrument: ins.version, answers, saved_at: now, ...(submit ? { completed_at: now, scores } : {}) }, { onConflict: 'enrolment_id,kind' })
+    if (error) throw error
+    if (submit) {
+      logEvent(en.id, 'client', 'assessment_completed', { kind })
+      await alertFounder(en, `${ins.name} completed ✅`, scoreLine(ins, scores!))
+    }
+    return json({ kind, saved_at: now, completed_at: submit ? now : null }, 200, origin)
   }
 
   if (action === 'save_intake') {
@@ -725,15 +765,16 @@ async function founderAction(req: Request, origin: string, jwt: string) {
   if (action === 'admin_get') {
     const en = await getOne(body.id)
     await sweepMedical(en.id)
-    const [{ data: consents }, { data: events }, { data: report }, { data: medical }] = await Promise.all([
+    const [{ data: consents }, { data: events }, { data: report }, { data: medical }, assessments] = await Promise.all([
       db.from('maktoub_enrolment_consents').select('kind,document_version,granted,signature_name,created_at,withdrawn_at').eq('enrolment_id', en.id).order('created_at'),
       db.from('maktoub_enrolment_events').select('actor,action,detail,created_at').eq('enrolment_id', en.id).order('created_at', { ascending: false }).limit(200),
       db.from('maktoub_voice_reports').select('data,status,published_at,updated_at').eq('enrolment_id', en.id).maybeSingle(),
       db.from('maktoub_medical_files').select('id,label,mime,bytes,uploaded_at,expires_at,view_count,last_viewed_at,reviewed_at,deleted_at,deleted_by,deletion_verified').eq('enrolment_id', en.id).order('uploaded_at', { ascending: false }),
+      assessmentsOf(en.id, true),
     ])
     const { invite_token_hash: _h, ...record } = en
     const pe = await programme(en.programme_code)
-    return json({ record, consents, events, report, medical, medical_days: MED_DAYS, progress: progress(en, pe), stage_labels: STAGE_LABELS, intake_schema: INTAKE, programme: { code: pe.code, name: pe.name, tier: tierOf(pe, en.tier) } }, 200, origin)
+    return json({ record, consents, events, report, medical, assessments, instruments: Object.fromEntries(Object.entries(INSTRUMENTS).map(([k, i]) => [k, { name: i.name, max: i.max, scales: i.scales }])), medical_days: MED_DAYS, progress: progress(en, pe), stage_labels: STAGE_LABELS, intake_schema: INTAKE, programme: { code: pe.code, name: pe.name, tier: tierOf(pe, en.tier) } }, 200, origin)
   }
 
   if (action === 'admin_update') {
@@ -859,7 +900,7 @@ async function founderAction(req: Request, origin: string, jwt: string) {
     if (files?.length) await db.storage.from(BUCKET).remove(files.map(f => `${en.id}/${f.name}`))
     const { data: medFiles } = await db.storage.from(MED_BUCKET).list(en.id)
     if (medFiles?.length) await db.storage.from(MED_BUCKET).remove(medFiles.map(f => `${en.id}/${f.name}`))
-    for (const t of ['maktoub_medical_files', 'maktoub_voice_reports', 'maktoub_enrolment_consents', 'maktoub_enrolment_events']) {
+    for (const t of ['maktoub_assessments', 'maktoub_medical_files', 'maktoub_voice_reports', 'maktoub_enrolment_consents', 'maktoub_enrolment_events']) {
       const { error } = await db.from(t).delete().eq('enrolment_id', en.id)
       if (error) throw error
     }
