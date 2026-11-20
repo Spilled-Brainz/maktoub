@@ -89,7 +89,7 @@ Share the website event section for interest registration. Event leads appear in
 
 ## Report review booking and assessments (added 20 November 2026)
 
-- Session notes open with "Book your report review" (60 to 90 minutes). Set the default Google Calendar appointment page in `ready/report/index.html` (`BOOKING_URL`); a report can override it in the console (Session notes and recommendations → Booking link). A Google appointment-schedule link is embedded on maktoub.app; any other link shows as a button.
+- Session notes open with "Book your report review" on Maktoub's own calendar (see Report review booking below).
 - Recommendations list the assessments ticked in the console (both are ticked on import): a six-factor personality test (Mini-IPIP6, Sibley et al. 2011, 24 items, 1 to 7) and the Short Dark Tetrad (SD4, Paulhus et al., 28 items, 1 to 5; Dark Triad plus sadism, shown to clients as "Four identities"). Wording and keys are in `ready/report/assessments.js`; the edge function's scoring key is generated from that file.
 - Clients answer one statement per screen; progress saves as they go and resumes on the same link. On submission the function scores each scale (mean, reversed items flipped), stores it in `maktoub_assessments`, and alerts the founder on Telegram. Clients never see scores; the founder sees them on the client record.
 - Licences: the 20 IPIP items and the SD4 are public domain. The four Mini-IPIP6 Honesty-Humility items are adapted from Campbell et al. (2004) and the HEXACO-PI-R; commercial permission for those four is not confirmed. The official HEXACO-PI-R and the SD3 need the authors' permission for commercial use.
@@ -97,3 +97,10 @@ Share the website event section for interest registration. Event leads appear in
 - Founding clients (/onboard/) have the same report: stored in `maktoub_onboarding_reports`, built in /onboard/admin/ (Voice report section), opened from the client's onboarding link at /ready/report/?from=onboard. Publishing records the report as delivered.
 - Live since 20 Nov 2026: both new tables, `maktoub-onboard` v9 and the website. `maktoub-programme` has NOT been redeployed yet, so programme clients cannot save assessments until it is.
 - Razan Alharthi (MK-84P5AP): draft report saved 20 Nov 2026 from the analysis PDF of 17 Nov (the PDF was issued under a different name; her report carries only her own details). Not published.
+
+## Report review booking (added 20 November 2026)
+
+- Clients book their 90-minute report review in Session notes, from the same private link (no form). It uses the existing booking system: `maktoub-book` (`GET ?kind=report_review`, `review_status`, `review_request`), the founder's Google Calendar busy times, the Telegram approve/decline link, and the n8n Calendar event with a Meet link.
+- `maktoub_intake_bookings.session_kind` is `intake` or `report_review`; `maktoub_booking_settings.review_minutes` (90) sets the length. Reviews never change the person's intake stage. One active review per person. Migration `2026-11-20-report-review-booking.sql`.
+- n8n "Maktoub — New signup Telegram alerts": Compose and Compose confirmation word reviews as a report review (copies in `supabase/n8n/`). Published 20 Nov 2026.
+- Once approved, the client's Session notes show the confirmed time and a Join button with the Meet link.
