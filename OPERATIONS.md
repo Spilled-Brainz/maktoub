@@ -86,3 +86,11 @@ Share the website event section for interest registration. Event leads appear in
 - EmoWave's speculative clinical lines (autism, dyslexia, allergies and similar) are removed on import, and third-person "his/her" becomes "you". The console flags any clinical or third-person wording still present before publishing.
 - `/ready/report/?sample` shows a fictional sample report for prospects. `/ready/report/?preview` is the founder preview; it reads a copy kept in the founder's browser for six hours.
 - The negativity "core emotion" is the founder's own reading and is hidden until filled in.
+
+## Report review booking and assessments (added 20 November 2026)
+
+- Session notes open with "Book your report review" (60 to 90 minutes). Set the default Google Calendar appointment page in `ready/report/index.html` (`BOOKING_URL`); a report can override it in the console (Session notes and recommendations → Booking link). A Google appointment-schedule link is embedded on maktoub.app; any other link shows as a button.
+- Recommendations list the assessments ticked in the console (both are ticked on import): a six-factor personality test (Mini-IPIP6, Sibley et al. 2011, 24 items, 1 to 7) and the Short Dark Tetrad (SD4, Paulhus et al., 28 items, 1 to 5; Dark Triad plus sadism, shown to clients as "Four identities"). Wording and keys are in `ready/report/assessments.js`; the edge function's scoring key is generated from that file.
+- Clients answer one statement per screen; progress saves as they go and resumes on the same link. On submission the function scores each scale (mean, reversed items flipped), stores it in `maktoub_assessments`, and alerts the founder on Telegram. Clients never see scores; the founder sees them on the client record.
+- Licences: the 20 IPIP items and the SD4 are public domain. The four Mini-IPIP6 Honesty-Humility items are adapted from Campbell et al. (2004) and the HEXACO-PI-R; commercial permission for those four is not confirmed. The official HEXACO-PI-R and the SD3 need the authors' permission for commercial use.
+- Needs the migration `supabase/migrations/2026-11-20-assessments.sql` and a redeploy of `maktoub-programme` before it works live.

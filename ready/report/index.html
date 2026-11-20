@@ -47,7 +47,7 @@ main{max-width:1240px;margin:0 auto;padding:0 var(--pad) 80px;min-height:70vh}
 
 /* hero */
 .hero{padding:clamp(40px,8vw,104px) 0 clamp(28px,4vw,48px);border-bottom:1px solid var(--hair);display:grid;gap:22px}
-.hero h1{font-size:clamp(46px,10.5vw,112px);font-weight:500;letter-spacing:-.04em;line-height:.94;margin:10px 0 0;max-width:12ch}
+.hero h1{font-size:clamp(38px,10vw,112px);overflow-wrap:break-word;font-weight:500;letter-spacing:-.04em;line-height:.94;margin:10px 0 0;max-width:12ch}
 .hero .lead{font-size:clamp(18px,2.2vw,23px);line-height:1.38;color:var(--ink-2);max-width:40ch;margin:0}
 .hero .meta{display:flex;flex-wrap:wrap;gap:6px 22px}
 @media(min-width:900px){.hero{grid-template-columns:1.35fr 1fr;align-items:end}.hero .side{padding-bottom:6px}}
@@ -288,6 +288,11 @@ blockquote.src .k{margin-bottom:6px}
 .opt .n{width:26px;height:26px;border-radius:50%;border:1px solid var(--grey);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--smoke);flex-shrink:0}
 .opt:hover{border-color:var(--ink)}
 .opt[aria-checked=true]{background:var(--ink);color:var(--paper);border-color:var(--ink)}.opt[aria-checked=true] .n{border-color:var(--paper);color:var(--paper)}
+.likert.row{gap:6px}
+.opt.dot{flex-direction:column;justify-content:center;padding:14px 0;gap:0}
+.opt.dot .n{width:auto;height:auto;border:0;font-size:18px;color:var(--ink)}
+.opt.dot[aria-checked=true] .n{color:var(--paper)}
+.anchors{display:flex;justify-content:space-between;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--smoke);margin-top:8px}
 .qnav{display:flex;justify-content:space-between;margin-top:18px}
 .qback{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--smoke);padding:8px 0}.qback:disabled{opacity:.3}
 .qmsg{font-size:14px;color:var(--err);min-height:20px;margin-top:12px}
@@ -777,9 +782,12 @@ function runTest(k) {
     }
     const it = T.items[i];
     add(body, el('p', 'k', T.stem), el('h2', 'stmt', it.t));
-    const opts = el('div', 'likert'); opts.setAttribute('role', 'radiogroup'); opts.setAttribute('aria-label', it.t);
-    T.labels.forEach((lab, j) => {
-      const v = j + 1, b = add(el('button', 'opt'), el('span', 'n', String(v)), el('span', null, lab)); b.type = 'button';
+    const wide = !T.labels, opts = el('div', wide ? 'likert row' : 'likert'); opts.setAttribute('role', 'radiogroup'); opts.setAttribute('aria-label', it.t);
+    if (wide) opts.style.gridTemplateColumns = 'repeat(' + T.max + ', 1fr)';
+    Array.from({ length: T.max }, (_, j) => j).forEach(j => {
+      const v = j + 1, lab = T.labels ? T.labels[j] : (j === 0 ? T.anchors[0] : j === T.max - 1 ? T.anchors[1] : String(v));
+      const b = wide ? add(el('button', 'opt dot'), el('span', 'n', String(v))) : add(el('button', 'opt'), el('span', 'n', String(v)), el('span', null, lab)); b.type = 'button';
+      if (wide) b.setAttribute('aria-label', v + (j === 0 || j === T.max - 1 ? ', ' + lab : ''));
       b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', String(st.answers[i] === v));
       b.onclick = () => { st.answers[i] = v; queueSave(); opts.querySelectorAll('.opt').forEach(x => x.setAttribute('aria-checked', String(x === b))); setTimeout(() => { i++; show(); }, 220); };
       opts.append(b);
@@ -787,7 +795,7 @@ function runTest(k) {
     const nav = el('div', 'qnav');
     const back = el('button', 'qback', '← Back'); back.type = 'button'; back.disabled = i === 0; back.onclick = () => { i--; show(); };
     const skip = el('button', 'qback', 'Skip →'); skip.type = 'button'; skip.onclick = () => { i++; show(); };
-    add(body, opts, add(nav, back, skip), msg);
+    add(body, opts, wide ? add(el('div', 'anchors'), el('span', null, T.anchors[0]), el('span', null, T.anchors[1])) : null, add(nav, back, skip), msg);
   };
   if (!st.answers.some(a => a != null)) i = -1;
   show();
@@ -871,7 +879,7 @@ function SAMPLE() {
       patterns: [{ name: 'Proving', summary: 'Worth feels like something to earn.', text: 'Always trying to prove yourself.', notice: 'Notice who you are still trying to convince.' }, { name: 'Perfectionist', summary: 'Mistakes feel dangerous.', text: 'Polishing replaces progress.', notice: 'Notice where waiting for the perfect version is a form of hiding.' }, { name: 'Guarded', summary: 'Distance feels safer than being known.', text: 'Keeps the walls up.', notice: 'Notice the moment you decide to hold something back.' }, { name: 'Overthinker', summary: 'Analysis can become a way of not deciding.', text: 'Runs every outcome.', notice: 'Notice how much energy goes on "what if".' }] },
     body: { image: 'Your body is the instrument your voice comes from. These are the strings under the most tension.', patterns: [{ title: 'Overstimulated nervous system', interpretation: 'Your system may be taking in more than it can settle.', meaning: 'Insufficient own space. Always trying to prove yourself.', asking: 'More protected space, fewer demands, and permission to stop proving.', closing: 'A radio tuned to every station at once.' }, { title: 'Endocrine stress', interpretation: 'Your inner authority may be handed outward.', meaning: 'When there is stress, there is imbalance.', asking: 'Your own rhythm back.', closing: 'A body waiting for permission that only you can give.' }], organs: ['Liver', 'Stomach'] },
     journey: { image: 'The weather is clearing, and the ground is drying under your feet.', age: 36, ages: [4, 6, 8, 11, 13, 15, 18, 22, 25, 29, 32, 36], levels: [2, 3, 6, 7, 6, 4, 3, 2, 3, 5, 4, 3], markers: [{ label: 'Hardest period', value: 'Age 8–13' }, { label: 'Steadiest period', value: 'Age 18–25' }, { label: 'Now', value: 'Gaining energy, load easing' }], insight: 'The strongest strain registers at age 8–13, followed by a long constructive stretch at age 18–25. In recent years the load has been easing.', meaning: 'The direction is toward steadier ground. The work is to understand what changed so you can keep choosing it on purpose.' },
-    notes: {},
+    notes: { tests: ['six_factor', 'dark_triad'] },
   };
 }
 
