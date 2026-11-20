@@ -198,13 +198,6 @@ function parse(pages) {
 async function extract(pdfjsLib, data) { return parse(await readPdf(pdfjsLib, data)); }
 
 // ---------- reading library (Maktoub voice: patterns to test, not verdicts) ----------
-const STRESS = [
-  { max: 5.99, band: 'Logical', type: 'Logical load', phrase: 'mostly mental: problems to solve rather than feelings to carry', text: 'Your stress reads as mostly mental: problems to solve rather than feelings to carry. It tends to clear once you have an answer, and builds when you keep asking "how" without allowing yourself to act on what you already know.' },
-  { max: 11.99, band: 'Stable', type: 'Stable', phrase: 'steady and being processed', text: 'Your system reads as steady. Pressure is present but being metabolised. This is the baseline worth protecting as the programme asks more of you.' },
-  { max: 19.99, band: 'Accumulated', type: 'Accumulated stress', phrase: 'accumulated: building up rather than clearing', text: 'Your stress appears to be building up rather than clearing. It is not one event but small unresolved loads stacking over time, often emotional ones dressed up as practical problems. It usually shows up as tiredness that sleep does not fully fix.' },
-  { max: 54, band: 'Emotional', type: 'Emotional stress', phrase: 'emotional rather than task-based', text: 'Your stress appears to be emotional rather than task-based. You may be carrying social tension, atmosphere and other people\'s signals that have not had space to be processed.' },
-  { max: Infinity, band: 'Extreme', type: 'High load', phrase: 'heavy, a signal to reduce demands first', text: 'Your system appears to be carrying a heavy load. This is a signal to reduce demands and add support before adding anything new.' },
-];
 const STRESS_BANDS = [{ k: 'Logical', from: 0, to: 5 }, { k: 'Stable', from: 6, to: 11 }, { k: 'Accumulated', from: 12, to: 20 }, { k: 'Emotional', from: 20, to: 54 }, { k: 'Extreme', from: 54, to: 80 }];
 
 const SENSES = {
@@ -228,51 +221,16 @@ const BRAIN_WAYS = {
   right: { helps: ['The picture or the feeling first, the steps after', 'The why before the how', 'Images, examples, stories and metaphors', 'Talking it through out loud, or voice notes', 'Seeing the whole map before the first step'], drains: ['Long lists of steps with no picture of where they lead', 'Being asked to justify a knowing before you have felt it through', 'Forms, spreadsheets and detail work with no meaning attached', 'Being rushed from sensing to deciding'] },
   left: { helps: ['A clear plan with numbered steps', 'The facts and the evidence first', 'Time to analyse before deciding', 'Written summaries and checklists'], drains: ['Vague goals with no structure', 'Being asked to decide on feeling alone', 'Constant change of plan', 'Emotion-heavy conversations with no clear point'] },
 };
-// Right-brain readers get the whole picture first: one image per chapter, felt questions, embodied practices.
-const RIGHT_TESTS = {
-  emotional: 'Each evening, give the emotion that carried you today a colour, and the one that cost you another. No explanation needed. At the end of the month, look at the colours together.',
-  mind: 'When you get stuck on "how", record a two-minute voice note describing what the finished thing looks and feels like. Let the steps come after, from the picture.',
-  social: 'Notice one moment each week when you bring people back together. Write down only what you felt just before you stepped in.',
-  negativity: 'When you catch a pattern, name it out loud as if pointing at a picture: "there it is." Naming it is enough. You do not have to fix it in the moment.',
-  body: 'Once a day, place a hand where you feel the most tension and breathe into it for one minute. Notice whether the picture in your mind changes.',
-  journey: 'Find a photo of yourself from your steadiest period and keep it where you will see it. Ask what that version of you knew.',
-};
-const LEFT_TESTS = {
-  emotional: 'Each evening, write one line: the emotion that carried you, the one that cost you, and what triggered each.',
-  mind: 'Before each important decision this month, write the three steps and then ask one question: how does this feel?',
-  negativity: 'Keep a tally of each time a pattern shows up, with the trigger. Review the count weekly.',
-  body: 'Log sleep, energy and tension (1 to 10) each day for four weeks and look for the trend.',
-};
 function adapt(out, ctx) {
   const { lead, strong, ratio } = ctx;
   const style = lead === 'right' ? 'right' : lead === 'left' ? 'left' : 'balanced';
   out.meta.style = style;
   if (out.mind.brain && lead && lead !== 'balanced') Object.assign(out.mind.brain, BRAIN_WAYS[lead], { ratio: Math.round(ratio * 10) / 10 });
-  const T = style === 'right' ? RIGHT_TESTS : style === 'left' ? LEFT_TESTS : {};
-  Object.entries(T).forEach(([k, t]) => { if (out[k] && !out[k].test) out[k].test = t; });
   if (style !== 'right') return;
-  const em = out.emotional, so = out.social, jr = ctx.jr;
-  const drains = [em.drain.emotion, ...(em.drain.also || [])].filter(Boolean).map(x => x.toLowerCase());
-  if (em.thrive.emotion) em.image = `${em.thrive.emotion} is your home frequency.` + (drains.length ? ` ${cap(joinList(drains))} ${drains.length > 1 ? 'are' : 'is'} the static that pull${drains.length > 1 ? '' : 's'} you off it.` : '');
-  out.mind.image = strong ? 'A wide-angle lens with a narrow door: you take in the whole room at once, and all of it has to leave through words.' : 'You see the whole landscape first, and find the path through it second.';
-  if (so.archetype && so.motivator) so.image = `Seen from outside, the ${so.archetype.name}. Felt from inside, the ${so.motivator.name}.`;
-  if (out.negativity.patterns.length) out.negativity.image = 'Old weather: these patterns formed in an earlier season and still blow through, even when the sky has changed.';
-  if (out.body.patterns.length) out.body.image = 'Your body is the instrument your voice comes from. These are the strings under the most tension.';
-  if (jr) out.journey.image = jr.trend === 'rising' ? 'The tide is coming back in, and you already know this shore: you found solid ground here once before.' : jr.trend === 'easing' ? 'The weather is clearing, and the ground is drying under your feet.' : 'Level ground for now. A good place to look back at the road.';
-  // Cross-chapter links that only make sense for a strongly right-brain mind.
-  if (strong) {
-    const sd = so.leadership.find(x => x.t === 'Self-development' && x.level === 'Low');
-    if (sd) sd.d += ' This fits your brain pattern: understanding arrives whole, and turning it into steps and words for others is the slower half.';
-    if (out.mind.stress) out.mind.stress.text += ' For a mind that knows the whole before the steps, stress builds when you are asked for the "how" before you have felt the "why".' + (/\bhow\b/i.test(out.mind.stress.source || '') ? ' EmoWave hears it in your voice as "I know, but how?"' : '');
-  }
-  out.synthesis.intro = 'Your right brain leads' + (strong ? ' strongly' : '') + ', so this report starts with the whole picture: one map, and one image for each chapter. The detail is always one tap deeper, when you want it.';
-  out.synthesis.read += strong ? ` Your right brain carries about ${ratio.toFixed(1)} times the activity of your left, so you take in the whole at once and the words come later.` : '';
-  const pat = out.negativity.patterns[0], low = so.leadership.find(x => x.level === 'Low'), high = so.leadership.find(x => x.level === 'High');
-  out.synthesis.questions = [
-    pat ? `If "${pat.name.toLowerCase()}" were weather, what would it be right now, and when did it last clear?` : '',
-    low && high ? `Picture your ${low.t.toLowerCase()} as strong as your ${high.t.toLowerCase()}. What is the first thing you would do differently?` : '',
-    jr && jr.trend === 'rising' ? 'What did your steadiest years feel like in your body, and what would bring a little of that back this month?' : 'What do you already know, in your body, that you have not yet put into words?',
-  ].filter(Boolean);
+  out.synthesis.intro = 'Your right brain leads' + (strong ? ' strongly' : '') + ', so this report starts with the whole picture. The detail is one tap deeper, when you want it.';
+  // Links between two EmoWave findings, only where both are present.
+  const sd = out.social.leadership.find(x => x.t === 'Self-development' && x.level === 'Low');
+  if (strong && sd) sd.d += ' This sits with your brain pattern: understanding arrives whole, and turning it into steps and words for others is the slower half.';
 }
 
 
@@ -287,43 +245,12 @@ const LEAD = {
 };
 const levelOf = l => /high/i.test(l) ? 'High' : /low/i.test(l) ? 'Low' : 'Good';
 
-const EMO = {
-  Ease: { thrive: 'You are at your best when things feel unforced. Ease is your signal that you are in the right place, doing the right thing at the right pace.', drain: 'Too much ease can become avoidance: comfort chosen over the stretch you need.' },
-  Coolness: { thrive: 'Composure is a resource for you. When you stay cool, you see clearly and others steady around you.', drain: 'Coolness can turn into distance, staying unaffected so you do not have to feel.' },
-  Calm: { thrive: 'Calm is where your best judgement lives.', drain: 'Calm can become a mask that hides what is actually happening underneath.' },
-  Joy: { thrive: 'Joy is your fuel. When it is present your energy multiplies and others feel it.', drain: 'Chasing good feeling can pull you away from what needs facing.' },
-  Passion: { thrive: 'When passion is present you are most in sync with the best version of yourself.', drain: 'Passion without boundaries burns through your reserves.' },
-  Trust: { thrive: 'You thrive where you can trust and be trusted.', drain: 'Misplaced trust costs you more than most.' },
-  Love: { thrive: 'Connection is your strongest source of energy.', drain: 'Over-giving in relationships may leave little for you.' },
-  Confidence: { thrive: 'Confidence lets you act before everything is certain.', drain: 'Over-confidence can skip the listening that would have helped.' },
-  Optimism: { thrive: 'Hope keeps you moving through hard stretches.', drain: 'Optimism can delay decisions that need making now.' },
-  Resolve: { thrive: 'Resolve carries you through; once committed, you keep going.', drain: 'Resolve can become rigidity, pushing on when it is time to change course.' },
-  Anger: { thrive: 'Channelled, anger gives you the energy to set boundaries and change what is wrong.', drain: 'Anger is the emotion most likely to cost you energy. It often points to a boundary crossed or a need not met.' },
-  Surprise: { thrive: 'Novelty wakes you up; you respond well to the unexpected.', drain: 'The unexpected unsettles you more than it should. Not knowing what is coming keeps your system on alert.' },
-  Fear: { thrive: 'Fear sharpens your attention when stakes are real.', drain: 'Fear drains you most when it is anticipating rather than responding, protecting you from things that have not happened.' },
-  Sadness: { thrive: 'Sadness lets you feel what matters and let go.', drain: 'Unprocessed sadness quietly lowers your energy and colours how you read the day.' },
-  Anxiety: { thrive: 'Your sensitivity to risk keeps you prepared.', drain: 'Worry runs in the background and uses energy you need elsewhere.' },
-  Frustration: { thrive: 'Frustration shows you where something needs to change.', drain: 'Frustration builds when effort and results stop matching.' },
-  Disgust: { thrive: 'Your standards protect you from what is not right for you.', drain: 'Rejection of what you dislike can become rejection of people.' },
-  Guilt: { thrive: 'Your conscience keeps you honest.', drain: 'Guilt keeps you paying for things that are already finished.' },
-  Shame: { thrive: 'You care deeply about how you show up.', drain: 'Shame makes you hide the parts that most need support.' },
-};
-const EMO_WORDS = [[/sad|tear|grie|melanchol/i, 'Sadness'], [/anger|angry|irrit|rage/i, 'Anger'], [/fear|afraid|scared/i, 'Fear'], [/anxi|worr|nervous/i, 'Anxiety'], [/strong.?will|determin|challenge|resol/i, 'Resolve'], [/joy|happy|cheer/i, 'Joy'], [/calm|peace/i, 'Calm'], [/love|affection/i, 'Love'], [/confiden/i, 'Confidence'], [/frustrat/i, 'Frustration'], [/guilt/i, 'Guilt'], [/shame/i, 'Shame'], [/passion/i, 'Passion'], [/trust/i, 'Trust']];
+const EMO_WORDS = [[/sad|tear|grie|melanchol/i, 'Sadness'], [/strong.?will/i, 'Strong will'], [/anger|angry|irrit|rage/i, 'Anger'], [/fear|afraid|scared/i, 'Fear'], [/anxi|worr|nervous/i, 'Worry'], [/determin/i, 'Determination'], [/joy|happy|cheer/i, 'Joy'], [/calm|peace/i, 'Calm'], [/love|affection/i, 'Love'], [/confiden/i, 'Confidence'], [/frustrat/i, 'Frustration'], [/guilt/i, 'Guilt'], [/shame/i, 'Shame'], [/passion/i, 'Passion'], [/trust/i, 'Trust']];
 const emoFrom = t => { for (const [re, n] of EMO_WORDS) if (re.test(t || '')) return n; return ''; };
 
 const RESTRICT = [
-  [/self.?focus/i, 'Self-focused', 'Your attention is turned inward right now.', 'Notice when looking after yourself becomes not seeing the people around you.'],
-  [/role.*relationship|relationship.*role/i, 'Unsure of my role', 'You may not be sure where you stand with the people closest to you.', 'Notice where you wait to be told your place instead of choosing it.'],
-  [/physical body|body/i, 'Body-watchful', 'You keep a close eye on how your body is changing.', 'Notice whether that attention is care or worry.'],
-  [/too direct|direct/i, 'Too direct', 'Your honesty can land harder than you mean it to.', 'Notice the moment just before you say it, and whether the other person can hear it.'],
-  [/childlike|child/i, 'Inner child', 'In the background, a younger part of you still reacts first.', 'Notice when a reaction feels older than the situation in front of you.'],
-  [/perfect/i, 'Perfectionist', 'Mistakes feel dangerous, so polishing replaces progress.', 'Notice where waiting for the perfect version is a form of hiding.'],
-  [/critic|hard on/i, 'Harsh self-critic', 'Your inner voice uses pressure to motivate.', 'Notice the tone of your inner voice when things do not go to plan.'],
-  [/argu|combat|defens/i, 'Combative', 'Protection can look like pushing back.', 'Notice the tension in your body when you feel the urge to argue.'],
-  [/overthink|analys/i, 'Overthinker', 'Analysis can become a way of not deciding.', 'Notice how much energy goes on "what if" compared with trying something.'],
-  [/guard|distance|withdraw/i, 'Guarded', 'Distance feels safer than being known.', 'Notice the moment you decide to hold back a true thought or feeling.'],
-  [/control/i, 'Need for control', 'Certainty feels safer than trust.', 'Notice what you are protecting when you need to control the outcome.'],
-  [/prove/i, 'Proving', 'Worth feels like something to earn.', 'Notice who you are still trying to convince.'],
+  [/self.?focus/i, 'More self-focused'], [/role.*relationship|relationship.*role/i, 'Unsure of role in relationships'], [/physical body/i, 'Watching body changes'],
+  [/too direct/i, 'Too direct'], [/childlike/i, 'A little childlike'], [/perfect/i, 'Perfectionist'], [/critic/i, 'Self-critical'], [/control/i, 'Need for control'], [/prove/i, 'Proving'],
 ];
 // Speculative clinical wording is not passed through to the client.
 const scrub = s => {
@@ -333,18 +260,6 @@ const scrub = s => {
 };
 const CLINICAL_WORD = /\b(autism|austism|autistic|adhd|dyslexi\w*|bipolar|depression|disorder|diagnos\w*|allerg\w*|disease|cancer|tumou?r|syndrome)\b/i;
 
-const BODY = [
-  { re: /nervous/i, title: 'Overstimulated nervous system', interpretation: 'Your system may be taking in more than it can settle.', meaning: 'The nervous system reads and filters everything around you and sets the body\'s sense of safety. When it is overstimulated it struggles to hear you over everyone else.', asking: 'More protected space, fewer demands, and permission to stop proving.', closing: 'A radio tuned to every station at once.' },
-  { re: /lymph/i, title: 'Lymphatic load', interpretation: 'Your body\'s clearing system may be working overtime.', meaning: 'The lymphatic system clears what the body no longer needs. When it is loaded, it often mirrors a mind holding on to one thing too tightly to see other options.', asking: 'Movement, water and release: letting something go so there is room for what is next.', closing: 'A river that slows when too much is carried in it.' },
-  { re: /endocrin|hormon/i, title: 'Endocrine stress', interpretation: 'Your inner authority may be handed outward, keeping your body in performance mode.', meaning: 'The endocrine system signals safety or threat through hormones. Constant performance keeps that signal raised, which makes rest harder to reach.', asking: 'Your own rhythm back: real activity followed by real stillness, without guilt for the stillness.', closing: 'A body waiting for permission that only you can give.' },
-  { re: /digest|assimil|colon|stomach|gut/i, title: 'Digestive / assimilation stress', interpretation: 'Stress may be making it harder to break down and absorb both food and experience.', meaning: 'Digestion is how the body takes in the world. When life is hard to digest, the body tends to tighten too.', asking: 'Simpler inputs, slower transitions, and moments where nothing is required of you.', closing: 'Full, yet not nourished.' },
-  { re: /read|concentrat|focus|eye|visual/i, title: 'Focus and reading fatigue', interpretation: 'Concentration may tire faster than usual, especially with sustained reading or screens.', meaning: 'Attention is a resource that drains under stress. If this matches your experience, an eye test is a simple first check.', asking: 'Shorter blocks of focus, breaks for the eyes, and less input at the end of the day.', closing: 'Attention is spent like energy: it needs refilling.' },
-  { re: /lung|breath|respir/i, title: 'Breath and respiratory load', interpretation: 'Your breathing may be holding tension.', meaning: 'Breath is the one stress response you can steer directly. Shallow breathing keeps the body on alert.', asking: 'Slow, full breaths, especially at transitions in the day.', closing: 'Room to breathe, literally.' },
-  { re: /heart|cardio/i, title: 'Heart load', interpretation: 'Your heart may be carrying emotional as well as physical work.', meaning: 'Pressure in relationships often registers here first.', asking: 'Connection without having to perform for it.', closing: '' },
-  { re: /liver|gall/i, title: 'Liver and gallbladder load', interpretation: 'Frustration or unexpressed decisions may be held here.', meaning: 'These organs process and release. In the body\'s language they are linked to decision and to anger left unsaid.', asking: 'A decision made, or something said that has waited too long.', closing: '' },
-  { re: /kidney|adrenal/i, title: 'Kidney and adrenal load', interpretation: 'Your reserves may be running low.', meaning: 'This is where long-term stress draws down your reserves.', asking: 'Rest that is real, not earned.', closing: '' },
-  { re: /immun/i, title: 'Immune load', interpretation: 'Your defences may be busy.', meaning: 'A stretched immune system often follows a stretched life.', asking: 'Fewer battles, more recovery.', closing: '' },
-];
 
 // ---------- journey ----------
 // EmoWave's grid: twelve periods, childhood on the right, now on the left.
@@ -358,131 +273,147 @@ function journeyAges(age) {
 }
 const zone = l => l >= 6 ? 'restrictive' : l >= 4 ? 'mixed' : 'constructive';
 function journeyRead(ages, levels) {
+  // EmoWave's legend: green = enjoying, fulfilment, gaining energy; red = most challenging period, obstacles.
+  // Adjacent reds = a fighter who never gives up. Red changing to green in the next period = may have given up,
+  // gone along with the flow, or lost determination. The graph shows that something registered, not what happened.
   const pts = ages.map((a, i) => ({ a, l: +levels[i] })).filter(p => p.l >= 1 && p.l <= 7);
   if (pts.length < 4) return null;
-  const span = (arr) => arr[0].a === arr.at(-1).a ? 'Age ' + arr[0].a : 'Age ' + arr[0].a + '–' + arr.at(-1).a;
-  const runs = test => { const out = []; let cur = []; pts.forEach(p => { if (test(p.l)) cur.push(p); else { if (cur.length) out.push(cur); cur = []; } }); if (cur.length) out.push(cur); return out; };
-  const maxL = Math.max(...pts.map(p => p.l)), minL = Math.min(...pts.map(p => p.l));
-  const hard = runs(l => l >= Math.max(maxL - 1, 4)).sort((a, b) => Math.max(...b.map(p => p.l)) - Math.max(...a.map(p => p.l)) || b.length - a.length)[0];
-  const steady = runs(l => l <= Math.min(minL + 1, 3)).sort((a, b) => b.length - a.length)[0];
-  const last = pts.slice(-3), d = last.at(-1).l - last[0].l, now = pts.at(-1);
-  const trend = d >= 2 ? 'rising' : d <= -2 ? 'easing' : 'steady';
-  const nowLabel = { constructive: 'Gaining energy', mixed: 'Mixed', restrictive: 'Under strain' }[zone(now.l)];
-  const markers = [];
-  if (hard && maxL >= 4) markers.push({ label: 'Hardest period', value: span(hard) });
-  if (steady && minL <= 3) markers.push({ label: 'Steadiest period', value: span(steady) });
-  markers.push({ label: 'Now', value: nowLabel + (trend === 'rising' ? ', load rising' : trend === 'easing' ? ', load easing' : '') });
+  const col = l => l >= 6 ? 'red' : l >= 4 ? 'orange' : 'green';
+  const span = arr => arr[0].a === arr.at(-1).a ? 'age ' + arr[0].a : 'age ' + arr[0].a + '–' + arr.at(-1).a;
+  const runs = c => { const out = []; let cur = []; pts.forEach(p => { if (col(p.l) === c) cur.push(p); else { if (cur.length) out.push(cur); cur = []; } }); if (cur.length) out.push(cur); return out; };
+  const reds = runs('red'), greens = runs('green').sort((x, y) => y.length - x.length);
+  const longGreen = greens[0] && greens[0].length >= 2 ? greens[0].slice().sort((x, y) => x.a - y.a) : null;
+  const redToGreen = pts.slice(0, -1).map((p, i) => col(p.l) === 'red' && col(pts[i + 1].l) === 'green' ? pts[i + 1] : null).filter(Boolean);
+  const changes = pts.slice(1).filter((p, i) => col(p.l) !== col(pts[i].l));
+  const now = pts.at(-1), nowCol = col(now.l);
+  let since = now; for (let i = pts.length - 1; i >= 0 && col(pts[i].l) === nowCol; i--) since = pts[i];
   const parts = [];
-  if (hard && maxL >= 6) parts.push(`The strongest strain registers ${hard[0].a < pts[0].a + 6 ? 'early' : ''} at ${span(hard).toLowerCase()}`.replace('  ', ' '));
-  else if (hard && maxL >= 4) parts.push(`The most demanding stretch registers at ${span(hard).toLowerCase()}`);
-  if (steady && minL <= 3) parts.push(`followed by a long constructive stretch at ${span(steady).toLowerCase()}`);
-  let insight = parts.length ? cap(parts.join(', ')) + '.' : '';
-  insight += trend === 'rising' ? ' In recent years the load has been building again, and you are now in the ' + (zone(now.l) === 'restrictive' ? 'red' : 'middle') + ' zone.' : trend === 'easing' ? ' In recent years the load has been easing.' : ' Recently the pattern has held steady.';
-  const meaning = trend === 'rising'
-    ? 'The rise is not a judgement on where you are. It shows that something in the present is costing more energy than it gives back, and that you have been here before and found your way to steadier ground. The steadier stretch is evidence of what you can return to.'
-    : trend === 'easing'
-      ? 'The direction is toward steadier ground. The work is to understand what changed so you can keep choosing it on purpose.'
-      : 'The graph does not say what happened, only that each period registered. Use the turning points as prompts: what was happening then, and what did it teach your system to expect?';
-  return { markers, insight: insight.trim(), meaning, trend, now: nowLabel };
+  if (reds.length) {
+    parts.push(`Your most challenging ${reds.length > 1 ? 'periods register' : 'period registers'} at ${joinList(reds.map(span))}, in red.`);
+    if (reds.some(r => r.length > 1)) parts.push('The red ticks sit next to each other, which EmoWave reads as a fighter who does not give up.');
+  }
+  redToGreen.forEach(p => parts.push(`At age ${p.a} the tick moves straight from red to green. EmoWave reads that change as either letting go and going along with the flow, or losing some determination.`));
+  if (longGreen) parts.push(`From age ${longGreen[0].a} to ${longGreen.at(-1).a} the ticks stay green: a long period of enjoying what you were doing and gaining energy.`);
+  if (since !== pts[0]) parts.push(nowCol === 'green' ? `Since age ${since.a} you have been in green.` : `From age ${since.a} the ticks move into ${nowCol}, and you are in ${nowCol} now.`);
+  const turning = changes.map(p => p.a);
+  const meaning = 'The graph does not show what happened in your life, only that something happened that had an impact and registered in your subconscious.' + (turning.length ? ` The ${turning.length > 1 ? 'ages' : 'age'} worth exploring together ${turning.length > 1 ? 'are' : 'is'} where the colour changes: ${turning.length > 1 ? 'ages ' : 'age '}${joinList(turning.map(String))}.` : '');
+  const markers = [];
+  if (reds.length) markers.push({ label: 'Most challenging (red)', value: cap(joinList(reds.map(span))) });
+  if (longGreen) markers.push({ label: 'Longest green period', value: cap(span(longGreen)) });
+  markers.push({ label: 'Now', value: cap(nowCol) + (since !== now ? ', since age ' + since.a : '') });
+  return { markers, insight: parts.join(' '), meaning, now: cap(nowCol) + (since !== now ? ', since age ' + since.a : ''), turnTo: since !== pts[0] ? since.a : null, nowCol };
 }
 
 // ---------- compose a full report draft from raw EmoWave signals ----------
+// Stress type comes from EmoWave's own description; the number alone is only a fallback.
+function stressType(text, v) {
+  if (/logical|intellect|problem solver|\bhow\b|\bwhy\b/i.test(text || '')) return 'Intellectual stress';
+  if (/emotion/i.test(text || '')) return 'Emotional stress';
+  if (/extreme/i.test(text || '')) return 'Extreme stress';
+  if (/stable/i.test(text || '')) return 'Stable';
+  return '';
+}
 function compose(raw, opts) {
   opts = opts || {};
   const fn = String(opts.fileName || '').replace(/\.pdf$/i, '');
   const fnRef = (fn.match(/\bEW[-_ ]?\d{3,6}\b/i) || [''])[0].toUpperCase().replace(/[_ ]/, '-');
   const fnName = fnRef ? clean(fn.split(new RegExp(fnRef.replace('-', '[-_ ]?'), 'i'))[0].replace(/[_-]+/g, ' ')) : '';
   const out = { meta: { name: raw.name || fnName, date: raw.date || '', source: 'EmoWave Full', ref: raw.ref || fnRef } };
+  const lower = a => a.map(x => x.toLowerCase());
 
-  // Mind
+  // Mind: sensory attributes, brain activity, stress level
   const st = raw.stress && isFinite(raw.stress.value) ? raw.stress.value : null;
-  const sb = st == null ? null : STRESS.find(b => st <= b.max);
+  const stText = raw.stress && raw.stress.text ? sentence(raw.stress.text) : '';
+  const stType = stressType(stText, st);
   const bl = raw.brain && raw.brain.left, br = raw.brain && raw.brain.right;
   const lead = bl && br ? (br / bl > 1.5 ? 'right' : bl / br > 1.5 ? 'left' : 'balanced') : null;
   const ratio = bl && br ? Math.max(br / bl, bl / br) : 1, strong = lead !== 'balanced' && ratio >= 3;
   const BK = lead && lead !== 'balanced' && strong ? lead + '_strong' : lead;
-  const sen = raw.sensory || {};
-  const base = sen.base || {}, next = sen.next || {};
+  const sen = raw.sensory || {}, base = sen.base || {}, next = sen.next || {};
+  const qual = x => [x.direction, x.energy].filter(Boolean).join(', ').toLowerCase();
   out.mind = {
     sensory: {
       base: { sense: base.sense || '', direction: base.direction || '', energy: base.energy || '', text: (SENSES[base.sense] || {}).base || '', direction_text: DIRECTION[base.direction] || '', energy_text: ENERGY[base.energy] || '' },
       next: { sense: next.sense || '', direction: next.direction || '', energy: next.energy || '', text: (SENSES[next.sense] || {}).next || '', direction_text: DIRECTION[next.direction] || '', energy_text: ENERGY[next.energy] || '' },
-      text: base.sense && next.sense ? `You take information in through ${base.sense.toLowerCase()} first${base.direction ? ', facing ' + base.direction.toLowerCase() : ''}, then process it through ${next.sense.toLowerCase()}${next.direction ? ', turned ' + next.direction.toLowerCase() : ''}. ${base.energy && next.energy && base.energy !== next.energy ? 'You meet the world as an ' + base.energy.toLowerCase() + ' and digest it as an ' + next.energy.toLowerCase() + ': people may see the outgoing first half and miss how much quiet you need for the second.' : ''}`.trim() : '',
+      text: base.sense && next.sense ? `When you receive information, the first sensory attribute you use is ${base.sense.toLowerCase()}${qual(base) ? ' (' + qual(base) + ')' : ''}. The next, which you use more of to process and analyse it, is ${next.sense.toLowerCase()}${qual(next) ? ' (' + qual(next) + ')' : ''}.` : '',
     },
     brain: bl || br ? { left: bl || 0, right: br || 0, label: BK ? BRAIN[BK].label : '', text: BK ? BRAIN[BK].text : '', line: BK ? BRAIN[BK].line : '' } : undefined,
-    stress: st != null ? { value: st, band: sb.band, type: sb.type, text: sb.text, source: raw.stress.text ? sentence(raw.stress.text) : '' } : undefined,
+    stress: st != null ? { value: st, type: stType, text: stText } : undefined,
   };
+  if (st != null && !stType) raw.warnings.push('Stress type could not be read from the EmoWave text. Fill it in under 02 How your mind works.');
 
-  // Emotional mastery
+  // Emotional state: empowering, dis-empowering, frequent and core emotion, notes
   const emp = raw.empowering || [], dis = raw.disempowering || [];
-  const emo = (slot, name, extra) => ({ emotion: name || '', text: name && EMO[name] ? EMO[name][slot === 'drain' ? 'drain' : 'thrive'] : '', also: extra || [] });
   out.emotional = {
-    thrive: emo('thrive', emp[0], emp.slice(1)),
-    drain: emo('drain', dis[0], dis.slice(1)),
-    visible: raw.frequent ? { emotion: emoFrom(raw.frequent.short + ' ' + raw.frequent.text), text: 'This is the emotion that keeps showing up, and the one people around you are most likely to notice. ' + sentence(raw.frequent.short), deep: raw.frequent.text ? sentence(raw.frequent.text) : '' } : {},
-    deep: raw.core ? { emotion: emoFrom(raw.core.short + ' ' + raw.core.text), text: 'This is the stronger emotion underneath the one that shows. ' + sentence(raw.core.short), deep: raw.core.text ? sentence(raw.core.text) : '' } : {},
+    thrive: emp.length ? { emotion: emp[0], also: emp.slice(1), text: `EmoWave reads ${joinList(lower(emp))} as your empowering ${emp.length > 1 ? 'emotions' : 'emotion'}: the states that give you energy.` } : {},
+    drain: dis.length ? { emotion: dis[0], also: dis.slice(1), text: `EmoWave reads ${joinList(lower(dis))} as your dis-empowering ${dis.length > 1 ? 'emotions' : 'emotion'}: the states that take energy from you.` } : {},
+    visible: raw.frequent ? { emotion: emoFrom(raw.frequent.short + ' ' + raw.frequent.text), text: [sentence(raw.frequent.short), raw.frequent.text ? sentence(raw.frequent.text) : ''].filter(Boolean).join(' ') } : {},
+    deep: raw.core ? { emotion: emoFrom(raw.core.short + ' ' + raw.core.text), text: [sentence(raw.core.short), raw.core.text ? sentence(raw.core.text) : ''].filter(Boolean).join(' ') } : {},
     tones: (raw.notes || []).filter(n => n.note || n.reaction).map(n => ({ note: n.note, text: sentence(n.reaction) })),
   };
-  if (out.emotional.thrive.emotion && out.emotional.thrive.also.length) out.emotional.thrive.deep = `Alongside ${out.emotional.thrive.emotion.toLowerCase()}, ${joinList(out.emotional.thrive.also.map(x => x.toLowerCase()))} also register${out.emotional.thrive.also.length > 1 ? '' : 's'} as empowering for you. ` + ((EMO[out.emotional.thrive.also[0]] || {}).thrive || '');
-  if (out.emotional.drain.emotion && out.emotional.drain.also.length) out.emotional.drain.deep = `${cap(joinList(out.emotional.drain.also.map(x => x.toLowerCase())))} also register${out.emotional.drain.also.length > 1 ? '' : 's'} as draining. ` + ((EMO[out.emotional.drain.also[0]] || {}).drain || '');
 
-  // Social mirror
+  // Present character, real intention, constructive attributes, leadership dynamics
   const pc = raw.present || {}, ri = raw.intention || {};
   out.social = {
     archetype: pc.name ? { name: title(pc.name), sub: clean(pc.traits), text: sentence(pc.summary) } : undefined,
-    motivator: ri.name ? { name: title(ri.name), sub: clean(ri.traits), text: sentence(ri.summary), force: pc.name ? `Outwardly you lead as the ${title(pc.name)}; underneath, what you are really reaching for is the ${title(ri.name)}'s ${traitList(ri.traits) || 'intention'}.` : '' } : undefined,
+    motivator: ri.name ? { name: title(ri.name), sub: clean(ri.traits), text: sentence(ri.summary) } : undefined,
     perception: (raw.constructive || []).filter(Boolean).map(t => ({ t: sentence(t).replace(/\.$/, ''), d: '' })),
-    perception_summary: (raw.notes || []).length ? 'Others may first meet the qualities below. They are the strengths you are already aware of and can draw on.' : '',
+    perception_summary: (raw.constructive || []).length ? 'You are consciously aware of these attributes: the actions you take from them empower you to create possibilities. They are the areas where you feel positive, with high energy.' : '',
     leadership: (raw.leadership || []).map(x => { const lv = levelOf(x.level); return { t: x.t, sub: x.sub, level: lv, d: (LEAD[x.t] || {})[lv] || '' }; }),
   };
   const hi = out.social.leadership.filter(x => x.level === 'High').map(x => x.t.toLowerCase()), lo = out.social.leadership.filter(x => x.level === 'Low').map(x => x.t.toLowerCase());
-  if (hi.length || lo.length) out.social.leadership_summary = (hi.length ? `Strong in ${joinList(hi)}` : 'A developing profile') + (lo.length ? `, with more development needed in ${joinList(lo)}.` : '.');
+  if (hi.length || lo.length) out.social.leadership_summary = [hi.length ? `High: ${joinList(hi)}.` : '', lo.length ? `Low: ${joinList(lo)}.` : ''].filter(Boolean).join(' ');
 
-  // Negativity
+  // Restrictive attributes (short name for the map; the full EmoWave wording is the reading)
   out.negativity = {
     core: {},
     patterns: (raw.restrictive || []).filter(Boolean).map(t => {
       const m = RESTRICT.find(r => r[0].test(t));
-      return { name: m ? m[1] : cap(clean(t).split(/\s+/).slice(0, 3).join(' ')).replace(/[.,?]$/, ''), summary: m ? m[2] : '', text: sentence(scrub(t).replace(/\?$/, '.')), notice: m ? m[3] : '' };
+      return { name: m ? m[1] : cap(clean(t).split(/\s+/).slice(0, 4).join(' ')).replace(/[.,?]$/, ''), text: sentence(scrub(t).replace(/\?$/, '.')) };
     }),
   };
 
-  // Mind and body
+  // EmoWave sentences whose last words fall off the PDF's text layer at a page break.
+  const ENDINGS = [[/place authority$/i, ' outside self']];
+  // Potential mental and physical wellness challenges
   out.body = {
     patterns: (raw.wellness || []).map(w => {
-      const m = BODY.find(b => b.re.test(w.title)) || BODY.find(b => b.re.test(w.description)) || {};
-      return { title: m.title || cap(scrub(w.title).replace(/\?$/, '')), interpretation: m.interpretation || '', meaning: sentence(scrub(w.description)), asking: m.asking || '', closing: m.closing || '' };
+      let t = cap(scrub(w.title).replace(/\?$/, ''));
+      if (/^reading problems?$/i.test(t)) t = 'Reading and concentration';
+      let raw0 = clean(w.description); ENDINGS.forEach(([re, end]) => { if (re.test(raw0)) raw0 += end; });
+      const d = sentence(scrub(raw0));
+      if (raw0 && !/[.?!]$/.test(raw0) && !ENDINGS.some(([re]) => re.test(clean(w.description)))) raw.warnings.push(`Wellness ${w.n} (${t}) looks cut off at a page break. Check the wording against the PDF.`);
+      return { title: t, meaning: d };
     }),
     organs: (raw.organs || []).filter(Boolean),
   };
 
-  // Journey (ticks entered by hand)
+  // Life journey (ticks entered by hand from page 5)
   const age = opts.age || '';
   out.journey = { age, ages: journeyAges(age), levels: opts.levels || [] };
   const jr = journeyRead(out.journey.ages, out.journey.levels);
   if (jr) Object.assign(out.journey, { markers: jr.markers, insight: jr.insight, meaning: jr.meaning });
 
-  // Overview
+  // Overview: only what EmoWave says, with the section it comes from
   const signals = [];
-  if (base.sense) signals.push({ label: 'Dominant processing', value: `${base.sense}-led${lead && lead !== 'balanced' ? ', ' + lead + '-brain' : ''}`, strength: 'High signal' });
-  if (sb) signals.push({ label: 'Stress signature', value: `${sb.type} · ${st.toFixed(2)}`, strength: st >= 12 ? 'High signal' : 'Moderate signal' });
-  if (pc.name && ri.name) signals.push({ label: 'Public / private delta', value: `${title(pc.name)} outside, ${title(ri.name)} inside`, strength: 'Moderate signal' });
-  if (jr) signals.push({ label: 'Current trajectory', value: jr.now + (jr.trend !== 'steady' ? ', ' + (jr.trend === 'rising' ? 'load rising' : 'load easing') : ''), strength: 'Cross-chapter signal' });
-  const lowest = out.social.leadership.find(x => x.level === 'Low'), highest = out.social.leadership.find(x => x.level === 'High');
-  const firstPattern = out.negativity.patterns[0];
+  if (base.sense) signals.push({ label: 'Processing', value: `${base.sense}${next.sense ? ' → ' + next.sense : ''}${BK ? ', ' + BRAIN[BK].label.toLowerCase() : ''}`, strength: 'Sensory attributes · Brain activities' });
+  if (st != null) signals.push({ label: 'Stress', value: `${stType || 'Stress level'} · ${st.toFixed(2)}`, strength: 'Stress level' });
+  if (pc.name && ri.name) signals.push({ label: 'Character and intention', value: `${title(pc.name)} → ${title(ri.name)}`, strength: 'Present character · Real intention' });
+  if (jr) signals.push({ label: 'Life journey now', value: jr.now, strength: 'Past experiences' });
   out.synthesis = {
     headline: 'Six chapters. One operating map.',
     signals,
     read: [
-      pc.name && ri.name ? `Outwardly you lead as the ${title(pc.name)}${pc.traits ? ' (' + clean(pc.traits).toLowerCase() + ')' : ''}, while what you are really reaching for is the ${title(ri.name)}'s ${traitList(ri.traits)}.` : '',
-      base.sense && lead ? `You take the world in through ${base.sense.toLowerCase()} and process with a ${lead === 'balanced' ? 'balanced' : lead + '-brain'} bias, so you often know before you can explain.` : '',
-      sb ? `Your stress reads as ${sb.phrase}.` : '',
+      pc.name && ri.name ? `Your present character is the ${title(pc.name)} (${traitList(pc.traits)}), and your real intention is the ${title(ri.name)} (${traitList(ri.traits)}).` : '',
+      base.sense && next.sense ? `You take information in through ${base.sense.toLowerCase()} and process it through ${next.sense.toLowerCase()}` + (bl && br ? `, with brain activity of ${br} on the right and ${bl} on the left.` : '.') : '',
+      stType === 'Intellectual stress' ? 'Your stress is intellectual: you search for answers and ask "how" and "why", and at times you know the answer and still argue against it.' : stType ? `Your stress reads as ${stType.toLowerCase()}.` : '',
     ].filter(Boolean).join(' '),
     changes: 'We do not start from "what is wrong". We start from the biggest gap between how you feel inside, how you act outside, and the outcome you want. The report narrows where to look first.',
     questions: [
-      firstPattern ? `Where is "${firstPattern.name.toLowerCase()}" costing you most right now?` : '',
-      lowest && highest ? `What would ${lowest.t.toLowerCase()} look like if it were as strong as your ${highest.t.toLowerCase()}?` : '',
-      jr && jr.trend === 'rising' ? 'What has been adding load in the last few years, and what did you do differently in your steadiest period?' : 'What do you already know that you have not yet acted on?',
+      /\bhow\b/i.test(stText) ? 'Where are you saying "I know, but how?" right now?' : '',
+      out.negativity.patterns.length ? `Which of your ${out.negativity.patterns.length} restrictive attributes do you recognise most right now?` : '',
+      jr && jr.turnTo && jr.nowCol !== 'green' ? `What changed for you around age ${jr.turnTo}, when the ticks moved into ${jr.nowCol}?` : '',
+      lo.length ? `${cap(joinList(lo))} ${lo.length > 1 ? 'read' : 'reads'} low. Where do you feel that most in your week?` : '',
     ].filter(Boolean),
   };
   out.notes = {};
@@ -503,7 +434,7 @@ function lint(data) {
   return hits;
 }
 
-const api = { BRAIN_WAYS, readPdf, parse, extract, compose, lint, journeyAges, journeyRead, zone, STRESS_BANDS, LIB: { STRESS, SENSES, BRAIN, LEAD, EMO, RESTRICT, BODY } };
+const api = { BRAIN_WAYS, readPdf, parse, extract, compose, lint, journeyAges, journeyRead, zone, STRESS_BANDS, LIB: { SENSES, BRAIN, LEAD, RESTRICT, EMO: Object.fromEntries(EMO_WORDS.map(([, n]) => [n, 1])) } };
 root.MaktoubEmowave = api;
 if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);
