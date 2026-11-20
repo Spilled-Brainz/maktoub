@@ -201,7 +201,19 @@ async function openDetail(id) {
     const w = el('div'); w.append(el('label', 'Countersign agreement (your typed signature)'), cn, cb); actions.append(w);
   }
   const btn = (t, op, extra, conf, cls) => { const b = el('button', t, 'b ' + (cls || 'g')); b.onclick = () => act(op, extra, conf); actions.append(b); };
-  if (r.report_due_at && !r.report_delivered_at) btn('Report delivered (outside the portal)', 'report_delivered', {}, 'Mark the report as delivered? Publishing it from the Voice report section below does this automatically.');
+  // The report itself: publish it to her portal from here (the full editor is in the Voice report section below).
+  if (d.report && d.report.status !== 'published') {
+    const pub = el('button', 'Publish report to her portal', 'b');
+    pub.onclick = async () => {
+      if (!confirm('Publish the report now? ' + r.invited_name + ' sees it in her portal straight away, with her tests and the booking calendar.')) return;
+      try { await api('admin_save_report', { id, data: d.report.data, publish: true }); msg.className = 'msg'; msg.textContent = 'Published. Her link now opens with "Your report is ready".'; await refresh(); openDetail(id); }
+      catch (e) { msg.textContent = e.message; msg.className = 'msg e'; }
+    };
+    const w = el('div'); w.append(el('label', 'Voice report · draft, not visible to her yet'), pub); actions.append(w);
+  } else if (d.report && d.report.status === 'published') {
+    const w = el('div'); w.append(el('label', 'Voice report · published ' + when(d.report.published_at) + ' · she can see it')); actions.append(w);
+  }
+  if (r.report_due_at && !r.report_delivered_at && !d.report) btn('Report delivered (outside the portal)', 'report_delivered', {}, 'Mark the report as delivered outside the portal? To deliver it in her portal, publish it instead.');
   if (r.report_delivered_at && !r.consultation_completed_at) btn('Consultation & Q&A done', 'consultation_completed', {}, 'Mark the report-review consultation as completed?');
   if (r.consultation_completed_at && !r.matchmaking_started_at) { btn('Approve readiness', 'readiness', { status: 'approved' }, 'Approve readiness? Matchmaking may then start.'); btn('Not yet ready', 'readiness', { status: 'not_yet' }); }
   if (r.readiness_status === 'approved' && !r.matchmaking_started_at) btn('Start active matchmaking', 'start_matchmaking', {}, 'Start the 3–6 month active matchmaking period now?', '');
