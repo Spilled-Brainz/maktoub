@@ -263,8 +263,19 @@ blockquote.src .k{margin-bottom:6px}
 
 /* booking */
 .book{margin-top:clamp(28px,5vw,48px);border-top:1px solid var(--ink);padding-top:16px}
-.calframe{margin:18px 0 6px;border:1px solid var(--hair);background:var(--white)}
-.calframe iframe{display:block;width:100%;height:640px;border:0}
+.bookarea{margin-top:4px}
+.bookarea>.k{margin:18px 0 8px}
+.days{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}.days::-webkit-scrollbar{display:none}
+.day{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;width:64px;padding:10px 0;border:1px solid var(--hair);background:var(--card)}
+.day .dw,.day .dm{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--smoke)}
+.day .dn{font-size:22px;font-weight:500;line-height:1.1}
+.day[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:var(--paper)}.day[aria-pressed=true] span{color:var(--paper)}
+.times{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;max-width:560px}
+.time{padding:13px 0;border:1px solid var(--hair);background:var(--card);font-size:15px;font-variant-numeric:tabular-nums}
+.time[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.booked{background:var(--card);border:1px solid var(--hair);padding:20px 22px;margin-top:8px;max-width:620px}
+.booked .when{font-family:var(--serif);font-size:clamp(24px,3vw,30px);line-height:1.2;margin:6px 0 8px}
+.small{font-size:13px}
 .cta{display:inline-flex;align-items:center;gap:12px;background:var(--ink);color:var(--paper);text-decoration:none;padding:15px 22px;font-size:12px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;margin-top:14px}
 .cta svg{width:16px;height:16px}.cta:disabled{opacity:.5}
 /* assessments */
@@ -367,8 +378,6 @@ const FN = 'https://pmjvpnqmklxxpswwvbmv.supabase.co/functions/v1/';
 const SOURCES = { ready: { api: FN + 'maktoub-programme', key: 'maktoub_ready', portal: '/ready/' }, onboard: { api: FN + 'maktoub-onboard', key: 'maktoub_invite', portal: '/onboard/' } };
 let SRC = SOURCES.ready, API = SRC.api;
 const KEY = 'maktoub_ready', PREVIEW_KEY = 'maktoub_report_preview';
-// Google Calendar appointment page for the report review (60–90 minutes). A report can override it (notes.booking_url).
-const BOOKING_URL = '';
 let TOKEN = null, LIVE = false, ASSESS = {};
 const $ = id => document.getElementById(id);
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null && text !== '') e.textContent = text; return e; };
@@ -702,19 +711,64 @@ function chapter(c, all) {
   return w;
 }
 const prose = text => { const pr = el('div', 'prose'); String(text).split(/\n{2,}|\n(?=[-•])/).forEach(par => { par = par.trim(); if (par) pr.append(el('p', null, par)); }); return pr; };
-function bookingBlock(follow) {
-  const url = (R.notes || {}).booking_url || BOOKING_URL;
-  const box = add(el('div', 'book'), K(follow ? 'Book a follow-up' : 'Book your report review', true),
-    el('p', 'q', follow ? 'Book another session to go deeper.' : 'An hour to an hour and a half together, going through your report and your recommendations.'));
-  if (!url) { add(box, el('p', 'body', 'Your booking link will appear here. Reply to the message that brought you here and we will find a time.')); return box; }
-  if (/calendar\.google\.com\/calendar\/(u\/\d+\/)?appointments\/schedules\//.test(url) && !EMBED_OFF) {
-    const f = el('iframe'); f.src = url + (url.includes('?') ? '&' : '?') + 'gv=true'; f.title = 'Book your session'; f.loading = 'lazy';
-    add(box, add(el('div', 'calframe'), f));
-  }
-  const a = add(el('a', 'cta'), document.createTextNode('Choose a time'), icon(ARROW)); a.href = url; a.target = '_blank'; a.rel = 'noopener';
-  return add(box, a);
+// Report review booking on Maktoub's own calendar (maktoub-book): live slots from the founder's Google Calendar,
+// a request the founder approves on Telegram, then a Calendar event with a Meet link.
+const BOOK_API = FN + 'maktoub-book';
+const fmtSlot = iso => new Date(iso).toLocaleString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Riyadh' });
+const dayKey = iso => iso.slice(0, 10);
+function demoSlots() { // preview and sample only: plausible times, nothing is booked
+  const out = [], d0 = new Date(Date.now() + 3 * 864e5);
+  for (let d = 0; d < 10; d++) { const day = new Date(d0.getTime() + d * 864e5); if (day.getUTCDay() === 5) continue; const ymd = day.toISOString().slice(0, 10); [16, 18, 20].forEach(h => out.push(`${ymd}T${h}:00:00+03:00`)); }
+  return out;
 }
-const EMBED_OFF = false;
+function bookingBlock(follow) {
+  const box = add(el('div', 'book'), K(follow ? 'Book a follow-up' : 'Book your report review', true),
+    el('p', 'q', follow ? 'Book another session to go deeper.' : 'An hour and a half together, going through your report and your recommendations.'));
+  const area = add(el('div', 'bookarea'), el('p', 'body muted', 'Loading available times…')); box.append(area);
+  const live = LIVE && TOKEN, source = SRC === SOURCES.onboard ? 'onboard' : 'ready';
+  const post = async payload => { const r = await fetch(BOOK_API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...payload, source, token: TOKEN }) }); const j = await r.json().catch(() => ({})); if (!r.ok) throw Object.assign(new Error(j.error || 'Please try again.'), { booking: j.booking }); return j; };
+  const showBooked = b => {
+    area.replaceChildren();
+    const ok = b.status === 'accepted';
+    add(area, add(el('div', 'booked'), K(ok ? 'Confirmed' : 'Requested', true), el('p', 'when', fmtSlot(b.starts_at) + ' (Riyadh time)'),
+      el('p', 'body', ok ? '90 minutes together. Join from this page or the link we sent you.' : 'Your time is with us for confirmation. We will confirm on WhatsApp, and the joining link will appear here.')));
+    if (ok && b.meet_url) { const a = add(el('a', 'cta'), document.createTextNode('Join the session'), icon(ARROW)); a.href = b.meet_url; a.target = '_blank'; a.rel = 'noopener'; area.append(a); }
+  };
+  const picker = (slots, demo) => {
+    area.replaceChildren();
+    if (!slots.length) { area.append(el('p', 'body', 'There are no open times in the next few weeks. Reply to the message that brought you here and we will find one.')); return; }
+    const days = [...new Set(slots.map(dayKey))], dayRow = el('div', 'days'), times = el('div', 'times'), msg = el('p', 'qmsg');
+    let pick = null; const go = add(el('button', 'cta'), document.createTextNode('Request this time'), icon(ARROW)); go.type = 'button'; go.disabled = true;
+    const showDay = d => {
+      dayRow.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.d === d)));
+      times.replaceChildren(); pick = null; go.disabled = true;
+      slots.filter(x => dayKey(x) === d).forEach(x => { const b = el('button', 'time', x.slice(11, 16)); b.type = 'button'; b.setAttribute('aria-pressed', 'false');
+        b.onclick = () => { times.querySelectorAll('button').forEach(y => y.setAttribute('aria-pressed', String(y === b))); pick = x; go.disabled = false; msg.textContent = ''; }; times.append(b); });
+    };
+    days.forEach(d => { const dt = new Date(d + 'T12:00:00+03:00'), b = el('button', 'day'); b.type = 'button'; b.dataset.d = d;
+      add(b, el('span', 'dw', dt.toLocaleDateString('en-GB', { weekday: 'short', timeZone: 'Asia/Riyadh' })), el('span', 'dn', dt.toLocaleDateString('en-GB', { day: 'numeric', timeZone: 'Asia/Riyadh' })), el('span', 'dm', dt.toLocaleDateString('en-GB', { month: 'short', timeZone: 'Asia/Riyadh' })));
+      b.onclick = () => showDay(d); dayRow.append(b); });
+    go.onclick = async () => {
+      if (!pick) return;
+      if (demo) { msg.textContent = 'Preview: booking is switched off here.'; return; }
+      go.disabled = true; msg.textContent = 'Sending…';
+      try { const j = await post({ action: 'review_request', starts_at: pick }); showBooked(j.booking); }
+      catch (e) { if (e.booking) showBooked(e.booking); else { msg.textContent = e.message; go.disabled = false; } }
+    };
+    add(area, K('Choose a day'), dayRow, K('Choose a time · Riyadh'), times, go, msg, el('p', 'small muted', '90 minutes, by video. Times shown are open in our calendar now; we confirm each request personally.'));
+    showDay(days[0]);
+  };
+  (async () => {
+    if (!live) { picker(demoSlots(), true); return; }
+    try {
+      const st = await post({ action: 'review_status' });
+      if (st.booking && !follow) return showBooked(st.booking);
+      const r = await fetch(BOOK_API + '?kind=report_review'); const j = await r.json();
+      picker(j.slots || [], false);
+    } catch (e) { area.replaceChildren(el('p', 'body', e.message || 'Booking is not available right now. Please try again shortly.')); }
+  })();
+  return box;
+}
 function notesView(kind) {
   const n = R.notes || {}, w = el('section', 'chapter');
   if (kind === 'notes') {
