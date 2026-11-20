@@ -19,7 +19,7 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);f
 button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0}a{color:inherit}
 :focus-visible{outline:2px solid var(--navy);outline-offset:3px}[hidden]{display:none!important}
 ::selection{background:var(--navy);color:var(--white)}
-.k{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--smoke);margin:0;line-height:1.4;font-family:var(--sans)}
+.k{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--smoke);margin:0;line-height:1.4;font-family:var(--sans)}
 .k.ink{color:var(--ink)}
 p{margin:0 0 14px}
 .muted{color:var(--smoke)}
@@ -47,7 +47,7 @@ main{max-width:1240px;margin:0 auto;padding:0 var(--pad) 80px;min-height:70vh}
 
 /* hero */
 .hero{padding:clamp(40px,8vw,104px) 0 clamp(28px,4vw,48px);border-bottom:1px solid var(--hair);display:grid;gap:22px}
-.hero h1{font-size:clamp(38px,10vw,112px);overflow-wrap:break-word;font-weight:500;letter-spacing:-.04em;line-height:.94;margin:10px 0 0;max-width:12ch}
+.hero h1{font-size:clamp(38px,9vw,96px);overflow-wrap:break-word;font-weight:500;letter-spacing:-.022em;line-height:1.02;margin:10px 0 0;max-width:12ch}
 .hero .lead{font-size:clamp(18px,2.2vw,23px);line-height:1.38;color:var(--ink-2);max-width:40ch;margin:0}
 .hero .meta{display:flex;flex-wrap:wrap;gap:6px 22px}
 @media(min-width:900px){.hero{grid-template-columns:1.35fr 1fr;align-items:end}.hero .side{padding-bottom:6px}}
@@ -63,8 +63,8 @@ main{max-width:1240px;margin:0 auto;padding:0 var(--pad) 80px;min-height:70vh}
 .panel-title{display:none}
 
 /* type */
-.q{font-size:clamp(22px,2.6vw,30px);font-weight:500;letter-spacing:-.02em;line-height:1.15;margin:8px 0 18px;max-width:26ch}
-.big{font-size:clamp(44px,8vw,84px);font-weight:500;letter-spacing:-.035em;line-height:.98;margin:6px 0 10px}
+.q{font-size:clamp(18px,2vw,21px);font-weight:400;letter-spacing:0;line-height:1.45;color:var(--ink-2);margin:4px 0 18px;max-width:40ch}
+.big{font-size:clamp(40px,7.5vw,76px);font-weight:500;letter-spacing:-.02em;line-height:1.04;margin:6px 0 12px}
 .word{font-family:var(--serif);font-weight:400;letter-spacing:-.025em}
 .sub{font-size:19px;color:var(--smoke);margin:0 0 16px}
 .body{font-size:17px;line-height:1.65;color:var(--ink-2);max-width:60ch}
@@ -473,7 +473,7 @@ const PANELS = {
       ['deep', 'Core', 'Core emotion', 'The strongest emotion underneath the frequent one.'],
     ].filter(([k]) => d[k] && d[k].emotion);
     return slots.map(([k, label, kicker, q]) => ({ k, label, build() {
-      const s = d[k], w = add(el('div', 'emo'), K(kicker), el('p', 'q', q), el('div', 'big word', s.emotion), P(s.text));
+      const s = d[k], w = add(el('div', 'emo'), el('p', 'q', q), el('div', 'big word', s.emotion), P(s.text));
       if (s.also && s.also.length) add(w, add(el('div', 'chips'), s.also.map(a => el('span', 'chip', a))));
       const detail = [block('The deeper read', s.deep), block('What this may mean', s.meaning), block('What to pay attention to', s.attention)].filter(Boolean);
       if (detail.length) {
@@ -491,7 +491,7 @@ const PANELS = {
     const out = [];
     const se = d.sensory;
     if (se && (se.base && se.base.sense || se.next && se.next.sense)) out.push({ k: 'process', label: 'Process', build() {
-      const w = add(el('div'), K('Sensory attributes'), el('p', 'q', 'How do you take information in, and how do you work with it?'));
+      const w = add(el('div'), el('p', 'q', 'How do you take information in, and how do you work with it?'));
       const stage = (lab, s, which) => {
         const st = add(el('div', 'stage'), K(lab), el('h4', null, s.sense || '·'));
         [['Sense', s.sense, s.text], ['Direction', s.direction, s.direction_text], ['Energy', s.energy, s.energy_text]].forEach(([t, v, txt]) => {
@@ -507,7 +507,7 @@ const PANELS = {
     } });
     if (d.brain && (+d.brain.left || +d.brain.right)) out.push({ k: 'brain', label: 'Brain', build() {
       const L = +d.brain.left || 0, Rr = +d.brain.right || 0, tot = (L + Rr) || 1, leadR = Rr >= L;
-      const w = add(el('div'), K('Brain activity'), el('p', 'q', 'Which side of your brain is leading?'), el('div', 'big', d.brain.label || (leadR ? 'Right-brain led' : 'Left-brain led')));
+      const w = add(el('div'), el('p', 'q', 'Which side of your brain is leading?'), el('div', 'big', d.brain.label || (leadR ? 'Right-brain led' : 'Left-brain led')));
       const h = el('div', 'hemi'), row = el('div', 'row');
       add(row, add(el('div', 'side' + (leadR ? ' dim' : '')), K('Left'), el('div', 'num', String(L)), el('small', null, 'Structure, sequence, logic')),
         add(el('div', 'side r' + (leadR ? '' : ' dim')), K('Right'), el('div', 'num', String(Rr)), el('small', null, 'Pattern, intuition, synthesis')));
@@ -520,7 +520,7 @@ const PANELS = {
     } });
     if (d.stress && (d.stress.value != null || d.stress.type)) out.push({ k: 'stress', label: 'Stress', build() {
       const v = d.stress.value != null && d.stress.value !== '' ? +d.stress.value : null;
-      const w = add(el('div'), K('Stress level'), el('p', 'q', 'What kind of stress is your system carrying?'), el('div', 'big', d.stress.type || d.stress.band || ''));
+      const w = add(el('div'), el('p', 'q', 'What kind of stress is your system carrying?'), el('div', 'big', d.stress.type || d.stress.band || ''));
       if (v != null && isFinite(v)) add(w, add(el('div', 'gauge'), add(el('div', 'val'), el('b', null, v.toFixed(2)), K('Stress level'))));
       add(w, P(d.stress.text));
       return w;
@@ -530,16 +530,16 @@ const PANELS = {
   social(d) {
     const out = [];
     if (d.archetype && d.archetype.name) out.push({ k: 'archetype', label: 'Present character', build() {
-      const w = add(el('div'), K('Present character'), el('div', 'big', d.archetype.name), el('p', 'sub', d.archetype.sub), P(d.archetype.text));
+      const w = add(el('div'), el('div', 'big', d.archetype.name), el('p', 'sub', d.archetype.sub), P(d.archetype.text));
       const rows = (d.perception || []).map(p => typeof p === 'string' ? { t: p } : p).filter(p => p.t);
       if (rows.length || d.perception_summary) add(w, el('div', null), add(el('div', 'block'), K('Your top 5 constructive attributes', true), d.perception_summary ? el('p', null, d.perception_summary) : null), rows.length ? acc(rows.map(r => ({ t: r.t, d: r.d }))) : null);
       return w;
     } });
     if (d.motivator && d.motivator.name) out.push({ k: 'motivator', label: 'Real intention', build() {
-      return add(el('div'), K('Real intention'), el('div', 'big', d.motivator.name), el('p', 'sub', d.motivator.sub), P(d.motivator.text), block('Driving force', d.motivator.force));
+      return add(el('div'), el('div', 'big', d.motivator.name), el('p', 'sub', d.motivator.sub), P(d.motivator.text), block('Driving force', d.motivator.force));
     } });
     if (has(d.leadership)) out.push({ k: 'leadership', label: 'Leadership', build() {
-      const w = add(el('div'), K('Leadership profile'), el('div', 'big', 'Seven dynamics'), d.leadership_summary ? P(d.leadership_summary) : null);
+      const w = add(el('div'), el('div', 'big', 'Seven dynamics'), d.leadership_summary ? P(d.leadership_summary) : null);
       if (styleOf() === 'right' || printing) w.append(radar(d.leadership));
       return add(w, acc(d.leadership.map(x => ({ t: x.t, sub: x.sub, d: x.d, level: x.level }))));
     } });
@@ -554,7 +554,7 @@ const PANELS = {
     } });
     const pats = (d.patterns || []).filter(p => p.name);
     if (pats.length) out.push({ k: 'patterns', label: 'Restrictive attributes', build() {
-      const w = add(el('div'), K('Your top 5 restrictive attributes'), el('p', 'q', 'Past incidents can block present actions. These are the areas that may trigger unpleasant memories. Tap one.'));
+      const w = add(el('div'), el('p', 'q', 'Past incidents can block present actions. These are the areas that may trigger unpleasant memories. Tap one.'));
       if (printing) { pats.forEach(p => add(w, add(el('div', 'block'), K('Restrictive pattern', true), el('h3', null, p.name), p.summary ? el('p', null, p.summary) : null, el('p', null, p.text), p.notice ? el('p', 'line', p.notice) : null))); return w; }
       const map = el('div', 'pmap'), s = svg('svg', { viewBox: '0 0 400 300', preserveAspectRatio: 'none', 'aria-hidden': 'true' }), det = el('div', 'pdetail');
       const n = pats.length, lines = [], btns = [];
@@ -605,8 +605,8 @@ const PANELS = {
     const legacy = (d.points || []).filter(p => isFinite(p.age) && isFinite(p.level));
     const chart = () => pts.length > 1 ? journeyChart(pts, +d.age) : legacy.length > 1 ? journeyChart(legacy.map(p => ({ a: +p.age, l: 1 + Math.round(+p.level / 10 * 6) })), 0) : null;
     const markers = () => has(d.markers) ? (() => { const m = el('div', 'markers'); m.style.setProperty('--n', Math.min(4, d.markers.length)); d.markers.forEach(x => add(m, add(el('div'), K(x.label), el('b', null, x.value)))); return m; })() : null;
-    if (d.insight) out.push({ k: 'insight', label: 'Journey insight', build() { return add(el('div'), add(el('div', 'jcard'), K('Journey insight'), el('p', null, d.insight)), chart(), markers()); } });
-    if (d.meaning) out.push({ k: 'meaning', label: 'What this means', build() { return add(el('div'), add(el('div', 'jcard'), K('What this may mean'), el('p', null, d.meaning)), printing && d.insight ? null : chart(), printing && d.insight ? null : markers()); } });
+    if (d.insight) out.push({ k: 'insight', label: 'Journey insight', build() { return add(el('div'), add(el('div', 'jcard'), el('p', null, d.insight)), chart(), markers()); } });
+    if (d.meaning) out.push({ k: 'meaning', label: 'What this means', build() { return add(el('div'), add(el('div', 'jcard'), el('p', null, d.meaning)), printing && d.insight ? null : chart(), printing && d.insight ? null : markers()); } });
     if (!out.length && (pts.length > 1 || legacy.length > 1)) out.push({ k: 'graph', label: 'Journey', build() { return add(el('div'), chart(), markers()); } });
     return out;
   },
