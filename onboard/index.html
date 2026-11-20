@@ -192,8 +192,8 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
 <main>
   <!-- Loading / invalid -->
   <section id="gate" class="gate wrap grain">
-    <div class="kicker">Private invitation</div>
-    <h2 id="gateTitle" style="margin-top:18px">Opening your invitation…</h2>
+    <div class="kicker" id="gateKicker">Maktoub</div>
+    <h2 id="gateTitle" style="margin-top:18px">One moment…</h2>
     <p id="gateText" class="muted"></p>
   </section>
 
@@ -671,7 +671,15 @@ window.addEventListener('beforeunload', e => { if (rec && rec.state === 'recordi
 
 async function load() {
   if (!token) { gate('Please open your invitation link.', 'This page opens only from the private link Maktoub sent you. If you no longer have it, reply to our message and we will send it again.'); return; }
-  try { const v = await call('load'); apply(v, v.step); }
+  // Once her report is published, her link opens the report itself, not the onboarding steps.
+  const REPORT_FLAG = 'maktoub_report_ready';
+  try { if (localStorage.getItem(REPORT_FLAG)) { $('gateKicker').textContent = 'Maktoub'; $('gateTitle').textContent = 'Your report is loading…'; } } catch (_) {}
+  try {
+    const v = await call('load');
+    if (v.report) { try { localStorage.setItem(REPORT_FLAG, '1'); } catch (_) {} location.replace('/ready/report/?from=onboard'); return; }
+    try { localStorage.removeItem(REPORT_FLAG); } catch (_) {}
+    apply(v, v.step);
+  }
   catch (e) { gate(e.status === 401 ? 'This link is no longer active.' : 'We could not open your invitation.', e.message); }
 }
 load();

@@ -261,6 +261,13 @@ blockquote.src .k{margin-bottom:6px}
 .prose{max-width:68ch;padding-top:clamp(28px,5vw,48px)}
 .prose p{font-size:17.5px;line-height:1.7;color:var(--ink-2)}
 
+/* welcome */
+.welcome{position:fixed;inset:0;z-index:80;background:var(--paper);display:flex;align-items:center;justify-content:center;padding:0 var(--pad);opacity:0;transition:opacity .6s var(--ease)}
+.welcome.on{opacity:1}
+.welcome .win{max-width:560px;text-align:center;transform:translateY(10px);transition:transform .9s var(--ease)}
+.welcome.on .win{transform:none}
+.welcome h1{font-family:var(--serif);font-weight:400;font-size:clamp(44px,10vw,84px);letter-spacing:-.025em;line-height:1;margin:18px 0 18px}
+.welcome .wl{font-size:18px;color:var(--ink-2);margin:0 auto 28px;max-width:30ch}
 /* documents */
 .docitem{border-top:1px solid var(--hair);padding:2px 0}
 .docitem summary{cursor:pointer;padding:14px 0;font-size:16px;font-weight:500;list-style:none}
@@ -382,7 +389,8 @@ footer button{font-size:11px;letter-spacing:.1em;text-transform:uppercase;border
 </header>
 <div class="preview" id="previewBar" hidden>Founder preview · not visible to the client until published</div>
 <nav class="chapters" id="chapters" hidden aria-label="Chapters"><div class="in" role="tablist" id="chapterTabs"></div></nav>
-<main id="main"><div class="gate" id="gate"><div class="spin" aria-hidden="true"></div><p style="margin-top:18px">Opening your report…</p></div></main>
+<main id="main"><div class="gate" id="gate"><p class="k">Maktoub</p><h1 style="font-family:var(--serif);font-weight:400">Your report is loading…</h1><div class="spin" aria-hidden="true" style="margin-top:22px"></div></div></main>
+<div class="welcome" id="welcome" hidden role="dialog" aria-label="Welcome"><div class="win"><p class="k">Maktoub · Your voice report</p><h1 id="welcomeName"></h1><p class="wl">Six chapters, read as one picture. Take your time with it.</p><button type="button" class="cta" id="welcomeGo">Open my report</button></div></div>
 <div id="print"></div>
 <script src="/ready/report/assessments.js"></script>
 <footer id="foot" hidden><span id="footText">A signal layer to explore during the programme. Not a diagnosis.</span></footer>
@@ -935,6 +943,17 @@ function route(keepScroll) {
   if (!keepScroll) scrollTo({ top: 0 });
 }
 
+// ---------- welcome: a short moment before the report opens (once per visit) ----------
+function welcome() {
+  let seen = false; try { seen = !!sessionStorage.getItem('maktoub_welcomed'); } catch (_) {}
+  if (seen || new URLSearchParams(location.search).has('preview')) return;
+  const w = $('welcome'), name = (who.first_name || '').trim();
+  $('welcomeName').textContent = name && name !== 'Sample client' ? 'Welcome, ' + name + '.' : 'Welcome.';
+  w.hidden = false; requestAnimationFrame(() => w.classList.add('on'));
+  const done = () => { try { sessionStorage.setItem('maktoub_welcomed', '1'); } catch (_) {} w.classList.remove('on'); setTimeout(() => { w.hidden = true; }, 600); };
+  $('welcomeGo').onclick = done;
+}
+
 // ---------- sheet ----------
 let lastFocus = null;
 function openSheet(label, titleText, nodes) {
@@ -966,13 +985,13 @@ async function start() {
   try {
     const d = await getData(); R = d.report; who = d.who || {};
     $('who').textContent = [who.first_name, who.reference].filter(Boolean).join(' · ');
-    if (!new URLSearchParams(location.search).has('preview')) { const a = el('a', null, 'Portal'); a.href = SRC.portal; $('who').append(a); }
     const tabs = $('chapterTabs');
     CH.filter(c => c.k === 'overview' || panelsFor(c.k).length).forEach(c => { const b = el('button'); b.type = 'button'; b.dataset.k = c.k; b.setAttribute('role', 'tab'); if (c.n) b.append(el('span', 'n', c.n)); b.append(document.createTextNode(c.short || c.t)); b.onclick = () => go(c.k); tabs.append(b); });
     document.querySelectorAll('#views button').forEach(b => b.onclick = () => go(b.dataset.v === 'report' ? 'overview' : b.dataset.v));
     $('views').hidden = false; $('foot').hidden = false;
     addEventListener('popstate', () => route());
     route(true);
+    welcome();
   } catch (e) { gate(e); }
 }
 
