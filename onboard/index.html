@@ -343,7 +343,8 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
     </div>
 
     <div id="payState" class="card" hidden>
-      <div class="done-mark"><span class="tick" id="payTick">✓</span><div><b id="payTitle"></b><p class="muted small" id="payText" style="margin:4px 0 0"></p></div></div>
+      <div class="done-mark"><span class="tick" id="payTick">✓</span><div><b id="payTitle"></b><p class="muted small" id="payText" style="margin:4px 0 0"></p>
+      <a class="btn" id="reportLink" href="/ready/report/?from=onboard" hidden>Open your report →</a></div></div>
     </div>
 
     <article id="invoice" class="invoice" hidden aria-labelledby="invTitle">
@@ -499,13 +500,15 @@ function apply(v, goTo) {
   }
   if (p.verified_at) {
     $('payTitle').textContent = 'Payment verified. Thank you.';
-    $('payText').textContent = v.report_due_at ? 'Your report is due by ' + fmtDay(v.report_due_at) + '. We will contact you to arrange your consultation.' : 'We will be in touch about your report.';
+    $('payText').textContent = v.report ? 'Your report is ready. Open it to read it, take your assessments and book your report review with us.' : v.report_due_at ? 'Your report is due by ' + fmtDay(v.report_due_at) + '. We will contact you to arrange your consultation.' : 'We will be in touch about your report.';
+    if (v.report) $('payTitle').textContent = 'Your report is ready.';
     
   } else if (p.reported_at) {
     $('payTitle').textContent = 'Transfer noted. We are verifying it.';
     $('payText').textContent = 'You told us on ' + fmtDate(p.reported_at) + '. We will confirm once it appears in our account. Your onboarding is complete; there is nothing else you need to do.';
     
   }
+  $('reportLink').hidden = !v.report;
   $('dueText').textContent = v.report_due_at ? 'Yours is due by ' + fmtDay(v.report_due_at) + '.' : '';
   show(goTo || current);
 }

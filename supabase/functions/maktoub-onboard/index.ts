@@ -115,7 +115,32 @@ function intakeProblems(i: Record<string, any>) {
 }
 
 // ---------- Client view ----------
+// ---------- voice report and assessments ----------
+// The report lives in maktoub_onboarding_reports and is visible to the client only once published; the client
+// opens it at /ready/report/?from=onboard with the same invitation link. Assessments are recommended in the
+// published report (data.notes.tests) and scored here; the founder sees the scores, the client never does.
+// Item wording lives in ready/report/assessments.js; the key below is generated from that file.
+type Instrument = { name: string, version: string, max: number, scales: Record<string, string>, key: [string, boolean][] }
+const INSTRUMENTS: Record<string, Instrument> = /*INSTRUMENTS*/{"six_factor":{"name":"Six-factor personality (Mini-IPIP6)","version":"mini-ipip6-2011","max":7,"scales":{"H":"Honesty-Humility","N":"Neuroticism","E":"Extraversion","A":"Agreeableness","C":"Conscientiousness","O":"Openness"},"key":[["E",false],["A",false],["C",false],["N",false],["O",false],["H",true],["E",true],["A",true],["O",true],["C",false],["C",true],["H",true],["O",true],["A",false],["N",true],["N",false],["N",true],["H",true],["E",true],["A",true],["O",true],["C",true],["E",false],["H",true]]},"dark_triad":{"name":"Short Dark Tetrad (SD4)","version":"sd4","max":5,"scales":{"M":"Crafty (Machiavellianism)","N":"Special (Narcissism)","P":"Wild (Psychopathy)","S":"Mean (Sadism)"},"key":[["M",false],["M",false],["M",false],["M",false],["M",false],["M",false],["M",false],["N",false],["N",false],["N",false],["N",false],["N",false],["N",false],["N",false],["P",false],["P",false],["P",false],["P",false],["P",false],["P",false],["P",false],["S",false],["S",false],["S",false],["S",false],["S",false],["S",false],["S",false]]}}/*END*/
+function scoreAssessment(ins: Instrument, answers: number[]) {
+  const sums: Record<string, number[]> = {}
+  ins.key.forEach(([scale, reversed], i) => { (sums[scale] ||= []).push(reversed ? ins.max + 1 - answers[i] : answers[i]) })
+  return Object.fromEntries(Object.keys(ins.scales).map(k => [k, Math.round(sums[k].reduce((a, b) => a + b, 0) / sums[k].length * 100) / 100]))
+}
+async function reportOf(id: string) {
+  const { data, error } = await db.from('maktoub_onboarding_reports').select('data,status,published_at,updated_at').eq('onboarding_id', id).maybeSingle()
+  if (error) throw error
+  return data
+}
+async function assessmentsOf(id: string, withScores = false) {
+  const { data, error } = await db.from('maktoub_assessments').select('kind,instrument,answers,scores,started_at,saved_at,completed_at').eq('onboarding_id', id)
+  if (error) throw error
+  return (data || []).map(a => withScores ? a : { kind: a.kind, saved_at: a.saved_at, completed_at: a.completed_at, answers: a.completed_at ? undefined : a.answers })
+}
+
 async function clientView(ob: Record<string, any>, s: Record<string, any>) {
+  const rep = await reportOf(ob.id)
+  const report = rep?.status === 'published' ? { ...rep.data, published_at: rep.published_at } : null
   const docs = await documents(s, ob)
   return {
     first_name: String(ob.invited_name).trim().split(/\s+/)[0],
@@ -133,6 +158,7 @@ async function clientView(ob: Record<string, any>, s: Record<string, any>) {
       bank: bankReady(s) ? { account_name: s.bank_account_name, bank_name: s.bank_name, iban: s.bank_iban, swift: s.bank_swift } : null,
     },
     report_due_at: ob.report_due_at, report_delivered_at: ob.report_delivered_at,
+    report, assessments: report ? await assessmentsOf(ob.id) : [],
     readiness_status: ob.readiness_status,
     // Issued automatically once payment is verified (see maktoub_onboarding_before).
     invoice: ob.invoice_number && ob.payment_verified_at ? {
@@ -177,6 +203,25 @@ async function clientAction(req: Request, origin: string, ip: string) {
     const fresh = await update({ last_seen_at: now, ...(ob.first_opened_at ? {} : { first_opened_at: now }) })
     if (!ob.first_opened_at) logEvent(ob.id, 'client', 'opened')
     return json(await clientView(fresh, s), 200, origin)
+  }
+
+  if (action === 'save_assessment') {
+    const kind = String(body?.kind || ''), ins = INSTRUMENTS[kind]
+    if (!ins) throw new HttpError(400, 'Unknown assessment.')
+    const rep = await reportOf(ob.id)
+    if (rep?.status !== 'published' || !(rep.data?.notes?.tests || []).includes(kind)) throw new HttpError(409, 'This assessment has not been recommended for you yet.')
+    const n = ins.key.length
+    const answers = Array.isArray(body.answers) && body.answers.length === n ? body.answers.map((v: unknown) => Number.isInteger(v) && (v as number) >= 1 && (v as number) <= ins.max ? v as number : null) : null
+    if (!answers) throw new HttpError(400, 'Your answers could not be read. Please try again.')
+    const { data: prev } = await db.from('maktoub_assessments').select('completed_at').eq('onboarding_id', ob.id).eq('kind', kind).maybeSingle()
+    if (prev?.completed_at) throw new HttpError(409, 'You have already submitted this assessment.')
+    const submit = body.submit === true
+    if (submit && answers.some((a: number | null) => a == null)) throw new HttpError(400, 'Please answer every statement before submitting.')
+    const scores = submit ? scoreAssessment(ins, answers as number[]) : null
+    const { error } = await db.from('maktoub_assessments').upsert({ onboarding_id: ob.id, kind, instrument: ins.version, answers, saved_at: now, ...(submit ? { completed_at: now, scores } : {}) }, { onConflict: 'onboarding_id,kind' })
+    if (error) throw error
+    if (submit) logEvent(ob.id, 'client', 'assessment_completed', { kind })
+    return json({ kind, saved_at: now, completed_at: submit ? now : null }, 200, origin)
   }
 
   if (action === 'sign') {
@@ -384,7 +429,26 @@ async function founderAction(req: Request, origin: string, ip: string, jwt: stri
       logEvent(ob.id, 'founder', 'voice_url_issued')
     }
     const { invite_token_hash: _h, ...safe } = ob
-    return json({ record: safe, consents, events, voice_url }, 200, origin)
+    const [report, assessments] = await Promise.all([reportOf(ob.id), assessmentsOf(ob.id, true)])
+    const instruments = Object.fromEntries(Object.entries(INSTRUMENTS).map(([k, i]) => [k, { name: i.name, max: i.max, scales: i.scales }]))
+    return json({ record: safe, consents, events, voice_url, report, assessments, instruments }, 200, origin)
+  }
+
+  if (action === 'admin_save_report') {
+    const ob = await getOne(body.id)
+    const data = body.data && typeof body.data === 'object' && !Array.isArray(body.data) ? body.data : null
+    if (!data || JSON.stringify(data).length > 120000) throw new HttpError(400, 'Report data is missing or too large.')
+    const publish = body.publish === true
+    if (publish && !ob.payment_verified_at) throw new HttpError(409, 'Verify the payment before publishing.')
+    const row: Record<string, unknown> = { onboarding_id: ob.id, data, updated_at: now, updated_by: uid }
+    if (publish) Object.assign(row, { status: 'published', published_at: now, published_by: uid })
+    else if (body.unpublish === true) Object.assign(row, { status: 'draft', published_at: null })
+    const { error } = await db.from('maktoub_onboarding_reports').upsert(row, { onConflict: 'onboarding_id' })
+    if (error) throw error
+    // Publishing is the delivery: record it once, the first time.
+    if (publish && !ob.report_delivered_at) await db.from('maktoub_onboarding').update({ report_delivered_at: now }).eq('id', ob.id)
+    logEvent(ob.id, 'founder', publish ? 'report_published' : body.unpublish ? 'report_unpublished' : 'report_saved')
+    return json({ success: true }, 200, origin)
   }
 
   if (action === 'admin_update') {
@@ -443,7 +507,7 @@ async function founderAction(req: Request, origin: string, ip: string, jwt: stri
     if (!ob.is_test) throw new HttpError(403, 'Only synthetic test records can be purged.')
     const { data: files } = await db.storage.from(BUCKET).list(ob.id)
     if (files?.length) await db.storage.from(BUCKET).remove(files.map(f => `${ob.id}/${f.name}`))
-    for (const t of ['maktoub_onboarding_consents', 'maktoub_onboarding_events']) {
+    for (const t of ['maktoub_assessments', 'maktoub_onboarding_reports', 'maktoub_onboarding_consents', 'maktoub_onboarding_events']) {
       const { error } = await db.from(t).delete().eq('onboarding_id', ob.id)
       if (error) throw error
     }

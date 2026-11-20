@@ -290,9 +290,9 @@ function journeyRead(ages, levels) {
   const parts = [];
   if (reds.length) {
     parts.push(`Your most challenging ${reds.length > 1 ? 'periods register' : 'period registers'} at ${joinList(reds.map(span))}, in red.`);
-    if (reds.some(r => r.length > 1)) parts.push('The red ticks sit next to each other, which EmoWave reads as a fighter who does not give up.');
+    if (reds.some(r => r.length > 1)) parts.push('The red ticks sit next to each other, which reads as a fighter who does not give up.');
   }
-  redToGreen.forEach(p => parts.push(`At age ${p.a} the tick moves straight from red to green. EmoWave reads that change as either letting go and going along with the flow, or losing some determination.`));
+  redToGreen.forEach(p => parts.push(`At age ${p.a} the tick moves straight from red to green. That change can mean either letting go and going along with the flow, or losing some determination.`));
   if (longGreen) parts.push(`From age ${longGreen[0].a} to ${longGreen.at(-1).a} the ticks stay green: a long period of enjoying what you were doing and gaining energy.`);
   if (since !== pts[0]) parts.push(nowCol === 'green' ? `Since age ${since.a} you have been in green.` : `From age ${since.a} the ticks move into ${nowCol}, and you are in ${nowCol} now.`);
   const turning = changes.map(p => p.a);
@@ -315,10 +315,9 @@ function stressType(text, v) {
 }
 function compose(raw, opts) {
   opts = opts || {};
-  const fn = String(opts.fileName || '').replace(/\.pdf$/i, '');
-  const fnRef = (fn.match(/\bEW[-_ ]?\d{3,6}\b/i) || [''])[0].toUpperCase().replace(/[_ ]/, '-');
-  const fnName = fnRef ? clean(fn.split(new RegExp(fnRef.replace('-', '[-_ ]?'), 'i'))[0].replace(/[_-]+/g, ' ')) : '';
-  const out = { meta: { name: raw.name || fnName, date: raw.date || '', source: 'EmoWave Full', ref: raw.ref || fnRef } };
+  // The report goes to the client: it carries no tool name and no name or reference from the PDF.
+  // The console shows those from the raw import only, so the founder can check the PDF is the right one.
+  const out = { meta: { date: raw.date || '' } };
   const lower = a => a.map(x => x.toLowerCase());
 
   // Mind: sensory attributes, brain activity, stress level
@@ -345,8 +344,8 @@ function compose(raw, opts) {
   // Emotional state: empowering, dis-empowering, frequent and core emotion, notes
   const emp = raw.empowering || [], dis = raw.disempowering || [];
   out.emotional = {
-    thrive: emp.length ? { emotion: emp[0], also: emp.slice(1), text: `EmoWave reads ${joinList(lower(emp))} as your empowering ${emp.length > 1 ? 'emotions' : 'emotion'}: the states that give you energy.` } : {},
-    drain: dis.length ? { emotion: dis[0], also: dis.slice(1), text: `EmoWave reads ${joinList(lower(dis))} as your dis-empowering ${dis.length > 1 ? 'emotions' : 'emotion'}: the states that take energy from you.` } : {},
+    thrive: emp.length ? { emotion: emp[0], also: emp.slice(1), text: `Your voice analysis reads ${joinList(lower(emp))} as your empowering ${emp.length > 1 ? 'emotions' : 'emotion'}: the states that give you energy.` } : {},
+    drain: dis.length ? { emotion: dis[0], also: dis.slice(1), text: `Your voice analysis reads ${joinList(lower(dis))} as your dis-empowering ${dis.length > 1 ? 'emotions' : 'emotion'}: the states that take energy from you.` } : {},
     visible: raw.frequent ? { emotion: emoFrom(raw.frequent.short + ' ' + raw.frequent.text), text: [sentence(raw.frequent.short), raw.frequent.text ? sentence(raw.frequent.text) : ''].filter(Boolean).join(' ') } : {},
     deep: raw.core ? { emotion: emoFrom(raw.core.short + ' ' + raw.core.text), text: [sentence(raw.core.short), raw.core.text ? sentence(raw.core.text) : ''].filter(Boolean).join(' ') } : {},
     tones: (raw.notes || []).filter(n => n.note || n.reaction).map(n => ({ note: n.note, text: sentence(n.reaction) })),
@@ -426,7 +425,7 @@ function lint(data) {
   const hits = [];
   const walk = (v, path) => {
     if (typeof v === 'string') {
-      const m = v.match(/\b(autism|austism|autistic|adhd|dyslexi\w*|bipolar|depression|disorder|diagnos\w*|allerg\w*|disease|cancer|tumou?r|syndrome|his\/her|he\/she|you are broken|you will)\b/gi);
+      const m = v.match(/\b(emowave|autism|austism|autistic|adhd|dyslexi\w*|bipolar|depression|disorder|diagnos\w*|allerg\w*|disease|cancer|tumou?r|syndrome|his\/her|he\/she|you are broken|you will)\b/gi);
       if (m) hits.push({ path, words: [...new Set(m.map(x => x.toLowerCase()))], text: v });
     } else if (v && typeof v === 'object') Object.entries(v).forEach(([k, x]) => walk(x, path ? path + '.' + k : k));
   };

@@ -342,7 +342,7 @@ footer button{font-size:11px;letter-spacing:.1em;text-transform:uppercase;border
 </head>
 <body>
 <header class="top">
-  <div class="bar"><a class="brand" href="/ready/" id="brand">MAKTOUB</a><div class="who" id="who"></div></div>
+  <div class="bar"><a class="brand" href="#overview" id="brand">MAKTOUB</a><div class="who" id="who"></div></div>
   <div class="views" role="tablist" aria-label="Report sections" id="views" hidden>
     <button role="tab" data-v="report" aria-selected="true">Voice report</button>
     <button role="tab" data-v="notes" aria-selected="false">Session notes</button>
@@ -362,7 +362,10 @@ footer button{font-size:11px;letter-spacing:.1em;text-transform:uppercase;border
 <script>
 (() => {
 'use strict';
-const API = 'https://pmjvpnqmklxxpswwvbmv.supabase.co/functions/v1/maktoub-programme';
+// Two client journeys share this report: programme clients (/ready/) and founding clients (/onboard/).
+const FN = 'https://pmjvpnqmklxxpswwvbmv.supabase.co/functions/v1/';
+const SOURCES = { ready: { api: FN + 'maktoub-programme', key: 'maktoub_ready', portal: '/ready/' }, onboard: { api: FN + 'maktoub-onboard', key: 'maktoub_invite', portal: '/onboard/' } };
+let SRC = SOURCES.ready, API = SRC.api;
 const KEY = 'maktoub_ready', PREVIEW_KEY = 'maktoub_report_preview';
 // Google Calendar appointment page for the report review (60–90 minutes). A report can override it (notes.booking_url).
 const BOOKING_URL = '';
@@ -397,9 +400,11 @@ async function getData() {
     return { report: SAMPLE(), who: { first_name: 'Sample client', reference: 'SAMPLE' } };
   }
   const q = (params.get('invite') || '').trim().toLowerCase();
+  const stored = k => { try { return sessionStorage.getItem(k) || localStorage.getItem(k); } catch (_) { return null; } };
+  SRC = params.get('from') === 'onboard' || (!q && !stored(SOURCES.ready.key) && stored(SOURCES.onboard.key)) ? SOURCES.onboard : SOURCES.ready; API = SRC.api;
   let token = null; LIVE = true;
-  try { if (q) { localStorage.setItem(KEY, q); sessionStorage.setItem(KEY, q); } token = q || sessionStorage.getItem(KEY) || localStorage.getItem(KEY); } catch (_) { token = q || null; }
-  if (q) history.replaceState(null, '', location.pathname + location.hash);
+  try { if (q) { localStorage.setItem(SRC.key, q); sessionStorage.setItem(SRC.key, q); } token = q || stored(SRC.key); } catch (_) { token = q || null; }
+  if (q || params.has('from')) history.replaceState(null, '', location.pathname + (SRC === SOURCES.onboard ? '?from=onboard' : '') + location.hash);
   if (!token) throw Object.assign(new Error('This report opens from the private link Maktoub sent you. Open that link once on this device and your report will be here.'), { title: 'Please open your private link.' });
   const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'load', token }) });
   const j = await r.json().catch(() => ({}));
@@ -416,7 +421,7 @@ const CH = [
   { k: 'mind', n: '02', t: 'How Your Mind Works', lead: 'How you take information in, how you process it, and what kind of stress your system is carrying.' },
   { k: 'social', n: '03', t: 'Social Mirror', lead: 'Your present character, your real intention, your constructive attributes and the seven leadership dynamics.' },
   { k: 'negativity', n: '04', t: 'Negativity', lead: 'Your top five restrictive attributes: past incidents that could be a block to your present actions.' },
-  { k: 'body', n: '05', t: 'Mind & Body', lead: 'Potential mental and physical wellness challenges, and the organs EmoWave indicates.' },
+  { k: 'body', n: '05', t: 'Mind & Body', lead: 'Potential mental and physical wellness challenges, and the organs your voice analysis points to.' },
   { k: 'journey', n: '06', t: 'Life Journey', lead: 'Past experiences shaped your thoughts. Each period of your life shows green, orange or red: where you gained energy, and where you faced your hardest challenges.' },
 ];
 
@@ -478,9 +483,8 @@ const PANELS = {
     if (d.stress && (d.stress.value != null || d.stress.type)) out.push({ k: 'stress', label: 'Stress', build() {
       const v = d.stress.value != null && d.stress.value !== '' ? +d.stress.value : null;
       const w = add(el('div'), K('Stress level'), el('p', 'q', 'What kind of stress is your system carrying?'), el('div', 'big', d.stress.type || d.stress.band || ''));
-      if (v != null && isFinite(v)) add(w, add(el('div', 'gauge'), add(el('div', 'val'), el('b', null, v.toFixed(2)), K('EmoWave stress level'))));
+      if (v != null && isFinite(v)) add(w, add(el('div', 'gauge'), add(el('div', 'val'), el('b', null, v.toFixed(2)), K('Stress level'))));
       add(w, P(d.stress.text));
-      if (d.stress.source) add(w, add(el('blockquote', 'src'), K('In EmoWave’s words'), el('p', null, d.stress.source)));
       return w;
     } });
     return out;
@@ -539,7 +543,7 @@ const PANELS = {
       const w = el('div'), det = el('div', 'bdetail');
       const show = p => { det.replaceChildren(); det.style.animation = 'none'; void det.offsetWidth; det.style.animation = '';
         add(det, K('Wellness challenge'), el('h3', null, p.title), p.interpretation ? el('p', 'int', p.interpretation) : null,
-          p.meaning ? K('What EmoWave reads') : null, p.meaning ? el('p', null, p.meaning) : null,
+          p.meaning ? K('What the analysis reads') : null, p.meaning ? el('p', null, p.meaning) : null,
           p.asking ? K('What your body may be asking for') : null, p.asking ? el('p', null, p.asking) : null,
           p.closing ? el('p', 'line', p.closing) : null); };
       if (printing) { pats.forEach(p => { show(p); const c = det.cloneNode(true); c.style.marginBottom = '14px'; w.append(c); }); }
@@ -650,7 +654,7 @@ const obs = n => io ? io.observe(n) : n.classList.add('on');
 function overview() {
   const s = R.synthesis || {}, m = R.meta || {};
   const w = el('section', 'chapter');
-  const meta = add(el('div', 'meta'), who.first_name ? K('Prepared for ' + who.first_name) : null, R.published_at ? K('Released ' + new Date(R.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })) : null, m.ref ? K(m.ref) : null);
+  const meta = add(el('div', 'meta'), who.first_name ? K('Prepared for ' + who.first_name) : null, R.published_at ? K('Released ' + new Date(R.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })) : null, null);
   add(w, add(el('div', 'hero'), add(el('div'), K('Your voice report'), el('h1', null, s.headline || 'Six chapters. One operating map.')),
     add(el('div', 'side'), el('p', 'lead', s.intro || 'Your voice, your words and your context are read across six layers. The value is not one score. It is the relationship between the signals.'), el('div', null), meta)));
   meta.style.marginTop = '18px';
@@ -842,14 +846,14 @@ $('printBtn').onclick = () => { buildPrint(); print(); };
 // ---------- boot ----------
 function gate(e) {
   const g = add(el('div', 'gate'), K('Maktoub'), el('h1', null, e.title || 'We could not open your report.'), el('p', null, e.message));
-  if (e.portal || /private link/.test(e.title || '')) { const a = el('a', 'btn', 'Go to your portal'); a.href = '/ready/'; g.append(a); }
+  if (e.portal || /private link/.test(e.title || '')) { const a = el('a', 'btn', 'Go to your portal'); a.href = SRC.portal; g.append(a); }
   $('main').replaceChildren(g);
 }
 async function start() {
   try {
     const d = await getData(); R = d.report; who = d.who || {};
     $('who').textContent = [who.first_name, who.reference].filter(Boolean).join(' · ');
-    if (!new URLSearchParams(location.search).has('preview')) { const a = el('a', null, 'Portal'); a.href = '/ready/'; $('who').append(a); }
+    if (!new URLSearchParams(location.search).has('preview')) { const a = el('a', null, 'Portal'); a.href = SRC.portal; $('who').append(a); }
     const tabs = $('chapterTabs');
     CH.filter(c => c.k === 'overview' || panelsFor(c.k).length).forEach(c => { const b = el('button'); b.type = 'button'; b.dataset.k = c.k; b.setAttribute('role', 'tab'); if (c.n) b.append(el('span', 'n', c.n)); b.append(document.createTextNode(c.short || c.t)); b.onclick = () => go(c.k); tabs.append(b); });
     document.querySelectorAll('#views button').forEach(b => b.onclick = () => go(b.dataset.v === 'report' ? 'overview' : b.dataset.v));
@@ -862,7 +866,7 @@ async function start() {
 // ---------- sample (fictional) ----------
 function SAMPLE() {
   return {
-    meta: { name: 'Sample client', source: 'EmoWave Full', ref: 'SAMPLE' },
+    meta: {},
     synthesis: { headline: 'Six chapters. One operating map.', signals: [{ label: 'Dominant processing', value: 'Seeing-led, right-brain', strength: 'High signal' }, { label: 'Stress signature', value: 'Emotional stress · 24.10', strength: 'High signal' }, { label: 'Public / private delta', value: 'Leader outside, Nurturer inside', strength: 'Moderate signal' }, { label: 'Current trajectory', value: 'Mixed, load easing', strength: 'Cross-chapter signal' }],
       read: 'Outwardly you lead with drive and decisiveness, while what you are really reaching for is care and belonging. You take the world in visually and process with a right-brain bias, so you often know before you can explain. Your stress reads as emotional rather than task-based.',
       changes: 'We do not start from "what is wrong". We start from the biggest gap between how you feel inside, how you act outside, and the outcome you want.',

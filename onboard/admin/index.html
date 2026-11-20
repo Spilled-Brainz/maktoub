@@ -37,6 +37,13 @@ tr.r{cursor:pointer}tr.r:hover{background:#faf8f3}tr.sel{background:#eef1f5}
 details{margin-top:8px}summary{cursor:pointer;font-weight:500}
 pre{white-space:pre-wrap;font:13px/1.55 "Instrument Sans",sans-serif;background:#faf8f3;padding:12px;border:1px solid var(--line);max-height:320px;overflow:auto}
 .test{color:var(--warn)}
+button.s{padding:5px 9px;margin:4px 6px 0 0}
+.rb-sec{border:1px solid var(--line);margin:8px 0;padding:10px 12px;background:#fcfbf8}
+.rb-sec h3{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:6px 0;font-weight:600}
+.rb-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr)) 34px;gap:6px;align-items:end;margin-top:6px}
+.rb-row button{margin:0;padding:8px}
+.rb-card{border:1px solid var(--line);background:#fff;padding:8px 10px;margin-top:8px}.rb-card .b{margin:4px 0 0}
+.alert{border-left:3px solid var(--warn);padding:6px 10px;background:#fbf6ea;font-size:13.5px;margin:6px 0}
 </style>
 </head>
 <body>
@@ -98,6 +105,8 @@ pre{white-space:pre-wrap;font:13px/1.55 "Instrument Sans",sans-serif;background:
     </div>
   </section>
 </main>
+<script src="/ready/report/emowave.js"></script>
+<script src="/ready/report/builder.js"></script>
 <script>
 (() => {
 'use strict';
@@ -192,7 +201,7 @@ async function openDetail(id) {
     const w = el('div'); w.append(el('label', 'Countersign agreement (your typed signature)'), cn, cb); actions.append(w);
   }
   const btn = (t, op, extra, conf, cls) => { const b = el('button', t, 'b ' + (cls || 'g')); b.onclick = () => act(op, extra, conf); actions.append(b); };
-  if (r.report_due_at && !r.report_delivered_at) btn('Report delivered', 'report_delivered', {}, 'Mark the report as delivered to the client?');
+  if (r.report_due_at && !r.report_delivered_at) btn('Report delivered (outside the portal)', 'report_delivered', {}, 'Mark the report as delivered? Publishing it from the Voice report section below does this automatically.');
   if (r.report_delivered_at && !r.consultation_completed_at) btn('Consultation & Q&A done', 'consultation_completed', {}, 'Mark the report-review consultation as completed?');
   if (r.consultation_completed_at && !r.matchmaking_started_at) { btn('Approve readiness', 'readiness', { status: 'approved' }, 'Approve readiness? Matchmaking may then start.'); btn('Not yet ready', 'readiness', { status: 'not_yet' }); }
   if (r.readiness_status === 'approved' && !r.matchmaking_started_at) btn('Start active matchmaking', 'start_matchmaking', {}, 'Start the 3–6 month active matchmaking period now?', '');
@@ -200,6 +209,13 @@ async function openDetail(id) {
   if (r.is_test) { const b = el('button', 'Purge test record', 'b d'); b.onclick = async () => { if (!confirm('Delete this synthetic record and its recording?')) return; try { await api('admin_purge_test', { id }); location.hash = ''; $('detail').hidden = true; refresh(); } catch (e) { msg.textContent = e.message; } }; actions.append(b); }
 
   const timeline = kv([['Invited', when(r.created_at)], ['Link expires', when(r.invite_expires_at)], ['First opened', when(r.first_opened_at)], ['Signed', r.signed_at ? when(r.signed_at) + ' · “' + r.signature_name + '”' : '—'], ['Countersigned', r.countersigned_at ? when(r.countersigned_at) + ' · “' + r.countersigned_name + '”' : '—'], ['Intake submitted', when(r.intake_submitted_at)], ['Voice submitted', r.voice_submitted_at ? when(r.voice_submitted_at) + ' · ' + r.voice_duration_seconds + 's' : '—'], ['Transfer reported', r.payment_reported_at ? when(r.payment_reported_at) + (r.payment_client_note ? ' · ' + r.payment_client_note : '') : '—'], ['Payment verified', r.payment_verified_at ? when(r.payment_verified_at) + ' · ' + r.payment_bank_reference : '—'], ['Report due', when(r.report_due_at)], ['Report delivered', when(r.report_delivered_at)], ['Consultation', when(r.consultation_completed_at)], ['Readiness', r.readiness_status + (r.readiness_decided_at ? ' · ' + when(r.readiness_decided_at) : '')], ['Matchmaking started', when(r.matchmaking_started_at)]]);
+
+  const report = el('div'); report.append(el('h2', 'Voice report'));
+  if ((d.assessments || []).length) report.append(MaktoubReportBuilder.assessmentView(d.assessments, d.instruments || {}));
+  if (r.voice_submitted_at) report.append(MaktoubReportBuilder.reportBuilder(d.report, {
+    open: !!r.payment_verified_at, clientName: (r.intake && r.intake.full_name) || r.invited_name, reference: r.reference_code,
+    save: x => api('admin_save_report', { id, ...x }), after: async () => { await refresh(); },
+  })); else report.append(el('p', 'Available once the voice recording is in.'));
 
   const voice = el('div'); voice.append(el('h2', 'Voice answer'));
   if (d.voice_url) { const a = el('audio'); a.controls = true; a.src = d.voice_url; a.style.width = '100%'; voice.append(a, el('p', 'Private link valid for 10 minutes.', 'msg')); } else voice.append(el('p', 'Not yet recorded.'));
@@ -218,7 +234,7 @@ async function openDetail(id) {
 
   const log = el('details'); log.append(el('summary', 'Activity log (' + d.events.length + ')'), el('pre', d.events.map(e => when(e.created_at) + ' · ' + e.actor + ' · ' + e.action).join('\n')));
   const sep = () => el('hr', null);
-  box.replaceChildren(head, actions, msg, sep(), timeline, sep(), voice, sep(), intake, sep(), cons, sep(), notes, log);
+  box.replaceChildren(head, actions, msg, sep(), timeline, sep(), voice, sep(), report, sep(), intake, sep(), cons, sep(), notes, log);
 }
 
 function showUrl(url, r) {
