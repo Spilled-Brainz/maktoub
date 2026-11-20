@@ -4,20 +4,22 @@ const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 const digits = String(j.booking_phone || j.phone || '').replace(/\D/g,'');
 const first = String(j.name || '').trim().split(/\s+/)[0] || '';
 const review = j.session_kind === 'report_review';
+// The founder works from Thailand: show her local time next to the client's Riyadh time.
+const thai = iso => iso ? new Date(iso).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Bangkok' }) : '';
 let text = '', button_label = '', button_url = '', route = 'notify';
 const k = j.kind;
 if (k === 'signup' || k === 'event_interest') {
   text = `<b>${k === 'event_interest' ? 'New Maktoub event interest' : 'New Maktoub signup'}</b>\n${esc(j.name)}\n📱 ${esc(j.phone)}\n🕒 ${esc(j.created_riyadh)} (Riyadh)\n${j.interests ? 'Interest: ' + esc(j.interests) + '\n' : ''}Source: ${esc(j.source)}`;
   button_label = 'Open CRM'; button_url = 'https://maktoub.app/login/';
 } else if (k === 'booking_request') {
-  text = `<b>${review ? 'Report review request · 90 min · approval needed' : 'Booking request · approval needed'}</b>\n${esc(j.name)}\n📱 ${esc(j.booking_phone)}\n📅 ${esc(j.starts_riyadh)} (Riyadh)\n🕒 Requested ${esc(j.created_riyadh)}`;
+  text = `<b>${review ? 'Report review request · 90 min · approval needed' : 'Booking request · approval needed'}</b>\n${esc(j.name)}\n📱 ${esc(j.booking_phone)}\n📅 ${esc(j.starts_riyadh)} (Riyadh)\n🇹🇭 ${esc(thai(j.starts_at))} (your time)\n🕒 Requested ${esc(j.created_riyadh)}`;
   if (j.decision_url) { button_label = 'Review · Approve / Decline'; button_url = j.decision_url; }
   else text += `\nStatus: ${esc(j.booking_status)} (no action needed)`;
 } else if (k === 'booking_declined') {
   const msg = review
     ? `Hi ${first}, we are unable to make that time for your report review. Please choose another time in your report, under Session notes.`
     : `Hi ${first}, thank you for your interest in Maktoub. Unfortunately we are unable to offer that time. You are welcome to request another slot at https://maktoub.app/book/`;
-  text = `<b>${review ? 'Report review declined' : 'Booking declined'}</b>\n${esc(j.name)} · ${esc(j.starts_riyadh)} (Riyadh)\nTap below to send them a WhatsApp reply (optional).`;
+  text = `<b>${review ? 'Report review declined' : 'Booking declined'}</b>\n${esc(j.name)} · ${esc(j.starts_riyadh)} (Riyadh) · ${esc(thai(j.starts_at))} (your time)\nTap below to send them a WhatsApp reply (optional).`;
   button_label = 'Send WhatsApp reply'; button_url = `https://wa.me/${digits}?text=${encodeURIComponent(msg)}`;
 } else if (k === 'booking_approved') {
   if (j.booking_status === 'accepted') {

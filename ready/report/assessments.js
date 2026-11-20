@@ -49,6 +49,24 @@ const A = {
     ].map(([t, s, r]) => ({ t, s, r: !!r })),
   },
 };
+// Plain explanations shown with the client's results: what each trait describes, and what the higher and lower
+// ends tend to look like. Tendencies, not verdicts; scores are not compared with any population norm.
+A.six_factor.traits = {
+  H: { about: 'Sincerity, fairness and modesty about status and possessions.', high: 'Status, luxury and special treatment matter little to you, and fairness matters a lot.', low: 'Recognition, status and material rewards matter to you, and you may feel you deserve more.' },
+  N: { about: 'How strongly worry, upset and changes of mood come and go.', high: 'Your feelings run strong and can shift quickly; upset may come on easily.', low: 'You tend to stay calm and even, and upset passes quickly.' },
+  E: { about: 'How much energy you draw from people and social attention.', high: 'You enjoy company, conversation and being seen.', low: 'You prefer fewer people, quieter settings and staying in the background.' },
+  A: { about: 'Warmth and concern for how other people feel.', high: 'You feel other people’s emotions and care about their problems.', low: 'You keep more distance from other people’s problems and stay with your own path.' },
+  C: { about: 'Order, follow-through and getting things done.', high: 'You like order and tend to finish tasks promptly.', low: 'You are more spontaneous; order and routine take more effort.' },
+  O: { about: 'Imagination and interest in ideas.', high: 'You have a vivid imagination and enjoy abstract ideas.', low: 'You prefer what is concrete and practical over abstract ideas.' },
+};
+A.dark_triad.traits = {
+  M: { about: 'How strategically you handle people and information.', high: 'You think several moves ahead and are careful about what you reveal.', low: 'You tend to be open and direct rather than strategic with people.' },
+  N: { about: 'Confidence in your own talents and enjoyment of being seen.', high: 'You trust your abilities and enjoy recognition and the spotlight.', low: 'You tend to be modest and do not seek the spotlight.' },
+  P: { about: 'Impulsiveness, risk-taking and pushing back against rules.', high: 'You act fast, take risks and push back against authority.', low: 'You tend to think before acting and stay within the rules.' },
+  S: { about: 'Enjoyment of rough humour, aggression or other people’s discomfort.', high: 'Rough humour or aggression holds some appeal for you.', low: 'You take little pleasure in other people’s discomfort.' },
+};
+// Same scoring as the server: mean per scale, reversed items flipped. Used only in previews, where nothing is saved.
+A.score = (kind, answers) => { const T = A[kind], sums = {}; T.items.forEach((it, i) => { (sums[it.s] = sums[it.s] || []).push(it.r ? T.max + 1 - answers[i] : answers[i]); }); return Object.fromEntries(Object.keys(T.scales).map(k => [k, Math.round(sums[k].reduce((a, b) => a + b, 0) / sums[k].length * 100) / 100])); };
 root.MaktoubAssessments = A;
 if (typeof module !== 'undefined' && module.exports) module.exports = A;
 })(typeof window !== 'undefined' ? window : globalThis);

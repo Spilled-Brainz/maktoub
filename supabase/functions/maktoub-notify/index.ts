@@ -18,6 +18,19 @@ const TITLES: Record<string, string> = {
   onboarding_signed: 'Agreement signed ✍️',
   onboarding_submitted: 'Details and voice note submitted 🎙',
   onboarding_payment_reported: 'Transfer reported 💳 check your bank',
+  onboarding_test_six_factor: 'Six-factor personality test completed ✅',
+  onboarding_test_dark_triad: 'Dark Triad test (Four identities) completed ✅',
+}
+// Scale labels for the score lines in test alerts (same keys as ready/report/assessments.js).
+const SCALES: Record<string, { max: number, scales: [string, string][] }> = {
+  six_factor: { max: 7, scales: [['H', 'Honesty-Humility'], ['N', 'Neuroticism'], ['E', 'Extraversion'], ['A', 'Agreeableness'], ['C', 'Conscientiousness'], ['O', 'Openness']] },
+  dark_triad: { max: 5, scales: [['M', 'Crafty (Machiavellianism)'], ['N', 'Special (Narcissism)'], ['P', 'Wild (Psychopathy)'], ['S', 'Mean (Sadism)']] },
+}
+async function scoreLines(onboardingId: string, kind: string) {
+  const def = SCALES[kind]; if (!def) return ''
+  const { data } = await db.from('maktoub_assessments').select('scores').eq('onboarding_id', onboardingId).eq('kind', kind).maybeSingle()
+  if (!data?.scores) return ''
+  return '\n' + def.scales.map(([k, l]) => `${esc(l)}: <b>${Number(data.scores[k]).toFixed(2)}</b>`).join('\n') + `\n<i>Scale 1–${def.max}</i>`
 }
 
 const WEEK = 7 * 24 * 3600
@@ -70,6 +83,7 @@ Deno.serve(async (req) => {
       const name = ob.intake?.full_name || ob.signature_name || ob.invited_name
       let text = `<b>${TITLES[o.kind] || o.kind}</b>\n${esc(name)}\n📱 ${esc(ob.invited_phone)}\n🕒 ${esc(riyadh(o.created_at))} (Riyadh)`
       if (o.kind === 'onboarding_payment_reported' && ob.payment_client_note) text += `\n${esc(ob.payment_client_note)}`
+      if (o.kind.startsWith('onboarding_test_')) text += await scoreLines(ob.id, o.kind.slice('onboarding_test_'.length))
       if (o.kind === 'onboarding_submitted' && ob.voice_share_url) text += `\n🎧 <a href="${esc(ob.voice_share_url)}">Listen to her voice note</a> (${Math.floor((ob.voice_duration_seconds || 0) / 60)}:${String((ob.voice_duration_seconds || 0) % 60).padStart(2, '0')}, link valid 7 days)`
       const label = o.kind === 'onboarding_payment_reported' ? 'Open · verify payment' : 'Open her record'
       await send(text, `https://maktoub.app/onboard/admin/#${ob.id}`, label)

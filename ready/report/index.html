@@ -287,6 +287,14 @@ blockquote.src .k{margin-bottom:6px}
 .test-card .meta{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--smoke);margin-top:8px}
 .test-card .meta .ok{color:var(--ok);font-weight:600}
 .test-card .cta{align-self:flex-start}
+.results{margin-top:14px;border-top:1px solid var(--ink);padding-top:12px}
+.rrow{padding:12px 0;border-bottom:1px solid var(--hair)}
+.rhead{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.rhead b{font-weight:500;font-size:16px}.rhead span{font-size:13px;color:var(--smoke);font-variant-numeric:tabular-nums;white-space:nowrap}
+.rtrack{position:relative;height:6px;background:var(--paper-2);margin:10px 0 4px}
+.rtrack i{position:absolute;top:50%;width:14px;height:14px;border-radius:50%;background:var(--navy);transform:translate(-50%,-50%)}
+.rends{display:flex;justify-content:space-between;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--smoke)}
+.rrow p{font-size:14.5px;color:var(--ink-2);margin:8px 0 0}
 .quiz{position:fixed;inset:0;z-index:70;background:var(--paper);display:flex;flex-direction:column;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
 .qtop{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px var(--pad)}
 .qtop .x{font-size:11px;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--ink)}
@@ -786,6 +794,7 @@ function notesView(kind) {
       const card = add(el('article', 'test-card' + (done ? ' done' : '')), K(T.kicker), el('h3', null, T.name), el('p', null, T.about),
         add(el('div', 'meta'), el('span', null, T.items.length + ' statements'), el('span', null, 'About ' + T.minutes + ' minutes'), done ? el('span', 'ok', 'Completed') : started ? el('span', null, answered + ' of ' + T.items.length + ' answered') : null));
       if (!done) { const b = add(el('button', 'cta'), document.createTextNode(started ? 'Continue' : 'Start'), icon(ARROW)); b.type = 'button'; b.onclick = () => runTest(k); card.append(b); }
+      else if (st.scores) card.append(resultsView(k, st.scores));
       list.append(card);
     });
     add(w, add(el('div', 'block'), K('Your assessments', true)), list);
@@ -794,15 +803,30 @@ function notesView(kind) {
   return w;
 }
 
+// Results: one row per trait, the score on its own scale, and a plain explanation. No population norms.
+function resultsView(k, scores) {
+  const T = MaktoubAssessments[k], box = add(el('div', 'results'), K('Your results', true));
+  Object.entries(T.scales).forEach(([s, label]) => {
+    const v = +scores[s]; if (!isFinite(v)) return;
+    const tr = (T.traits || {})[s] || {}, third = (T.max - 1) / 3, band = v <= 1 + third ? 'low' : v >= T.max - third ? 'high' : 'mid';
+    const trk = el('div', 'rtrack'), dot = el('i'); dot.style.left = ((v - 1) / (T.max - 1) * 100) + '%'; trk.append(dot);
+    add(box, add(el('div', 'rrow'), add(el('div', 'rhead'), el('b', null, label), el('span', null, v.toFixed(1) + ' of ' + T.max)), trk,
+      add(el('div', 'rends'), el('span', null, 'Lower'), el('span', null, 'Higher')),
+      el('p', null, (band === 'mid' ? 'You sit in the middle: this shows up in some situations more than others. ' : (band === 'high' ? tr.high : tr.low) + ' ') + (tr.about ? 'This trait describes ' + tr.about.charAt(0).toLowerCase() + tr.about.slice(1) : ''))));
+  });
+  box.append(el('p', 'small muted', 'These describe tendencies, not judgements of character, and are not compared with anyone else’s scores. We go through them together in your review.'));
+  return box;
+}
+
 // ---------- assessments: one statement per screen, saved as you go ----------
 let saveTimer = null;
 async function saveTest(k, submit) {
   const st = ASSESS[k];
-  if (!LIVE || !TOKEN) { if (submit) st.completed_at = new Date().toISOString(); return { ok: true, local: true }; }
+  if (!LIVE || !TOKEN) { if (submit) { st.completed_at = new Date().toISOString(); st.scores = MaktoubAssessments.score(k, st.answers); } return { ok: true, local: true }; }
   const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'save_assessment', token: TOKEN, kind: k, answers: st.answers, submit: !!submit }) });
   const j = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(j.error || 'Your answers could not be saved. Check your connection and try again.');
-  st.saved_at = j.saved_at; if (j.completed_at) st.completed_at = j.completed_at;
+  st.saved_at = j.saved_at; if (j.completed_at) st.completed_at = j.completed_at; if (j.scores) st.scores = j.scores;
   return j;
 }
 function runTest(k) {
@@ -831,7 +855,7 @@ function runTest(k) {
       else {
         const b = add(el('button', 'cta'), document.createTextNode('Send my answers'), icon(ARROW)); b.type = 'button';
         b.onclick = async () => { b.disabled = true; msg.textContent = 'Sending…'; clearTimeout(saveTimer);
-          try { await saveTest(k, true); body.replaceChildren(add(el('div', 'qdone'), el('p', 'k', 'Sent'), el('h2', null, 'Thank you.'), el('p', 'body', 'Your answers have reached us. We will go through them together.'))); const c = el('button', 'cta', 'Back to recommendations'); c.type = 'button'; c.onclick = close; body.append(c); bar.style.width = '100%'; }
+          try { await saveTest(k, true); body.replaceChildren(add(el('div', 'qdone'), el('p', 'k', 'Sent'), el('h2', null, 'Thank you.'), el('p', 'body', 'Your answers have reached us. Your results are ready to see now, and we will go through them together in your review.'))); const c = el('button', 'cta', 'See your results'); c.type = 'button'; c.onclick = close; body.append(c); bar.style.width = '100%'; }
           catch (e) { msg.textContent = e.message; b.disabled = false; } };
         body.append(b);
       }

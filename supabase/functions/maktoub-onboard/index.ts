@@ -133,9 +133,10 @@ async function reportOf(id: string) {
   return data
 }
 async function assessmentsOf(id: string, withScores = false) {
-  const { data, error } = await db.from('maktoub_assessments').select('kind,instrument,answers,scores,started_at,saved_at,completed_at').eq('onboarding_id', id)
+  const { data, error } = await db.from('maktoub_assessments').select('kind,instrument,answers,scores,started_at,saved_at,completed_at,history').eq('onboarding_id', id)
   if (error) throw error
-  return (data || []).map(a => withScores ? a : { kind: a.kind, saved_at: a.saved_at, completed_at: a.completed_at, answers: a.completed_at ? undefined : a.answers })
+  // The client sees her own scores as soon as she submits (founder decision, 20 Nov 2026); earlier attempts stay founder-only.
+  return (data || []).map(a => withScores ? a : { kind: a.kind, saved_at: a.saved_at, completed_at: a.completed_at, answers: a.completed_at ? undefined : a.answers, scores: a.completed_at ? a.scores : undefined })
 }
 
 async function clientView(ob: Record<string, any>, s: Record<string, any>) {
@@ -220,8 +221,13 @@ async function clientAction(req: Request, origin: string, ip: string) {
     const scores = submit ? scoreAssessment(ins, answers as number[]) : null
     const { error } = await db.from('maktoub_assessments').upsert({ onboarding_id: ob.id, kind, instrument: ins.version, answers, saved_at: now, ...(submit ? { completed_at: now, scores } : {}) }, { onConflict: 'onboarding_id,kind' })
     if (error) throw error
-    if (submit) logEvent(ob.id, 'client', 'assessment_completed', { kind })
-    return json({ kind, saved_at: now, completed_at: submit ? now : null }, 200, origin)
+    if (submit) {
+      logEvent(ob.id, 'client', 'assessment_completed', { kind })
+      // Founder alert on Telegram with the scores (sent by maktoub-notify; test records are skipped there).
+      const { error: qErr } = await db.from('maktoub_notification_outbox').insert({ person_id: ob.person_id, kind: 'onboarding_test_' + kind, event_id: ob.id })
+      if (qErr && qErr.code !== '23505') console.error('test alert queue failed', qErr)
+    }
+    return json({ kind, saved_at: now, completed_at: submit ? now : null, scores }, 200, origin)
   }
 
   if (action === 'sign') {
@@ -448,6 +454,21 @@ async function founderAction(req: Request, origin: string, ip: string, jwt: stri
     // Publishing is the delivery: record it once, the first time.
     if (publish && !ob.report_delivered_at) await db.from('maktoub_onboarding').update({ report_delivered_at: now }).eq('id', ob.id)
     logEvent(ob.id, 'founder', publish ? 'report_published' : body.unpublish ? 'report_unpublished' : 'report_saved')
+    return json({ success: true }, 200, origin)
+  }
+
+  if (action === 'admin_reset_assessment') {
+    const ob = await getOne(body.id)
+    const kind = String(body.kind || '')
+    if (!INSTRUMENTS[kind]) throw new HttpError(400, 'Unknown assessment.')
+    const { data: a } = await db.from('maktoub_assessments').select('id,answers,scores,started_at,completed_at,history').eq('onboarding_id', ob.id).eq('kind', kind).maybeSingle()
+    if (!a) throw new HttpError(404, 'She has not started this assessment.')
+    const history = [...(a.history || []), { answers: a.answers, scores: a.scores, started_at: a.started_at, completed_at: a.completed_at, reset_at: now }]
+    const { error } = await db.from('maktoub_assessments').update({ answers: [], scores: null, completed_at: null, started_at: now, saved_at: now, history }).eq('id', a.id)
+    if (error) throw error
+    // Let the next completion alert again.
+    await db.from('maktoub_notification_outbox').delete().eq('person_id', ob.person_id).eq('kind', 'onboarding_test_' + kind).eq('event_id', ob.id)
+    logEvent(ob.id, 'founder', 'assessment_reset', { kind })
     return json({ success: true }, 200, origin)
   }
 

@@ -10,7 +10,7 @@ const btn = (t, fn, cls = 'b s') => { const b = el('button', t, cls); b.type = '
 const when = iso => iso ? new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Riyadh' }) : '—';
 const say = (id, t, err) => { const m = document.getElementById(id); if (!m) return; m.textContent = t || ''; m.className = 'msg' + (err ? ' e' : ''); };
 // ---------- assessment results (founder only) ----------
-function assessmentView(list, ins) {
+function assessmentView(list, ins, onReset) {
   const d = el('details'); d.open = list.some(a => a.completed_at);
   d.append(el('summary', 'Assessments (' + list.filter(a => a.completed_at).length + ' of ' + list.length + ' completed)'));
   list.forEach(a => {
@@ -23,7 +23,13 @@ function assessmentView(list, ins) {
       const mid = el('div'); mid.style.cssText = 'position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--muted)';
       trk.append(f, mid); row.append(el('span', label), trk, el('b', v.toFixed(2))); c.append(row);
     });
-    if (a.scores) { const n = el('p', 'Mean per scale, 1 to ' + I.max + '. The line marks the scale midpoint, not a norm.'); n.style.cssText = 'font-size:12px;color:var(--muted);margin:6px 0 0'; c.append(n); }
+    if (a.scores) { const n = el('p', 'Mean per scale, 1 to ' + I.max + '. The line marks the scale midpoint, not a norm. She sees her own results.'); n.style.cssText = 'font-size:12px;color:var(--muted);margin:6px 0 0'; c.append(n); }
+    const past = (a.history || []).filter(h => h.completed_at);
+    if (past.length) { const h = el('details'); h.append(el('summary', 'Earlier attempts (' + past.length + ')')); past.forEach(x => h.append(el('div', 'Completed ' + when(x.completed_at) + ' · ' + Object.entries(I.scales).map(([k, l]) => l + ' ' + Number((x.scores || {})[k]).toFixed(2)).join(' · ')))); c.append(h); }
+    if (onReset && (a.completed_at || (a.answers || []).some(x => x != null))) c.append(btn('Let her redo this test', async () => {
+      if (!confirm('Clear this test so she can take it again? Her current answers and scores are kept under Earlier attempts.')) return;
+      try { await onReset(a.kind); } catch (e) { alert(e.message); }
+    }, 'b g s'));
     d.append(c);
   });
   return d;

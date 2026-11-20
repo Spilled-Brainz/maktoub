@@ -4,10 +4,11 @@ const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 const digits = String(c.booking_phone || c.phone || '').replace(/\D/g,'');
 const first = String(c.name || '').trim().split(/\s+/)[0] || '';
 const review = c.session_kind === 'report_review';
+const thai = new Date(c.starts_at).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Bangkok' });
 const msg = review
   ? `Hi ${first}, your Maktoub report review is confirmed for ${c.starts_riyadh} (Riyadh time), 90 minutes.\n\nJoin here: ${meet}\n\nThe link is also in your report, under Session notes. We look forward to going through it with you.`
   : `Hi ${first}, your Maktoub consultation is confirmed for ${c.starts_riyadh} (Riyadh time).\n\nJoin here: ${meet}\n\nWe look forward to speaking with you.`;
 return [{ json: { ...c,
-  text: `<b>${review ? 'Report review approved ✅' : 'Booking approved ✅'}</b>\n${esc(c.name)} · ${esc(c.starts_riyadh)} (Riyadh)\nMeet: ${esc(meet)}\nCalendar event created. Tap below to send the WhatsApp confirmation.`,
+  text: `<b>${review ? 'Report review approved ✅' : 'Booking approved ✅'}</b>\n${esc(c.name)} · ${esc(c.starts_riyadh)} (Riyadh) · ${esc(thai)} (your time)\nMeet: ${esc(meet)}\nCalendar event created. Tap below to send the WhatsApp confirmation.`,
   button_label: 'Send WhatsApp confirmation',
   button_url: `https://wa.me/${digits}?text=${encodeURIComponent(msg)}` } }];

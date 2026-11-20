@@ -56,6 +56,25 @@ async function availableSlots(kind = 'intake') {
   if (offErr) console.error('blocked dates read failed', offErr)
   const daysOff = new Set((off ?? []).map(o => String(o.day)))
   const slots: string[] = []
+  const free = (st: number) => { const en = st + sessionMs; return st >= earliest && st <= latest && !busy.some(([bs, be]) => bs < en + bufferMs && be + bufferMs > st) }
+  const riyadhIso = (ms: number) => new Date(ms + 3 * 3600000).toISOString().slice(0, 16) + ':00+03:00'
+  // Weekly hours in the founder's own time zone, when set (e.g. Tue–Thu 13:00–15:00 and 22:00–01:00 Bangkok).
+  const w = s.weekly_hours as { utc_offset_minutes: number, from?: string, step_minutes?: number, days: Record<string, [string, string][]> } | null
+  if (w && w.days) {
+    const off = w.utc_offset_minutes * 60000, step = (w.step_minutes || 30) * 60000
+    const local0 = new Date(Date.now() + off); local0.setUTCHours(0, 0, 0, 0)
+    for (let d = -1; d <= s.max_days_ahead + 1; d++) {
+      const localMidnight = local0.getTime() + d * 86400000 // UTC ms of local midnight, shifted by the offset
+      const ymd = new Date(localMidnight).toISOString().slice(0, 10)
+      if ((w.from && ymd < w.from) || daysOff.has(ymd)) continue
+      for (const [a, b] of w.days[String(new Date(localMidnight).getUTCDay())] || []) {
+        const ws = localMidnight - off + toMin(a) * 60000, we = localMidnight - off + toMin(b) * 60000
+        for (let st = ws; st + sessionMs <= we; st += step) if (free(st)) slots.push(riyadhIso(st))
+      }
+    }
+    slots.sort()
+    return { timezone: s.timezone, session_minutes: minutes, slots }
+  }
   const day0 = new Date(Date.now() + 3 * 3600000); day0.setUTCHours(0, 0, 0, 0)
   for (let d = 0; d <= s.max_days_ahead + 1; d++) {
     const dayUtc = day0.getTime() + d * 86400000 - 3 * 3600000 // Riyadh midnight in UTC ms
