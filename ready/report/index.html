@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#F4F1EA">
+<meta name="theme-color" content="#FDFCFA">
 <meta name="robots" content="noindex,nofollow">
 <meta name="referrer" content="no-referrer">
 <title>Your voice report | Maktoub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap" rel="stylesheet">
 <style>
-:root{--paper:#F4F1EA;--paper-2:#EAE5DC;--card:#FBF9F5;--ink:#111111;--ink-2:#34322F;--navy:#142C4B;--navy-soft:#9fb4d1;--grey:#C9C1B7;--hair:#CFC8BD;--smoke:#6B665F;--white:#fff;
+:root{--paper:#FDFCFA;--paper-2:#F1EEE8;--card:#FFFFFF;--ink:#111111;--ink-2:#34322F;--navy:#142C4B;--navy-soft:#9fb4d1;--grey:#C9C1B7;--hair:#CFC8BD;--smoke:#6B665F;--white:#fff;
   --ok:#2f6b4f;--mid:#a8741a;--err:#9b2c2c;--ok-bg:rgba(47,107,79,.08);--mid-bg:rgba(168,116,26,.09);--err-bg:rgba(155,44,44,.08);
   --pad:clamp(20px,4vw,56px);--sans:"Instrument Sans","Helvetica Neue",Arial,sans-serif;--serif:"Newsreader","Iowan Old Style","Times New Roman",serif;--ease:cubic-bezier(.2,.7,.2,1)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -25,7 +25,7 @@ p{margin:0 0 14px}
 .muted{color:var(--smoke)}
 
 /* chrome */
-header.top{position:sticky;top:0;z-index:30;background:rgba(244,241,234,.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--hair)}
+header.top{position:sticky;top:0;z-index:30;background:rgba(253,252,250,.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--hair)}
 .bar{display:flex;align-items:center;justify-content:space-between;gap:16px;height:58px;padding:0 var(--pad);max-width:1240px;margin:0 auto}
 .brand{font-size:14px;font-weight:500;letter-spacing:.14em;text-decoration:none}
 .who{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--smoke);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -34,7 +34,7 @@ header.top{position:sticky;top:0;z-index:30;background:rgba(244,241,234,.96);bac
 .views::-webkit-scrollbar,.chapters::-webkit-scrollbar{display:none}
 .views button{flex-shrink:0;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--smoke);padding:14px 0 12px;border-bottom:2px solid transparent}
 .views button[aria-selected=true]{color:var(--ink);border-color:var(--navy)}
-.chapters{position:sticky;top:58px;z-index:20;background:rgba(244,241,234,.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--hair)}
+.chapters{position:sticky;top:58px;z-index:20;background:rgba(253,252,250,.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--hair)}
 .chapters .in{display:flex;gap:24px;padding:0 var(--pad);max-width:1240px;margin:0 auto;overflow-x:auto;scrollbar-width:none;scroll-behavior:smooth}
 .chapters button{flex-shrink:0;font-size:15px;color:var(--smoke);padding:13px 0 11px;border-bottom:2px solid transparent;white-space:nowrap}
 .chapters button .n{font-size:10px;letter-spacing:.1em;margin-right:6px;vertical-align:2px}
@@ -261,6 +261,17 @@ blockquote.src .k{margin-bottom:6px}
 .prose{max-width:68ch;padding-top:clamp(28px,5vw,48px)}
 .prose p{font-size:17.5px;line-height:1.7;color:var(--ink-2)}
 
+/* documents */
+.docitem{border-top:1px solid var(--hair);padding:2px 0}
+.docitem summary{cursor:pointer;padding:14px 0;font-size:16px;font-weight:500;list-style:none}
+.docitem summary::-webkit-details-marker{display:none}
+.docitem summary:after{content:"+";float:right;color:var(--smoke)}.docitem[open] summary:after{content:"\2013"}
+.doctext{white-space:pre-wrap;font-size:14.5px;line-height:1.65;color:var(--ink-2);max-height:420px;overflow:auto;padding:0 0 16px}
+.invoice{border:1px solid var(--hair);background:var(--card);padding:20px 22px;margin-top:12px;max-width:620px}
+.ihead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.ihead b{display:block;font-size:20px;font-weight:500;margin-top:4px}
+.invoice .paid{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ok);border:1px solid var(--ok);padding:4px 8px}
+.invoice dl{display:grid;grid-template-columns:140px 1fr;gap:6px 12px;margin:16px 0;font-size:14.5px}.invoice dt{color:var(--smoke)}.invoice dd{margin:0}
+.iline{display:flex;justify-content:space-between;gap:12px;border-top:1px solid var(--ink);padding-top:12px;font-size:15px}
 /* booking */
 .book{margin-top:clamp(28px,5vw,48px);border-top:1px solid var(--ink);padding-top:16px}
 .bookarea{margin-top:4px}
@@ -366,6 +377,7 @@ footer button{font-size:11px;letter-spacing:.1em;text-transform:uppercase;border
     <button role="tab" data-v="report" aria-selected="true">Voice report</button>
     <button role="tab" data-v="notes" aria-selected="false">Session notes</button>
     <button role="tab" data-v="recs" aria-selected="false">Recommendations</button>
+    <button role="tab" data-v="docs" aria-selected="false">Documents</button>
   </div>
 </header>
 <div class="preview" id="previewBar" hidden>Founder preview · not visible to the client until published</div>
@@ -373,7 +385,7 @@ footer button{font-size:11px;letter-spacing:.1em;text-transform:uppercase;border
 <main id="main"><div class="gate" id="gate"><div class="spin" aria-hidden="true"></div><p style="margin-top:18px">Opening your report…</p></div></main>
 <div id="print"></div>
 <script src="/ready/report/assessments.js"></script>
-<footer id="foot" hidden><span id="footText">A signal layer to explore during the programme. Not a diagnosis.</span><button id="printBtn" type="button">Save as PDF</button></footer>
+<footer id="foot" hidden><span id="footText">A signal layer to explore during the programme. Not a diagnosis.</span></footer>
 <div class="quiz" id="quiz" hidden role="dialog" aria-modal="true" aria-labelledby="quizName"><div class="qtop"><span class="k" id="quizName"></span><span class="k" id="quizCount"></span><button class="x" id="quizClose" type="button">Save and close</button></div><div class="qbar"><i id="quizBar"></i></div><div class="qbody" id="quizBody"></div></div>
 <div class="scrim" id="scrim"></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" tabindex="-1"><div class="grab"></div><button class="x" id="sheetX" type="button">Close</button><div id="sheetBody"></div></div>
@@ -386,7 +398,7 @@ const FN = 'https://pmjvpnqmklxxpswwvbmv.supabase.co/functions/v1/';
 const SOURCES = { ready: { api: FN + 'maktoub-programme', key: 'maktoub_ready', portal: '/ready/' }, onboard: { api: FN + 'maktoub-onboard', key: 'maktoub_invite', portal: '/onboard/' } };
 let SRC = SOURCES.ready, API = SRC.api;
 const KEY = 'maktoub_ready', PREVIEW_KEY = 'maktoub_report_preview';
-let TOKEN = null, LIVE = false, ASSESS = {};
+let TOKEN = null, LIVE = false, ASSESS = {}, DOCS = null;
 const $ = id => document.getElementById(id);
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null && text !== '') e.textContent = text; return e; };
 const add = (parent, ...kids) => { kids.flat().forEach(k => k && parent.append(k)); return parent; };
@@ -428,6 +440,7 @@ async function getData() {
   if (!r.ok) throw Object.assign(new Error(j.error || 'Please try again in a moment.'), { title: r.status === 401 ? 'This link is no longer active.' : 'We could not open your report.' });
   if (!j.report) throw Object.assign(new Error('Your voice report appears here once it has been written and released. We will let you know.'), { title: 'Your report is being prepared.', portal: true });
   TOKEN = token; (j.assessments || []).forEach(a => { ASSESS[a.kind] = a; });
+  DOCS = { documents: j.documents || [], signed: j.signed || null, invoices: j.invoices || (j.invoice ? [j.invoice] : []) };
   return { report: j.report, who: { first_name: j.first_name, reference: j.reference } };
 }
 
@@ -883,14 +896,36 @@ function runTest(k) {
   show();
 }
 
+// Her signed agreement and invoice, from the same private link.
+const fmtD = iso => iso ? new Date(iso.length === 10 ? iso + 'T12:00:00+03:00' : iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Riyadh' }) : '';
+function docsView() {
+  const w = el('section', 'chapter'), d = DOCS || { documents: [], invoices: [] };
+  add(w, add(el('div', 'hero'), add(el('div'), K('Your records'), el('h1', null, 'Documents')), add(el('div', 'side'), el('p', 'lead', 'Your signed agreement and your invoice, kept here for you.'))));
+  const ag = add(el('div', 'block'), K('Your agreement', true));
+  if (d.signed) ag.append(el('p', 'body', 'Signed by ' + d.signed.name + ' on ' + fmtD(d.signed.at) + (d.signed.countersigned_at ? ', countersigned by ' + (d.signed.countersigned_name || 'Maktoub') + ' on ' + fmtD(d.signed.countersigned_at) : '') + '.'));
+  (d.documents || []).forEach(doc => { const det = el('details', 'docitem'); det.append(el('summary', null, doc.title + (doc.version ? ' · ' + doc.version : ''))); const pre = el('div', 'doctext'); pre.textContent = doc.body || ''; det.append(pre); ag.append(det); });
+  if (!(d.documents || []).length) ag.append(el('p', 'body muted', 'Your agreement will appear here.'));
+  w.append(ag);
+  const iv = add(el('div', 'block'), K((d.invoices || []).length > 1 ? 'Your invoices' : 'Your invoice', true));
+  (d.invoices || []).forEach(inv => {
+    const t = add(el('div', 'invoice'), add(el('div', 'ihead'), add(el('div'), K('Invoice'), el('b', null, inv.number)), el('span', 'paid', 'Paid')));
+    const rows = [['Issued', fmtD(inv.issued_at)], ['Payment received', fmtD(inv.paid_on || inv.issued_at)], ['From', inv.seller + (inv.seller_registration ? ' · ' + inv.seller_registration : '')], ['Billed to', inv.billed_to], ['Method', inv.method]];
+    const dl = el('dl'); rows.filter(r => r[1]).forEach(([k, v]) => { dl.append(el('dt', null, k), el('dd', null, v)); }); t.append(dl);
+    add(t, add(el('div', 'iline'), el('span', null, inv.description), el('b', null, inv.label))); iv.append(t);
+  });
+  if (!(d.invoices || []).length) iv.append(el('p', 'body muted', 'Your invoice will appear here once your payment is confirmed.'));
+  w.append(iv);
+  return w;
+}
 function go(k, keepScroll) { if (location.hash.slice(1) !== k) history.pushState(null, '', '#' + k); route(keepScroll); }
 function route(keepScroll) {
   const h = location.hash.slice(1) || 'overview';
-  const view = h === 'notes' || h === 'recs' ? h : 'report';
+  const view = h === 'notes' || h === 'recs' || h === 'docs' ? h : 'report';
   document.querySelectorAll('#views button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.v === view)));
   $('chapters').hidden = view !== 'report';
   const main = $('main'); main.replaceChildren();
-  if (view !== 'report') main.append(notesView(view));
+  if (view === 'docs') main.append(docsView());
+  else if (view !== 'report') main.append(notesView(view));
   else {
     const c = CH.find(x => x.k === h) || CH[0];
     document.querySelectorAll('#chapterTabs button').forEach(b => { const on = b.dataset.k === c.k; b.setAttribute('aria-selected', String(on)); if (on) b.scrollIntoView({ block: 'nearest', inline: 'center', behavior: keepScroll ? 'auto' : 'smooth' }); });
@@ -919,7 +954,7 @@ function buildPrint() {
   printing = false;
 }
 addEventListener('beforeprint', () => R && buildPrint());
-$('printBtn').onclick = () => { buildPrint(); print(); };
+
 
 // ---------- boot ----------
 function gate(e) {
