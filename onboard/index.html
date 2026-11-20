@@ -318,11 +318,11 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
   <!-- STEP 4 · Payment & confirmation -->
   <section class="step" id="s4" hidden>
    <div class="wrap narrow grain">
-    <div class="section-head"><p class="label">04 / Payment &amp; confirmation</p><p class="label muted">Bank transfer</p></div>
-    <h2>One <span class="u">last step.<svg class="uline" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path pathLength="100" d="M1 12.4C30 6 64 10 99 3.6"/><path pathLength="100" d="M10 18.4C40 13.2 70 15.6 90 11.6"/></svg></span></h2>
-    <p class="muted" style="margin-top:20px;max-width:46ch">Please transfer the founding rate to the account below. No transfer note is needed. Once it is sent, let us know here.</p>
+    <div class="section-head"><p class="label">04 / Payment &amp; confirmation</p><p class="label muted" id="s4Tag">Bank transfer</p></div>
+    <h2 id="s4Title">One <span class="u">last step.<svg class="uline" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path pathLength="100" d="M1 12.4C30 6 64 10 99 3.6"/><path pathLength="100" d="M10 18.4C40 13.2 70 15.6 90 11.6"/></svg></span></h2>
+    <p class="muted" id="s4Intro" style="margin-top:20px;max-width:46ch">Please transfer the founding rate to the account below. No transfer note is needed. Once it is sent, let us know here.</p>
 
-    <div class="paybox">
+    <div class="paybox" id="payBox">
       <div><p class="label muted">Founding Client rate</p><div class="amt" id="priceLabel2"></div></div>
       <div><p class="label muted">Payment</p><p style="margin:8px 0 0;font-size:17px">One bank transfer, paid once.</p></div>
     </div>
@@ -498,10 +498,17 @@ function apply(v, goTo) {
     $('invDesc').textContent = inv.description;
     $('invAmt').textContent = $('invTotal').textContent = inv.label;
   }
+  // Once paid, the transfer instructions step aside: status and report come first.
+  const paid = !!p.verified_at;
+  if (paid) {
+    $('s4Title').textContent = v.report ? 'Your report is ready.' : 'You\u2019re all set.';
+    $('s4Intro').textContent = v.report ? 'Open it below to read it, take your assessments and book your report review.' : 'Your payment is verified and your place is confirmed.';
+    $('s4Tag').textContent = 'Confirmed';
+    $('payBox').hidden = true; $('bankCard').hidden = true; $('bankPending').hidden = true;
+  }
   if (p.verified_at) {
     $('payTitle').textContent = 'Payment verified. Thank you.';
-    $('payText').textContent = v.report ? 'Your report is ready. Open it to read it, take your assessments and book your report review with us.' : v.report_due_at ? 'Your report is due by ' + fmtDay(v.report_due_at) + '. We will contact you to arrange your consultation.' : 'We will be in touch about your report.';
-    if (v.report) $('payTitle').textContent = 'Your report is ready.';
+    $('payText').textContent = v.report ? '' : v.report_due_at ? 'Your report is due by ' + fmtDay(v.report_due_at) + '. We will contact you to arrange your consultation.' : 'We will be in touch about your report.';
     
   } else if (p.reported_at) {
     $('payTitle').textContent = 'Transfer noted. We are verifying it.';
