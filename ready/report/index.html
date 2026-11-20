@@ -229,6 +229,31 @@ blockquote.src .k{margin-bottom:6px}
 .jcard{max-width:720px}
 .jcard p:not(.k){font-family:var(--serif);font-size:clamp(21px,2.4vw,26px);line-height:1.38;color:var(--ink);margin:8px 0 0}
 
+/* right-brain adaptations: one image per chapter, the whole map first, shapes before lists */
+.image{padding:clamp(26px,5vw,48px) 0;border-bottom:1px solid var(--hair);display:grid;gap:10px}
+.image p{font-family:var(--serif);font-style:italic;font-size:clamp(25px,3.6vw,40px);line-height:1.22;letter-spacing:-.015em;margin:0;max-width:30ch;color:var(--ink)}
+.wmap{position:relative;width:100%;max-width:620px;aspect-ratio:1/1;margin:8px auto 0}
+.wmap svg{position:absolute;inset:0;width:100%;height:100%}
+.wmap .ring{fill:none;stroke:var(--hair);stroke-width:1}
+.wmap .spoke{stroke:var(--grey);stroke-width:1;stroke-dasharray:2 5}
+.wmap .me{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:26%;aspect-ratio:1/1;border-radius:50%;background:var(--navy);color:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8px}
+.wmap .me b{font-family:var(--serif);font-weight:400;font-size:clamp(20px,3.4vw,30px);line-height:1}
+.wmap .me span{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;opacity:.75;margin-top:4px}
+.wmap .wn{position:absolute;transform:translate(-50%,-50%);width:31%;text-align:center;padding:10px 8px;background:var(--card);border:1px solid var(--hair);transition:border-color .2s,transform .25s var(--ease)}
+.wmap .wn:hover{border-color:var(--ink);transform:translate(-50%,-52%)}
+.wmap .wn .k{font-size:9.5px}
+.wmap .wn b{display:block;font-family:var(--serif);font-weight:400;font-size:clamp(16px,2.4vw,22px);line-height:1.12;margin-top:4px}
+.ways{display:grid;gap:22px;margin-top:28px}
+.ways ul{list-style:none;margin:8px 0 0;padding:0;border-top:1px solid var(--ink)}
+.ways li{padding:10px 0 10px 20px;border-bottom:1px solid var(--hair);font-size:15.5px;position:relative;color:var(--ink-2)}
+.ways li:before{content:"";position:absolute;left:2px;top:19px;width:8px;height:8px;border-radius:50%;background:var(--ok)}
+.ways .dr li:before{background:var(--err)}
+@media(min-width:760px){.ways{grid-template-columns:1fr 1fr;gap:40px}}
+.radar{max-width:440px;margin:6px auto 18px}
+.radar svg{width:100%;height:auto;overflow:visible}
+.radar text{font-family:var(--sans);font-size:11px;fill:var(--ink-2)}
+.radar .ax{stroke:var(--hair);stroke-width:1}.radar .rg{fill:none;stroke:var(--hair);stroke-width:1}
+.radar .sh{fill:rgba(20,44,75,.12);stroke:var(--navy);stroke-width:1.6;stroke-linejoin:round}
 /* notes */
 .empty{text-align:center;padding:clamp(60px,12vw,140px) 0;max-width:420px;margin:0 auto}
 .empty .mark{width:56px;height:56px;margin:0 auto 18px;border:1px solid var(--hair);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--navy)}
@@ -315,6 +340,8 @@ const P = (t, cls) => t ? el('p', cls || 'body', t) : null;
 const block = (label, text) => text ? add(el('div', 'block'), K(label, true), el('p', null, text)) : null;
 
 let R = null, who = {}, printing = false;
+// Reading style: right-brain readers get the whole picture first (map, images, shapes); left-brain readers get structure first.
+const styleOf = () => { const s = (R.meta || {}).style; if (s) return s; const b = (R.mind || {}).brain || {}, L = +b.left || 0, Rr = +b.right || 0; return L && Rr ? (Rr / L > 1.5 ? 'right' : L / Rr > 1.5 ? 'left' : 'balanced') : 'balanced'; };
 
 // ---------- data ----------
 async function getData() {
@@ -404,6 +431,7 @@ const PANELS = {
       il.style.width = '50%'; ir.style.width = '50%'; trk.append(il, ir);
       requestAnimationFrame(() => requestAnimationFrame(() => { il.style.width = (L / tot * 100) + '%'; ir.style.width = (Rr / tot * 100) + '%'; }));
       add(h, row, trk); add(w, h, K('What this suggests', true), P(d.brain.text), d.brain.line ? el('p', 'line', d.brain.line) : null);
+      if (has(d.brain.helps) || has(d.brain.drains)) add(w, add(el('div', 'ways'), has(d.brain.helps) ? add(el('div'), K('How you take things in best', true), add(el('ul'), d.brain.helps.map(x => el('li', null, x)))) : null, has(d.brain.drains) ? add(el('div', 'dr'), K('What wears you down', true), add(el('ul'), d.brain.drains.map(x => el('li', null, x)))) : null));
       return w;
     } });
     if (d.stress && (d.stress.value != null || d.stress.type)) out.push({ k: 'stress', label: 'Stress', build() {
@@ -439,6 +467,7 @@ const PANELS = {
     } });
     if (has(d.leadership)) out.push({ k: 'leadership', label: 'Leadership', build() {
       const w = add(el('div'), K('Leadership profile'), el('div', 'big', 'Seven dynamics'), d.leadership_summary ? P(d.leadership_summary) : null);
+      if (styleOf() === 'right' || printing) w.append(radar(d.leadership));
       return add(w, acc(d.leadership.map(x => ({ t: x.t, sub: x.sub, d: x.d, level: x.level }))));
     } });
     return out;
@@ -510,6 +539,36 @@ const PANELS = {
   },
 };
 
+function radar(rows) {
+  const n = rows.length, cx = 180, cy = 150, R0 = 104, lv = l => ({ Low: 1, Good: 2, High: 3 }[l] || 0) / 3;
+  const pt = (i, r) => { const a = -Math.PI / 2 + i * 2 * Math.PI / n; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; };
+  const s = svg('svg', { viewBox: '-20 -6 400 312', role: 'img', 'aria-label': 'Leadership shape: ' + rows.map(x => x.t + ' ' + x.level).join(', ') });
+  [1 / 3, 2 / 3, 1].forEach(f => s.append(svg('polygon', { class: 'rg', points: rows.map((_, i) => pt(i, R0 * f).join(',')).join(' ') })));
+  rows.forEach((x, i) => { const [ex, ey] = pt(i, R0); s.append(svg('line', { class: 'ax', x1: cx, y1: cy, x2: ex, y2: ey }));
+    const [tx, ty] = pt(i, R0 + 16); const t = svg('text', { x: tx, y: ty + 4, 'text-anchor': Math.abs(tx - cx) < 8 ? 'middle' : tx > cx ? 'start' : 'end' }); t.textContent = x.t.replace(/^Self-(\w)/, (m, c) => c.toUpperCase()); s.append(t); });
+  s.append(svg('polygon', { class: 'sh', points: rows.map((x, i) => pt(i, R0 * Math.max(.12, lv(x.level))).join(',')).join(' ') }));
+  rows.forEach((x, i) => { const [px, py] = pt(i, R0 * Math.max(.12, lv(x.level))); s.append(svg('circle', { cx: px, cy: py, r: 4, fill: x.level === 'High' ? 'var(--ok)' : x.level === 'Low' ? 'var(--err)' : 'var(--navy)' })); });
+  return add(el('div', 'radar'), s);
+}
+function wholeMap() {
+  const ess = {
+    emotional: (R.emotional || {}).thrive && R.emotional.thrive.emotion,
+    mind: (() => { const se = (R.mind || {}).sensory || {}; return se.base && se.base.sense ? se.base.sense + (se.next && se.next.sense ? ' → ' + se.next.sense : '') : (R.mind && R.mind.brain && R.mind.brain.label); })(),
+    social: R.social && R.social.archetype && R.social.archetype.name + (R.social.motivator ? ' → ' + R.social.motivator.name : ''),
+    negativity: R.negativity && ((R.negativity.core && R.negativity.core.name) || ((R.negativity.patterns || [])[0] || {}).name),
+    body: R.body && ((R.body.patterns || [])[0] || {}).title,
+    journey: R.journey && (((R.journey.markers || []).find(m => /now|current/i.test(m.label)) || {}).value || (R.journey.markers || [])[0] && R.journey.markers[0].value),
+  };
+  const items = CH.slice(1).filter(c => ess[c.k] && panelsFor(c.k).length);
+  if (items.length < 3) return null;
+  const box = el('div', 'wmap'), s = svg('svg', { viewBox: '0 0 100 100', preserveAspectRatio: 'none', 'aria-hidden': 'true' }), n = items.length;
+  s.append(svg('circle', { class: 'ring', cx: 50, cy: 50, r: 38, 'vector-effect': 'non-scaling-stroke' }));
+  const nodes = items.map((c, i) => { const a = -Math.PI / 2 + i * 2 * Math.PI / n, x = 50 + 36 * Math.cos(a), y = 50 + 38 * Math.sin(a);
+    s.append(svg('line', { class: 'spoke', x1: 50, y1: 50, x2: x, y2: y, 'vector-effect': 'non-scaling-stroke' }));
+    const b = add(el('button', 'wn'), K(c.n + ' ' + c.t), el('b', null, ess[c.k])); b.type = 'button'; b.style.left = x + '%'; b.style.top = y + '%'; b.onclick = () => go(c.k); return b; });
+  add(box, s, add(el('div', 'me'), el('b', null, who.first_name && who.first_name.length < 12 ? who.first_name : 'You'), el('span', null, 'Your map')), nodes);
+  return add(el('div', 'block'), K('The whole picture', true), el('p', 'q', 'Six chapters at a glance. Tap any one to go deeper.'), box);
+}
 function acc(rows) {
   const box = el('div', 'acc');
   rows.forEach((r, i) => {
@@ -564,13 +623,14 @@ function overview() {
   add(w, add(el('div', 'hero'), add(el('div'), K('Your voice report'), el('h1', null, s.headline || 'Six chapters. One operating map.')),
     add(el('div', 'side'), el('p', 'lead', s.intro || 'Your voice, your words and your context are read across six layers. The value is not one score. It is the relationship between the signals.'), el('div', null), meta)));
   meta.style.marginTop = '18px';
+  if (styleOf() === 'right' && !printing) add(w, wholeMap());
   if (has(s.signals)) add(w, el('div', null), add(el('div', 'block'), K('Executive synthesis', true), el('p', 'q', 'The pattern is not one score.')),
     add(el('div', 'signals'), s.signals.filter(x => x.label || x.value).map(x => add(el('article'), K(x.label), el('strong', null, x.value), x.strength ? el('small', null, x.strength) : null))));
   if (s.read || s.changes) add(w, add(el('div', 'split'), s.read ? add(el('div', 'block'), K('Cross-layer read', true), el('p', null, s.read)) : null, s.changes ? add(el('div', 'block'), K('What this changes', true), el('p', null, s.changes)) : null));
-  add(w, add(el('div', 'layers'), ...[['Acoustic layer', 'What the voice is doing.', 'Pitch, variation, intensity, pace and resonance, read for patterns across your recording.'], ['Emotional layer', 'What the emotions are doing.', 'Which emotions carry you, which cost you, and which sit underneath, read from the tonal signature.'], ['Human layer', 'What it means for you.', 'Read alongside your situation, history and goals. The technology adds signal. It does not replace judgement.']].map(([a, b, c]) => add(el('article'), K(a), el('h3', null, b), el('p', null, c)))));
+  if (styleOf() !== 'right' || printing) add(w, add(el('div', 'layers'), ...[['Acoustic layer', 'What the voice is doing.', 'Pitch, variation, intensity, pace and resonance, read for patterns across your recording.'], ['Emotional layer', 'What the emotions are doing.', 'Which emotions carry you, which cost you, and which sit underneath, read from the tonal signature.'], ['Human layer', 'What it means for you.', 'Read alongside your situation, history and goals. The technology adds signal. It does not replace judgement.']].map(([a, b, c]) => add(el('article'), K(a), el('h3', null, b), el('p', null, c)))));
   if (has(s.questions)) add(w, add(el('div', 'block'), K('Questions we will work on together', true), add(el('ol', 'qs'), s.questions.map(q => el('li', null, q)))));
   const avail = CH.slice(1).filter(c => panelsFor(c.k).length);
-  if (avail.length && !printing) add(w, add(el('div', 'block'), K('The chapters', true), add(el('ul', 'toc'), avail.map(c => { const li = el('li'), b = add(el('button'), el('span', 'n', c.n), add(el('span'), el('b', null, c.t), el('span', 'd', c.lead)), icon(ARROW)); b.type = 'button'; b.onclick = () => go(c.k); li.append(b); return li; }))));
+  if (avail.length && !printing && styleOf() !== 'right') add(w, add(el('div', 'block'), K('The chapters', true), add(el('ul', 'toc'), avail.map(c => { const li = el('li'), b = add(el('button'), el('span', 'n', c.n), add(el('span'), el('b', null, c.t), el('span', 'd', c.lead)), icon(ARROW)); b.type = 'button'; b.onclick = () => go(c.k); li.append(b); return li; }))));
   add(w, el('p', 'disc', 'Voice analysis is an additional signal layer, not a diagnosis or a verdict. Treat each finding as a pattern to test during the programme. Nothing here replaces advice from a qualified medical or mental-health professional.'));
   return w;
 }
@@ -582,6 +642,7 @@ function chapter(c, all) {
   if (c.k === 'overview') return overview();
   const ps = panelsFor(c.k), w = el('section', 'chapter');
   add(w, add(el('div', 'hero'), add(el('div'), K('Chapter ' + c.n), el('h1', null, c.t)), add(el('div', 'side'), el('p', 'lead', c.lead))));
+  const img = (R[c.k] || {}).image; if (img) add(w, add(el('div', 'image'), K('In one image'), el('p', null, img)));
   if (!ps.length) { add(w, el('p', 'body', 'This chapter will appear here once it has been written.')); return w; }
   if (all) { ps.forEach(p => { const pn = add(el('div', 'panel'), el('p', 'k panel-title', p.label)); pn.append(p.build()); w.append(pn); }); }
   else {
@@ -682,18 +743,18 @@ function SAMPLE() {
       read: 'Outwardly you lead with drive and decisiveness, while what you are really reaching for is care and belonging. You take the world in visually and process with a right-brain bias, so you often know before you can explain. Your stress reads as emotional rather than task-based.',
       changes: 'We do not start from "what is wrong". We start from the biggest gap between how you feel inside, how you act outside, and the outcome you want.',
       questions: ['Where is "proving" costing you most right now?', 'What would self-management look like if it were as strong as your purpose?', 'What changed when the load started easing, and how do you keep choosing it?'] },
-    emotional: { thrive: { emotion: 'Joy', text: 'Joy is your fuel. When it is present your energy multiplies and others feel it.', also: ['Trust'], deep: 'Alongside joy, trust also registers as empowering for you. You thrive where you can trust and be trusted.' }, drain: { emotion: 'Fear', text: 'Fear drains you most when it is anticipating rather than responding.', also: ['Anger'] }, visible: { emotion: 'Resolve', text: 'This is the emotion that keeps showing up, and the one people around you are most likely to notice.' }, deep: { emotion: 'Sadness', text: 'This is the stronger emotion underneath the one that shows. Unprocessed sadness quietly lowers your energy.' }, tones: [{ note: 'A', text: 'Warm, direct and energising. Can be impatient when things move slowly.' }, { note: 'E', text: 'Thoughtful and steady. Likes depth over small talk.' }], test: 'Each evening this week, name the emotion that carried you and the one that cost you. Nothing else.' },
-    mind: { sensory: { base: { sense: 'Seeing', direction: 'Outward', energy: 'Extrovert', text: 'You take the world in visually first: pictures, layout and what is in front of you.', direction_text: 'Your attention moves out toward people and the environment.', energy_text: 'Energy comes from engagement.' }, next: { sense: 'Feeling', direction: 'Inward', energy: 'Introvert', text: 'You make sense of things by checking how they sit with you.', direction_text: 'Your attention turns inward.', energy_text: 'Energy comes from quiet.' }, text: 'You take information in through seeing first, then process it through feeling. People may see the outgoing first half and miss how much quiet you need for the second.' },
-      brain: { left: 402, right: 1096, label: 'Right-brain led', text: 'Your right hemisphere appears to lead. You absorb broadly and synthesise before you can break things into steps.', line: 'You may understand the whole before you can explain the steps.' },
+    emotional: { image: 'Joy is your home frequency. Fear and anger are the static that pull you off it.', thrive: { emotion: 'Joy', text: 'Joy is your fuel. When it is present your energy multiplies and others feel it.', also: ['Trust'], deep: 'Alongside joy, trust also registers as empowering for you. You thrive where you can trust and be trusted.' }, drain: { emotion: 'Fear', text: 'Fear drains you most when it is anticipating rather than responding.', also: ['Anger'] }, visible: { emotion: 'Resolve', text: 'This is the emotion that keeps showing up, and the one people around you are most likely to notice.' }, deep: { emotion: 'Sadness', text: 'This is the stronger emotion underneath the one that shows. Unprocessed sadness quietly lowers your energy.' }, tones: [{ note: 'A', text: 'Warm, direct and energising. Can be impatient when things move slowly.' }, { note: 'E', text: 'Thoughtful and steady. Likes depth over small talk.' }], test: 'Each evening this week, name the emotion that carried you and the one that cost you. Nothing else.' },
+    mind: { image: 'You see the whole landscape first, and find the path through it second.', sensory: { base: { sense: 'Seeing', direction: 'Outward', energy: 'Extrovert', text: 'You take the world in visually first: pictures, layout and what is in front of you.', direction_text: 'Your attention moves out toward people and the environment.', energy_text: 'Energy comes from engagement.' }, next: { sense: 'Feeling', direction: 'Inward', energy: 'Introvert', text: 'You make sense of things by checking how they sit with you.', direction_text: 'Your attention turns inward.', energy_text: 'Energy comes from quiet.' }, text: 'You take information in through seeing first, then process it through feeling. People may see the outgoing first half and miss how much quiet you need for the second.' },
+      brain: { left: 402, right: 1096, label: 'Right-brain led', text: 'Your right hemisphere appears to lead. You absorb broadly and synthesise before you can break things into steps.', line: 'You may understand the whole before you can explain the steps.', helps: ['The picture or the feeling first, the steps after', 'The why before the how', 'Images, examples, stories and metaphors'], drains: ['Long lists of steps with no picture of where they lead', 'Being rushed from sensing to deciding'] },
       stress: { value: 24.1, band: 'Emotional', type: 'Emotional stress', text: 'Your stress appears to be emotional rather than task-based. You may be carrying atmosphere and other people’s signals that have not had space to be processed.' } },
-    social: { archetype: { name: 'Leader', sub: 'Drive, Decisiveness', text: 'Takes charge, moves quickly and sets direction for others.' }, motivator: { name: 'Nurturer', sub: 'Care, Belonging', text: 'Underneath the drive, wants people to feel looked after.', force: 'Outwardly you lead as the Leader; underneath, what you are really reaching for is the Nurturer’s care and belonging.' },
+    social: { image: 'Seen from outside, the Leader. Felt from inside, the Nurturer.', archetype: { name: 'Leader', sub: 'Drive, Decisiveness', text: 'Takes charge, moves quickly and sets direction for others.' }, motivator: { name: 'Nurturer', sub: 'Care, Belonging', text: 'Underneath the drive, wants people to feel looked after.', force: 'Outwardly you lead as the Leader; underneath, what you are really reaching for is the Nurturer’s care and belonging.' },
       perception_summary: 'Others may first meet the qualities below.', perception: [{ t: 'Decisive under pressure' }, { t: 'Generous with time' }, { t: 'Sets a clear standard' }],
       leadership: [['Purpose', 'Values, Passion, Purpose', 'High'], ['Self-awareness', 'Insights to Beliefs', 'Good'], ['Self-development', 'Knowledge to Communicate', 'High'], ['Self-management', 'Relationships to Love', 'Low'], ['Self-belief', 'Willpower to Wealth', 'Good'], ['Self-esteem', 'Belonging to Pleasure', 'Low'], ['Being', 'Experience to Foundation', 'Good']].map(([t, sub, level]) => ({ t, sub, level, d: level === 'High' ? 'A clear strength to build from.' : level === 'Low' ? 'An area that may need more conscious support right now.' : 'Present and developing.' })),
       leadership_summary: 'Strong in purpose and self-development, with more development needed in self-management and self-esteem.' },
-    negativity: { core: { name: 'Fear of not being enough', text: 'Your drive may be quietly powered by a fear of falling short.', affects: 'How much rest you allow yourself, and whether praise lands.', cues: [{ t: 'Over-preparing', d: 'Doing three times the work to feel safe.' }, { t: 'Deflecting praise', d: 'Moving on before it can land.' }] },
+    negativity: { image: 'Old weather: these patterns formed in an earlier season and still blow through, even when the sky has changed.', core: { name: 'Fear of not being enough', text: 'Your drive may be quietly powered by a fear of falling short.', affects: 'How much rest you allow yourself, and whether praise lands.', cues: [{ t: 'Over-preparing', d: 'Doing three times the work to feel safe.' }, { t: 'Deflecting praise', d: 'Moving on before it can land.' }] },
       patterns: [{ name: 'Proving', summary: 'Worth feels like something to earn.', text: 'Always trying to prove yourself.', notice: 'Notice who you are still trying to convince.' }, { name: 'Perfectionist', summary: 'Mistakes feel dangerous.', text: 'Polishing replaces progress.', notice: 'Notice where waiting for the perfect version is a form of hiding.' }, { name: 'Guarded', summary: 'Distance feels safer than being known.', text: 'Keeps the walls up.', notice: 'Notice the moment you decide to hold something back.' }, { name: 'Overthinker', summary: 'Analysis can become a way of not deciding.', text: 'Runs every outcome.', notice: 'Notice how much energy goes on "what if".' }] },
-    body: { patterns: [{ title: 'Overstimulated nervous system', interpretation: 'Your system may be taking in more than it can settle.', meaning: 'Insufficient own space. Always trying to prove yourself.', asking: 'More protected space, fewer demands, and permission to stop proving.', closing: 'A radio tuned to every station at once.' }, { title: 'Endocrine stress', interpretation: 'Your inner authority may be handed outward.', meaning: 'When there is stress, there is imbalance.', asking: 'Your own rhythm back.', closing: 'A body waiting for permission that only you can give.' }], organs: ['Liver', 'Stomach'] },
-    journey: { age: 36, ages: [4, 6, 8, 11, 13, 15, 18, 22, 25, 29, 32, 36], levels: [2, 3, 6, 7, 6, 4, 3, 2, 3, 5, 4, 3], markers: [{ label: 'Hardest period', value: 'Age 8–13' }, { label: 'Steadiest period', value: 'Age 18–25' }, { label: 'Now', value: 'Gaining energy, load easing' }], insight: 'The strongest strain registers at age 8–13, followed by a long constructive stretch at age 18–25. In recent years the load has been easing.', meaning: 'The direction is toward steadier ground. The work is to understand what changed so you can keep choosing it on purpose.' },
+    body: { image: 'Your body is the instrument your voice comes from. These are the strings under the most tension.', patterns: [{ title: 'Overstimulated nervous system', interpretation: 'Your system may be taking in more than it can settle.', meaning: 'Insufficient own space. Always trying to prove yourself.', asking: 'More protected space, fewer demands, and permission to stop proving.', closing: 'A radio tuned to every station at once.' }, { title: 'Endocrine stress', interpretation: 'Your inner authority may be handed outward.', meaning: 'When there is stress, there is imbalance.', asking: 'Your own rhythm back.', closing: 'A body waiting for permission that only you can give.' }], organs: ['Liver', 'Stomach'] },
+    journey: { image: 'The weather is clearing, and the ground is drying under your feet.', age: 36, ages: [4, 6, 8, 11, 13, 15, 18, 22, 25, 29, 32, 36], levels: [2, 3, 6, 7, 6, 4, 3, 2, 3, 5, 4, 3], markers: [{ label: 'Hardest period', value: 'Age 8–13' }, { label: 'Steadiest period', value: 'Age 18–25' }, { label: 'Now', value: 'Gaining energy, load easing' }], insight: 'The strongest strain registers at age 8–13, followed by a long constructive stretch at age 18–25. In recent years the load has been easing.', meaning: 'The direction is toward steadier ground. The work is to understand what changed so you can keep choosing it on purpose.' },
     notes: {},
   };
 }

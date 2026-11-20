@@ -220,7 +220,61 @@ const BRAIN = {
   right: { label: 'Right-brain led', text: 'Your right hemisphere appears to lead. You absorb broadly, read pattern, tone and meaning, and synthesise before you can break things into steps.', line: 'You may understand the whole before you can explain the steps.' },
   left: { label: 'Left-brain led', text: 'Your left hemisphere appears to lead. You work through structure, sequence and logic, and feel steadier when the steps are clear.', line: 'You may need the steps before you trust the whole.' },
   balanced: { label: 'Balanced', text: 'Neither hemisphere clearly dominates. You can move between detail and the big picture, which is useful as long as you choose which one the moment needs.', line: 'Your range is a strength when you choose the mode on purpose.' },
+  right_strong: { label: 'Strongly right-brain led', text: 'Your right hemisphere is doing most of the work, by a wide margin. You take in the whole field at once: tone, atmosphere, meaning, and what is not being said. You usually know where something is going long before you could explain why. Your left side, which turns that knowing into steps, sequence and words for other people, is the quieter partner. That gap is not a weakness. It is the shape of how you work, and much of the friction in this report sits exactly there.', line: 'You know before you can explain. The work is building the bridge, not doubting the knowing.' },
+  left_strong: { label: 'Strongly left-brain led', text: 'Your left hemisphere is doing most of the work, by a wide margin. You trust what you can sequence, measure and explain, and you are at your best with a clear structure. The right side, which reads atmosphere, feeling and the whole picture, is the quieter partner, so emotional signals may reach you late.', line: 'You trust the steps. The work is letting the felt sense count as data too.' },
 };
+// How each mind takes things in best, and what drains it.
+const BRAIN_WAYS = {
+  right: { helps: ['The picture or the feeling first, the steps after', 'The why before the how', 'Images, examples, stories and metaphors', 'Talking it through out loud, or voice notes', 'Seeing the whole map before the first step'], drains: ['Long lists of steps with no picture of where they lead', 'Being asked to justify a knowing before you have felt it through', 'Forms, spreadsheets and detail work with no meaning attached', 'Being rushed from sensing to deciding'] },
+  left: { helps: ['A clear plan with numbered steps', 'The facts and the evidence first', 'Time to analyse before deciding', 'Written summaries and checklists'], drains: ['Vague goals with no structure', 'Being asked to decide on feeling alone', 'Constant change of plan', 'Emotion-heavy conversations with no clear point'] },
+};
+// Right-brain readers get the whole picture first: one image per chapter, felt questions, embodied practices.
+const RIGHT_TESTS = {
+  emotional: 'Each evening, give the emotion that carried you today a colour, and the one that cost you another. No explanation needed. At the end of the month, look at the colours together.',
+  mind: 'When you get stuck on "how", record a two-minute voice note describing what the finished thing looks and feels like. Let the steps come after, from the picture.',
+  social: 'Notice one moment each week when you bring people back together. Write down only what you felt just before you stepped in.',
+  negativity: 'When you catch a pattern, name it out loud as if pointing at a picture: "there it is." Naming it is enough. You do not have to fix it in the moment.',
+  body: 'Once a day, place a hand where you feel the most tension and breathe into it for one minute. Notice whether the picture in your mind changes.',
+  journey: 'Find a photo of yourself from your steadiest period and keep it where you will see it. Ask what that version of you knew.',
+};
+const LEFT_TESTS = {
+  emotional: 'Each evening, write one line: the emotion that carried you, the one that cost you, and what triggered each.',
+  mind: 'Before each important decision this month, write the three steps and then ask one question: how does this feel?',
+  negativity: 'Keep a tally of each time a pattern shows up, with the trigger. Review the count weekly.',
+  body: 'Log sleep, energy and tension (1 to 10) each day for four weeks and look for the trend.',
+};
+function adapt(out, ctx) {
+  const { lead, strong, ratio } = ctx;
+  const style = lead === 'right' ? 'right' : lead === 'left' ? 'left' : 'balanced';
+  out.meta.style = style;
+  if (out.mind.brain && lead && lead !== 'balanced') Object.assign(out.mind.brain, BRAIN_WAYS[lead], { ratio: Math.round(ratio * 10) / 10 });
+  const T = style === 'right' ? RIGHT_TESTS : style === 'left' ? LEFT_TESTS : {};
+  Object.entries(T).forEach(([k, t]) => { if (out[k] && !out[k].test) out[k].test = t; });
+  if (style !== 'right') return;
+  const em = out.emotional, so = out.social, jr = ctx.jr;
+  const drains = [em.drain.emotion, ...(em.drain.also || [])].filter(Boolean).map(x => x.toLowerCase());
+  if (em.thrive.emotion) em.image = `${em.thrive.emotion} is your home frequency.` + (drains.length ? ` ${cap(joinList(drains))} ${drains.length > 1 ? 'are' : 'is'} the static that pull${drains.length > 1 ? '' : 's'} you off it.` : '');
+  out.mind.image = strong ? 'A wide-angle lens with a narrow door: you take in the whole room at once, and all of it has to leave through words.' : 'You see the whole landscape first, and find the path through it second.';
+  if (so.archetype && so.motivator) so.image = `Seen from outside, the ${so.archetype.name}. Felt from inside, the ${so.motivator.name}.`;
+  if (out.negativity.patterns.length) out.negativity.image = 'Old weather: these patterns formed in an earlier season and still blow through, even when the sky has changed.';
+  if (out.body.patterns.length) out.body.image = 'Your body is the instrument your voice comes from. These are the strings under the most tension.';
+  if (jr) out.journey.image = jr.trend === 'rising' ? 'The tide is coming back in, and you already know this shore: you found solid ground here once before.' : jr.trend === 'easing' ? 'The weather is clearing, and the ground is drying under your feet.' : 'Level ground for now. A good place to look back at the road.';
+  // Cross-chapter links that only make sense for a strongly right-brain mind.
+  if (strong) {
+    const sd = so.leadership.find(x => x.t === 'Self-development' && x.level === 'Low');
+    if (sd) sd.d += ' This fits your brain pattern: understanding arrives whole, and turning it into steps and words for others is the slower half.';
+    if (out.mind.stress) out.mind.stress.text += ' For a mind that knows the whole before the steps, stress builds when you are asked for the "how" before you have felt the "why".' + (/\bhow\b/i.test(out.mind.stress.source || '') ? ' EmoWave hears it in your voice as "I know, but how?"' : '');
+  }
+  out.synthesis.intro = 'Your right brain leads' + (strong ? ' strongly' : '') + ', so this report starts with the whole picture: one map, and one image for each chapter. The detail is always one tap deeper, when you want it.';
+  out.synthesis.read += strong ? ` Your right brain carries about ${ratio.toFixed(1)} times the activity of your left, so you take in the whole at once and the words come later.` : '';
+  const pat = out.negativity.patterns[0], low = so.leadership.find(x => x.level === 'Low'), high = so.leadership.find(x => x.level === 'High');
+  out.synthesis.questions = [
+    pat ? `If "${pat.name.toLowerCase()}" were weather, what would it be right now, and when did it last clear?` : '',
+    low && high ? `Picture your ${low.t.toLowerCase()} as strong as your ${high.t.toLowerCase()}. What is the first thing you would do differently?` : '',
+    jr && jr.trend === 'rising' ? 'What did your steadiest years feel like in your body, and what would bring a little of that back this month?' : 'What do you already know, in your body, that you have not yet put into words?',
+  ].filter(Boolean);
+}
+
 
 const LEAD = {
   Purpose: { High: 'You are strongly connected to your values and an inner sense of direction.', Good: 'Your sense of direction is present and growing clearer.', Low: 'Your sense of direction may feel borrowed or unclear right now.' },
@@ -345,6 +399,8 @@ function compose(raw, opts) {
   const sb = st == null ? null : STRESS.find(b => st <= b.max);
   const bl = raw.brain && raw.brain.left, br = raw.brain && raw.brain.right;
   const lead = bl && br ? (br / bl > 1.5 ? 'right' : bl / br > 1.5 ? 'left' : 'balanced') : null;
+  const ratio = bl && br ? Math.max(br / bl, bl / br) : 1, strong = lead !== 'balanced' && ratio >= 3;
+  const BK = lead && lead !== 'balanced' && strong ? lead + '_strong' : lead;
   const sen = raw.sensory || {};
   const base = sen.base || {}, next = sen.next || {};
   out.mind = {
@@ -353,7 +409,7 @@ function compose(raw, opts) {
       next: { sense: next.sense || '', direction: next.direction || '', energy: next.energy || '', text: (SENSES[next.sense] || {}).next || '', direction_text: DIRECTION[next.direction] || '', energy_text: ENERGY[next.energy] || '' },
       text: base.sense && next.sense ? `You take information in through ${base.sense.toLowerCase()} first${base.direction ? ', facing ' + base.direction.toLowerCase() : ''}, then process it through ${next.sense.toLowerCase()}${next.direction ? ', turned ' + next.direction.toLowerCase() : ''}. ${base.energy && next.energy && base.energy !== next.energy ? 'You meet the world as an ' + base.energy.toLowerCase() + ' and digest it as an ' + next.energy.toLowerCase() + ': people may see the outgoing first half and miss how much quiet you need for the second.' : ''}`.trim() : '',
     },
-    brain: bl || br ? { left: bl || 0, right: br || 0, label: lead ? BRAIN[lead].label : '', text: lead ? BRAIN[lead].text : '', line: lead ? BRAIN[lead].line : '' } : undefined,
+    brain: bl || br ? { left: bl || 0, right: br || 0, label: BK ? BRAIN[BK].label : '', text: BK ? BRAIN[BK].text : '', line: BK ? BRAIN[BK].line : '' } : undefined,
     stress: st != null ? { value: st, band: sb.band, type: sb.type, text: sb.text, source: raw.stress.text ? sentence(raw.stress.text) : '' } : undefined,
   };
 
@@ -430,6 +486,7 @@ function compose(raw, opts) {
     ].filter(Boolean),
   };
   out.notes = {};
+  adapt(out, { lead, strong, ratio, jr });
   return out;
 }
 
@@ -446,7 +503,7 @@ function lint(data) {
   return hits;
 }
 
-const api = { readPdf, parse, extract, compose, lint, journeyAges, journeyRead, zone, STRESS_BANDS, LIB: { STRESS, SENSES, BRAIN, LEAD, EMO, RESTRICT, BODY } };
+const api = { BRAIN_WAYS, readPdf, parse, extract, compose, lint, journeyAges, journeyRead, zone, STRESS_BANDS, LIB: { STRESS, SENSES, BRAIN, LEAD, EMO, RESTRICT, BODY } };
 root.MaktoubEmowave = api;
 if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);
