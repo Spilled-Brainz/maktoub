@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Maktoub · Companion</title>
+<meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#f4f1ea">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400&family=Noto+Sans+Arabic:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/companion/chat.css">
+</head>
+<body>
+<header class="c-top">
+  <span><button class="c-menu c-btn ghost" id="menu" type="button" aria-label="Conversations">☰</button>
+  <a class="c-brand" href="/companion/">MAKTOUB<small>Companion</small></a></span>
+  <nav class="c-links" id="links" hidden><a href="/ready/admin/">Programmes</a><a href="/onboard/admin/">Onboarding</a><button type="button" id="signOut">Sign out</button></nav>
+</header>
+
+<section id="auth" class="c-card-wrap" hidden>
+  <form class="c-card" id="signin">
+    <h2>Your companion.</h2>
+    <p style="color:var(--muted);margin:0">Founder sign-in. Conversations here are yours alone.</p>
+    <label for="em">Email</label><input id="em" type="email" autocomplete="username" required>
+    <label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password" required>
+    <button class="c-btn">Sign in</button>
+    <p class="c-msgline" id="authMsg"></p>
+  </form>
+</section>
+
+<div class="c-shell" id="app" hidden>
+  <aside class="c-side" id="side">
+    <div class="c-new">
+      <button class="c-btn" id="newPrivate" type="button">New private conversation</button>
+      <select id="client" aria-label="Choose a client"><option value="">Think about a client…</option></select>
+      <button class="c-btn ghost" id="newClient" type="button" disabled>Open with their record</button>
+    </div>
+    <div class="c-threads" id="threads"></div>
+    <div class="c-side-foot">Private rooms carry no client data. A client room reads that client’s record once, without name, email, phone or birth date, and notes the read in their audit trail.</div>
+  </aside>
+  <main class="c-main">
+    <div class="c-head" id="head" hidden>
+      <h1 id="title"></h1>
+      <span><span class="c-meta" id="meta"></span><button type="button" id="del">Delete</button></span>
+    </div>
+    <div class="c-log" id="log"><div class="c-col" id="col"></div></div>
+    <div class="c-compose">
+      <form id="form" hidden><textarea id="input" rows="1" placeholder="Think out loud…" aria-label="Message" maxlength="8000"></textarea><button class="c-btn" id="sendBtn">Send</button></form>
+      <p class="c-hint" id="hint"></p>
+    </div>
+  </main>
+</div>
+
+<script src="/companion/chat.js"></script>
+<script>
+(() => {
+'use strict';
+const BASE = 'https://pmjvpnqmklxxpswwvbmv.supabase.co', KEY = 'sb_publishable_1prLuRU6balRnnMUWkMTtA_KITZXKQe';
+const API = BASE + '/functions/v1/maktoub-companion';
+const $ = id => document.getElementById(id), el = MaktoubChat.el;
+let session = null, clients = [];
+
+// Same founder session as the consoles (kept for this tab only).
+function readSession() { try { return JSON.parse(sessionStorage.getItem('maktoub_session') || 'null'); } catch (_) { return null; } }
+function saveSession(s) { session = { ...s, expires_at: s.expires_at || Math.floor(Date.now() / 1000) + (s.expires_in || 3600) }; sessionStorage.setItem('maktoub_session', JSON.stringify(session)); }
+async function auth(path, body) {
+  const r = await fetch(BASE + '/auth/v1/' + path, { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: KEY }, body: JSON.stringify(body) });
+  const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error_description || j.msg || 'Sign-in failed'); return j;
+}
+async function fresh() {
+  if (session && session.expires_at - 60 < Date.now() / 1000 && session.refresh_token) saveSession(await auth('token?grant_type=refresh_token', { refresh_token: session.refresh_token }));
+  return session.access_token;
+}
+const post = async extra => fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + await fresh() }, body: JSON.stringify(extra) });
+async function call(action, extra) {
+  const r = await post({ action, ...extra }); const j = await r.json().catch(() => ({}));
+  if (r.status === 401) { signOut(); throw new Error('Please sign in again.'); }
+  if (!r.ok) throw new Error(j.error || 'Request failed'); return j;
+}
+function signOut() { sessionStorage.removeItem('maktoub_session'); session = null; $('app').hidden = true; $('links').hidden = true; $('auth').hidden = false; }
+
+const nameOf = id => (clients.find(c => c.id === id) || {}).name || 'Client';
+const chat = MaktoubChat({
+  call, post,
+  label: t => t.room === 'client' ? ['Client', t.title] : ['Private', t.title],
+  empty: t => t.room === 'client'
+    ? { title: 'Their record is here.', body: ['Intake in their own words, the voice report as it stands, assessment scores and your private note. Identifiers removed.', 'Ask what you see, what you sense, how to hold the next session.'] }
+    : { title: 'Just you.', body: 'No client record is attached to this room. Think out loud.' },
+  idle: col => {
+    const e = el('div', 'c-empty'); e.append(el('h2', null, 'Where shall we begin?'), el('p', null, 'Open a private conversation, or choose a client to think with their record beside you.'));
+    col.append(e);
+  },
+});
+
+$('client').onchange = () => { $('newClient').disabled = !$('client').value; };
+$('newPrivate').onclick = () => chat.start({ room: 'private' }).catch(e => alert(e.message));
+$('newClient').onclick = () => {
+  const id = $('client').value; if (!id) return;
+  if (!confirm(`Open a conversation with ${nameOf(id)}’s record? The read is noted in their audit trail.`)) return;
+  chat.start({ room: 'client', enrolment_id: id }).then(() => { $('client').value = ''; $('newClient').disabled = true; }).catch(e => alert(e.message));
+};
+$('signOut').onclick = signOut;
+
+async function start() {
+  const j = await chat.refresh();
+  clients = j.clients || [];
+  const sel = $('client'); sel.length = 1;
+  for (const c of clients) sel.append(new Option(`${c.name} · ${c.reference}${c.test ? ' · TEST' : ''}`, c.id));
+  $('hint').textContent = j.connected ? 'Replies come from Claude through Maktoub’s own server. Nothing is shared elsewhere.' : 'The companion is not connected yet: add the Anthropic API key to the edge function secrets.';
+  $('auth').hidden = true; $('app').hidden = false; $('links').hidden = false;
+  if (j.threads.length) await chat.open(j.threads[0].id); else chat.idle();
+}
+
+$('signin').onsubmit = async e => {
+  e.preventDefault(); $('authMsg').textContent = '';
+  try { saveSession(await auth('token?grant_type=password', { email: $('em').value.trim(), password: $('pw').value })); $('pw').value = ''; await start(); }
+  catch (err) { $('authMsg').textContent = err.message; $('authMsg').className = 'c-msgline e'; }
+};
+
+session = readSession();
+if (session) start().catch(() => signOut()); else $('auth').hidden = false;
+})();
+</script>
+</body>
+</html>

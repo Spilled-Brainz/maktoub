@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Maktoub · Your companion</title>
+<meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#f4f1ea">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400&family=Noto+Sans+Arabic:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/companion/chat.css">
+</head>
+<body>
+<header class="c-top">
+  <span><button class="c-menu c-btn ghost" id="menu" type="button" aria-label="Conversations">☰</button>
+  <a class="c-brand" href="/ready/">MAKTOUB<small>Your companion</small></a></span>
+  <nav class="c-links"><a href="/ready/">Back to your portal</a></nav>
+</header>
+
+<section id="gate" class="c-card-wrap" hidden>
+  <div class="c-card">
+    <h2 id="gateTitle">Before you begin.</h2>
+    <div class="c-notice" id="notice"></div>
+    <button class="c-btn" id="accept" type="button">I understand. Open my companion</button>
+    <p class="c-msgline" id="gateMsg"></p>
+  </div>
+</section>
+
+<section id="stop" class="c-card-wrap" hidden>
+  <div class="c-card"><h2 id="stopTitle">Please open your private link.</h2><p id="stopMsg" style="color:var(--muted);margin:0"></p></div>
+</section>
+
+<div class="c-shell" id="app" hidden>
+  <aside class="c-side" id="side">
+    <div class="c-new"><button class="c-btn" id="newThread" type="button">New conversation</button></div>
+    <div class="c-threads" id="threads"></div>
+    <div class="c-side-foot">Only you can read these conversations. Delete any of them at any time.</div>
+  </aside>
+  <main class="c-main">
+    <div class="c-head" id="head" hidden>
+      <h1 id="title"></h1>
+      <span><span class="c-meta" id="meta" hidden></span><button type="button" id="del">Delete</button></span>
+    </div>
+    <div class="c-log" id="log"><div class="c-col" id="col"></div></div>
+    <div class="c-compose">
+      <form id="form" hidden><textarea id="input" rows="1" placeholder="What’s on your mind?" aria-label="Message" maxlength="8000"></textarea><button class="c-btn" id="sendBtn">Send</button></form>
+      <p class="c-hint">An AI companion, not a doctor or therapist. In an emergency call 911.</p>
+    </div>
+  </main>
+</div>
+
+<script src="/companion/chat.js"></script>
+<script>
+(() => {
+'use strict';
+const API = 'https://pmjvpnqmklxxpswwvbmv.supabase.co/functions/v1/maktoub-companion';
+const $ = id => document.getElementById(id), el = MaktoubChat.el;
+const KEY = 'maktoub_ready';
+
+// The same private link as the portal: it leaves the address bar on load and stays on this device.
+const q = (new URLSearchParams(location.search).get('invite') || '').trim().toLowerCase();
+let token = null;
+try {
+  if (q) { localStorage.setItem(KEY, q); sessionStorage.setItem(KEY, q); }
+  token = q || sessionStorage.getItem(KEY) || localStorage.getItem(KEY);
+} catch (_) { token = q || null; }
+if (q) history.replaceState(null, '', location.pathname);
+
+const post = extra => fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token, ...extra }) });
+async function call(action, extra) {
+  const r = await post({ action, ...extra }); const j = await r.json().catch(() => ({}));
+  if (!r.ok) { const e = new Error(j.error || 'Something went wrong. Please try again.'); e.status = r.status; throw e; }
+  return j;
+}
+const stop = (title, msg) => { $('stopTitle').textContent = title; $('stopMsg').textContent = msg; $('stop').hidden = false; $('gate').hidden = true; $('app').hidden = true; };
+
+let first = '';
+const chat = MaktoubChat({
+  call, post,
+  label: t => ['Private', t.title],
+  empty: () => ({ title: first ? `Hello, ${first}.` : 'Hello.', body: ['Ask about your report, talk through your week, or say what you have not said out loud yet.', 'It knows your programme and your published report, nothing more.'] }),
+  idle: col => { const e = el('div', 'c-empty'); e.append(el('h2', null, first ? `Hello, ${first}.` : 'Hello.'), el('p', null, 'Start a conversation whenever you are ready.')); col.append(e); },
+});
+$('newThread').onclick = () => chat.start({}).catch(e => alert(e.message));
+
+async function enter() {
+  const j = await chat.refresh();
+  $('gate').hidden = true; $('app').hidden = false;
+  if (j.threads.length) await chat.open(j.threads[0].id); else await chat.start({});
+}
+
+async function boot() {
+  if (!token) return stop('Please open your private link.', 'Your companion opens from the private link Maktoub sent you. Open that link once on this device and it will be here.');
+  let j;
+  try { j = await call('load'); }
+  catch (e) { return stop(e.status === 403 ? 'Not open yet.' : 'This link is not working.', e.message); }
+  first = j.first_name || '';
+  if (!j.connected) return stop('Almost ready.', 'Your companion is being prepared. Please check back soon.');
+  if (j.consented) return enter();
+  $('notice').textContent = j.notice; $('gate').hidden = false;
+  $('accept').onclick = async () => {
+    $('accept').disabled = true;
+    try { await call('consent'); await enter(); }
+    catch (e) { $('gateMsg').textContent = e.message; $('gateMsg').className = 'c-msgline e'; $('accept').disabled = false; }
+  };
+}
+boot();
+})();
+</script>
+</body>
+</html>
