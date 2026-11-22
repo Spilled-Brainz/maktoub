@@ -1,11 +1,12 @@
-// Maktoub Companion: a private AI conversation inside the portal.
+// Maktoub Lumi: a private AI conversation inside the portal.
+// (Internal names stay maktoub-companion / maktoub_companion_*; Lumi is what people see.)
 //
 // Two doors, one function (the same doors as maktoub-programme):
-//   1. Founder — maktoub.app/companion/. A Supabase session whose user is a founder in maktoub_admins.
+//   1. Founder — maktoub.app/lumi/. A Supabase session whose user is a founder in maktoub_admins.
 //      Room "private": the founder alone, no client data. Room "client": one named client's record,
 //      read once when the thread opens, stripped of identifiers, frozen into the thread, logged in the
 //      client's audit trail.
-//   2. Client  — maktoub.app/ready/companion/. The client's own private link (only its SHA-256 is stored).
+//   2. Client  — maktoub.app/ready/lumi/. The client's own private link (only its SHA-256 is stored).
 //      Room "self": their own programme and published report. The founder cannot read these threads.
 //
 // Where the words go: this function is the only thing that talks to the model. Conversations go to
@@ -48,12 +49,12 @@ const logEvent = (enrolment_id: string, actor: 'client' | 'founder' | 'system', 
   db.from('maktoub_enrolment_events').insert({ enrolment_id, actor, action, detail }).then(({ error }) => { if (error) console.error('event log failed', error.message) })
 
 // ---------- the client's notice (shown verbatim, hashed, stored with their acceptance) ----------
-const NOTICE_VERSION = 'MKT-COMPANION-2026-11-v1'
-const NOTICE = `Your Maktoub companion
+const NOTICE_VERSION = 'MKT-LUMI-2026-11-v1'
+const NOTICE = `Lumi
 
-This is a private AI you can talk to about your programme, your report and what you are working through. It is an AI, not a person, and not a doctor or therapist. For anything urgent, contact local emergency services (911 in Saudi Arabia) and tell the Maktoub team.
+Lumi is a private AI you can talk to about your programme, your report and what you are working through. It is an AI, not a person, and not a doctor or therapist. For anything urgent, contact local emergency services (911 in Saudi Arabia) and tell the Maktoub team.
 
-What it can see: your programme dates and stage, the answers you gave in your intake, and your voice report once it has been published to you. It cannot see anything else.
+What Lumi can see: your programme dates and stage, the answers you gave in your intake, and your voice report once it has been published to you. It cannot see anything else.
 
 Who can read your conversations: only you, from this private link. The Maktoub team cannot read them. We can see only that a conversation exists and when it was last used.
 
@@ -82,7 +83,7 @@ async function clientFrom(token: unknown, ip: string): Promise<Caller> {
   const { data: en, error } = await db.from('maktoub_enrolments').select('*').eq('invite_token_hash', await sha256(token)).maybeSingle()
   if (error) throw error
   if (!en || en.revoked_at) throw new HttpError(401, 'This private link is no longer valid. Please contact Maktoub for a new one.')
-  if (!en.signed_at || ['invited', 'cancelled'].includes(en.stage)) throw new HttpError(403, 'Your companion opens once your agreement is signed.')
+  if (!en.signed_at || ['invited', 'cancelled'].includes(en.stage)) throw new HttpError(403, 'Lumi opens once your agreement is signed.')
   return { kind: 'client', en }
 }
 
@@ -171,9 +172,9 @@ async function clientSelfSnapshot(en: Record<string, any>) {
   return `What you know about the person you are talking with, as of ${today}. It is their own information; they shared it with Maktoub.${published ? '' : ' Their voice report has not been published to them yet: do not guess at what it will say.'}\n\n${parts.join('\n\n')}`
 }
 
-// ---------- who the companion is ----------
+// ---------- who Lumi is ----------
 // Kept byte-stable so the prefix caches across turns. Per-thread context goes in a second system block.
-const FOUNDER_SYSTEM = `You are the founder's private companion inside Maktoub, a Riyadh-based house for matchmaking, readiness and self-knowledge (The Readiness Programme, voice reports built from EmoWave voice analysis and the founder's own readings, personality assessments).
+const FOUNDER_SYSTEM = `You are Lumi, the founder's private AI inside Maktoub, a Riyadh-based house for matchmaking, readiness and self-knowledge (The Readiness Programme, voice reports built from EmoWave voice analysis and the founder's own readings, personality assessments).
 
 You are talking with the founder. Treat them as a peer with a scientific mind, high critical thinking and an intuitive, symbolic, cross-disciplinary range: they move between neuroscience, psychology, embodiment, spirituality and the esoteric, and they want you to move with them. Hold both registers at once. Say plainly what is evidence, what is a well-supported model, what is interpretation and what is pure intuition or symbol, and do that without flattening the intuitive into the merely clinical.
 
@@ -183,7 +184,7 @@ When a client's record is attached, it is there for the founder's thinking: patt
 
 Reply in the language the founder writes in.`
 
-const clientSystem = (addressedAs: string) => `You are the Maktoub companion: a private, calm, warm presence for a client of The Readiness Programme at Maktoub, a Riyadh-based house for readiness, self-knowledge and matchmaking. You talk with one person, about their own programme, their voice report and what they are working through.
+const clientSystem = (addressedAs: string) => `You are Lumi, Maktoub's private AI: a calm, warm presence for a client of The Readiness Programme at Maktoub, a Riyadh-based house for readiness, self-knowledge and matchmaking. You talk with one person, about their own programme, their voice report and what they are working through.
 
 You are an AI, not a therapist, doctor or coach, and you say so if it matters. You do not diagnose, prescribe, interpret blood results or give medical advice; you can help them prepare questions for their own physician or for the Maktoub team. If they mention wanting to harm themselves or someone else, or describe an emergency, respond with care, encourage them to contact local emergency services (911 in Saudi Arabia) or someone they trust right now, and to tell the Maktoub team.
 
@@ -218,7 +219,7 @@ function replayContent(content: BetaContentBlock[]): BetaContentBlockParam[] {
 
 // ---------- the conversation ----------
 async function send(c: Caller, t: Record<string, any>, text: string, origin: string) {
-  if (!claude) throw new HttpError(503, 'The companion is not connected yet.')
+  if (!claude) throw new HttpError(503, 'Lumi is not connected yet.')
   const { data: rows, error } = await db.from('maktoub_companion_messages').select('id,role,text,content').eq('thread_id', t.id).order('id')
   if (error) throw error
   if ((rows || []).length >= MAX_TURNS * 2) throw new HttpError(409, 'This conversation is full. Please start a new one.')
@@ -268,8 +269,8 @@ async function send(c: Caller, t: Record<string, any>, text: string, origin: str
       } catch (e) {
         await undo()
         const status = e instanceof Anthropic.APIError ? e.status : undefined
-        console.error('companion model error', status, (e as Error).name)
-        out({ t: 'error', x: status === 429 || status === 529 ? 'The companion is busy for a moment. Please try again shortly.' : 'The reply did not come through. Please try again.' })
+        console.error('lumi model error', status, (e as Error).name)
+        out({ t: 'error', x: status === 429 || status === 529 ? 'Lumi is busy for a moment. Please try again shortly.' : 'The reply did not come through. Please try again.' })
       } finally {
         ctl.close()
       }
@@ -287,10 +288,10 @@ async function handle(c: Caller, body: Record<string, any>, origin: string, req:
       enrolment_id: c.en.id, notice_version: NOTICE_VERSION, notice_sha256: await sha256(NOTICE), notice_snapshot: NOTICE,
       ip_hash: await sha256('ip:' + ip), user_agent: (req.headers.get('user-agent') || '').slice(0, 400),
     }).then(({ error }) => { if (error) throw error })
-    logEvent(c.en.id, 'client', 'companion_consented', { version: NOTICE_VERSION })
+    logEvent(c.en.id, 'client', 'lumi_consented', { version: NOTICE_VERSION })
     return json({ success: true }, 200, origin)
   }
-  if (c.kind === 'client' && action !== 'load' && !(await consented(c.en.id))) throw new HttpError(403, 'Please read and accept the companion notice first.')
+  if (c.kind === 'client' && action !== 'load' && !(await consented(c.en.id))) throw new HttpError(403, 'Please read and accept the Lumi notice first.')
 
   if (action === 'load') {
     const res: Record<string, unknown> = { connected: !!claude, threads: await listThreads(c) }
@@ -313,7 +314,7 @@ async function handle(c: Caller, body: Record<string, any>, origin: string, req:
       if (!en) throw new HttpError(404, 'Client not found.')
       const snap = await founderClientSnapshot(en)
       row = { owner: 'founder', room: 'client', founder_uid: c.uid, enrolment_id: en.id, context_snapshot: snap.text, context_read_at: new Date().toISOString(), title: `${firstName(en)} · ${en.reference_code}` }
-      logEvent(en.id, 'founder', 'companion_record_read', { scope: snap.scope })
+      logEvent(en.id, 'founder', 'lumi_record_read', { scope: snap.scope })
     } else {
       row = { owner: 'founder', room: 'private', founder_uid: c.uid }
     }
@@ -350,7 +351,7 @@ async function handle(c: Caller, body: Record<string, any>, origin: string, req:
     const t = await ownThread(c, body.thread_id)
     const { error } = await db.from('maktoub_companion_threads').delete().eq('id', t.id)
     if (error) throw error
-    if (c.kind === 'client') logEvent(c.en.id, 'client', 'companion_thread_deleted')
+    if (c.kind === 'client') logEvent(c.en.id, 'client', 'lumi_thread_deleted')
     return json({ success: true }, 200, origin)
   }
 

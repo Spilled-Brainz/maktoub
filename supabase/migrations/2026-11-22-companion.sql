@@ -1,4 +1,4 @@
--- Maktoub Companion: a private AI conversation inside the portal.
+-- Maktoub Lumi (internally "companion"): a private AI conversation inside the portal.
 --
 -- Three rooms, one set of tables:
 --   founder / private  — the founder alone. No client data is ever attached.

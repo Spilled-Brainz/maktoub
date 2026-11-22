@@ -1,4 +1,4 @@
-/* Maktoub Companion: shared by /companion/ (founder) and /ready/companion/ (client). */
+/* Maktoub Lumi: shared by /lumi/ (founder) and /ready/lumi/ (client). */
 :root{--paper:#f4f1ea;--paper-2:#ebe6dc;--ink:#151515;--navy:#142c4b;--line:#d6cfc4;--muted:#6b665f;--err:#a3271f;--white:#fff;
   --sans:"Instrument Sans","Helvetica Neue",Arial,sans-serif;--serif:"Newsreader","Iowan Old Style",Georgia,serif;--arabic:"Noto Sans Arabic",var(--sans)}
 *{box-sizing:border-box}

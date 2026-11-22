@@ -2,22 +2,22 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Maktoub · Companion</title>
+<title>Maktoub · Lumi</title>
 <meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#f4f1ea">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400&family=Noto+Sans+Arabic:wght@400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/companion/chat.css">
+<link rel="stylesheet" href="/lumi/chat.css">
 </head>
 <body>
 <header class="c-top">
   <span><button class="c-menu c-btn ghost" id="menu" type="button" aria-label="Conversations">☰</button>
-  <a class="c-brand" href="/companion/">MAKTOUB<small>Companion</small></a></span>
+  <a class="c-brand" href="/lumi/">MAKTOUB<small>Lumi</small></a></span>
   <nav class="c-links" id="links" hidden><a href="/ready/admin/">Programmes</a><a href="/onboard/admin/">Onboarding</a><button type="button" id="signOut">Sign out</button></nav>
 </header>
 
 <section id="auth" class="c-card-wrap" hidden>
   <form class="c-card" id="signin">
-    <h2>Your companion.</h2>
+    <h2>Lumi.</h2>
     <p style="color:var(--muted);margin:0">Founder sign-in. Conversations here are yours alone.</p>
     <label for="em">Email</label><input id="em" type="email" autocomplete="username" required>
     <label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password" required>
@@ -49,7 +49,7 @@
   </main>
 </div>
 
-<script src="/companion/chat.js"></script>
+<script src="/lumi/chat.js"></script>
 <script>
 (() => {
 'use strict';
@@ -104,7 +104,7 @@ async function start() {
   clients = j.clients || [];
   const sel = $('client'); sel.length = 1;
   for (const c of clients) sel.append(new Option(`${c.name} · ${c.reference}${c.test ? ' · TEST' : ''}`, c.id));
-  $('hint').textContent = j.connected ? 'Replies come from Claude through Maktoub’s own server. Nothing is shared elsewhere.' : 'The companion is not connected yet: add the Anthropic API key to the edge function secrets.';
+  $('hint').textContent = j.connected ? 'Replies come from Claude through Maktoub’s own server. Nothing is shared elsewhere.' : 'Lumi is not connected yet: add the Anthropic API key to the edge function secrets.';
   $('auth').hidden = true; $('app').hidden = false; $('links').hidden = false;
   if (j.threads.length) await chat.open(j.threads[0].id); else chat.idle();
 }

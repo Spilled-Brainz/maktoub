@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Maktoub · Your companion</title>
+<title>Maktoub · Lumi</title>
 <meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#f4f1ea">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400&family=Noto+Sans+Arabic:wght@400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/companion/chat.css">
+<link rel="stylesheet" href="/lumi/chat.css">
 </head>
 <body>
 <header class="c-top">
   <span><button class="c-menu c-btn ghost" id="menu" type="button" aria-label="Conversations">☰</button>
-  <a class="c-brand" href="/ready/">MAKTOUB<small>Your companion</small></a></span>
+  <a class="c-brand" href="/ready/">MAKTOUB<small>Lumi</small></a></span>
   <nav class="c-links"><a href="/ready/">Back to your portal</a></nav>
 </header>
 
@@ -19,7 +19,7 @@
   <div class="c-card">
     <h2 id="gateTitle">Before you begin.</h2>
     <div class="c-notice" id="notice"></div>
-    <button class="c-btn" id="accept" type="button">I understand. Open my companion</button>
+    <button class="c-btn" id="accept" type="button">I understand. Open Lumi</button>
     <p class="c-msgline" id="gateMsg"></p>
   </div>
 </section>
@@ -42,12 +42,12 @@
     <div class="c-log" id="log"><div class="c-col" id="col"></div></div>
     <div class="c-compose">
       <form id="form" hidden><textarea id="input" rows="1" placeholder="What’s on your mind?" aria-label="Message" maxlength="8000"></textarea><button class="c-btn" id="sendBtn">Send</button></form>
-      <p class="c-hint">An AI companion, not a doctor or therapist. In an emergency call 911.</p>
+      <p class="c-hint">Lumi is an AI, not a doctor or therapist. In an emergency call 911.</p>
     </div>
   </main>
 </div>
 
-<script src="/companion/chat.js"></script>
+<script src="/lumi/chat.js"></script>
 <script>
 (() => {
 'use strict';
@@ -88,12 +88,12 @@ async function enter() {
 }
 
 async function boot() {
-  if (!token) return stop('Please open your private link.', 'Your companion opens from the private link Maktoub sent you. Open that link once on this device and it will be here.');
+  if (!token) return stop('Please open your private link.', 'Lumi opens from the private link Maktoub sent you. Open that link once on this device and it will be here.');
   let j;
   try { j = await call('load'); }
   catch (e) { return stop(e.status === 403 ? 'Not open yet.' : 'This link is not working.', e.message); }
   first = j.first_name || '';
-  if (!j.connected) return stop('Almost ready.', 'Your companion is being prepared. Please check back soon.');
+  if (!j.connected) return stop('Almost ready.', 'Lumi is being prepared. Please check back soon.');
   if (j.consented) return enter();
   $('notice').textContent = j.notice; $('gate').hidden = false;
   $('accept').onclick = async () => {

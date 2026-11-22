@@ -1,4 +1,4 @@
-// Maktoub Companion: the conversation engine shared by the founder and client pages.
+// Maktoub Lumi: the conversation engine shared by the founder and client pages.
 // It never talks to the model itself: every request goes to the maktoub-companion edge function.
 (() => {
 'use strict';
