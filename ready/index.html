@@ -302,7 +302,8 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
         <p class="lead" id="heroLead" style="white-space:pre-line">Ninety days. Mind and body. A structure built around you, and the discipline to keep it.</p>
         <p class="muted" style="margin-top:16px;max-width:44ch" id="heroSub">Upgrade: Mental and Physical Bootcamp is a personalised 90-day Maktoub programme. It is designed to collapse time: to establish, in three months, the mental and physical routines, discipline and systems that carry you through a period of transition.</p>
       </div>
-      <svg class="ill" viewBox="0 0 600 300" role="img" aria-label="A flat path continues while a second path crosses day one and rises toward day ninety">
+      <figure class="photo" id="heroPhoto" hidden><img src="img/two-cups.jpg" width="653" height="377" alt="Two coffees side by side, مكتوب written across them in cocoa"></figure>
+      <svg class="ill" id="heroIll" viewBox="0 0 600 300" role="img" aria-label="A flat path continues while a second path crosses day one and rises toward day ninety">
         <path class="g" d="M20 214 C150 208 330 220 580 212"/>
         <path class="k draw" pathLength="100" d="M300 36 V266" style="stroke-dasharray:2 5;stroke-dashoffset:0;opacity:.55"/>
         <path class="s draw" pathLength="100" d="M20 214 C140 208 230 212 300 202 S 460 118 580 52" style="stroke-width:2.2"/>
@@ -316,10 +317,6 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
     <p class="label muted">A note for you</p>
     <div class="notice" id="briefText" style="white-space:pre-line;font-family:var(--sans);font-size:19px;line-height:1.5"></div>
     <p class="label muted" id="briefBy">Deena</p>
-   </div>
-
-   <div class="wrap narrow" id="mmPhoto" hidden style="padding-top:0">
-    <figure class="photo"><img src="img/two-cups.jpg" width="653" height="377" loading="lazy" alt="Two coffees side by side, مكتوب written across them in cocoa"></figure>
    </div>
 
    <div class="night grain">
@@ -848,7 +845,7 @@ function apply(v, goTo) {
   $('voiceOpt').hidden = !docs.programme_voice || v.voice.status === 'included';
   const mm = isMM(v), vr = isVR(v);
   $('rdBody').hidden = mm || vr; $('mmBody').hidden = !mm; $('vrBody').hidden = !vr;
-  $('mmPhoto').hidden = !mm;
+  $('heroPhoto').hidden = !mm; $('heroIll').hidden = mm;
   document.title = (mm ? 'Private Matchmaking' : vr ? 'Voice Reading' : 'Upgrade: Mental and Physical Bootcamp') + ' | Maktoub';
   $('propLabel').textContent = mm ? 'Private proposal / Matchmaking' : vr ? 'Your Voice Reading' : 'Your Upgrade protocol';
   $('rail').querySelector('button[data-s="1"]').lastChild.textContent = mm || vr ? 'Proposal' : 'Protocol';
