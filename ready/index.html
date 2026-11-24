@@ -27,7 +27,7 @@ h3{font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;
 p{margin:0 0 14px}.lead{font-size:clamp(20px,2.4vw,26px);line-height:1.28;letter-spacing:-.005em;color:#34322F;max-width:30ch}
 .serif{font-family:var(--serif);font-weight:400;letter-spacing:-.015em}
 .u{position:relative;white-space:nowrap;display:inline-block}
-.uline{position:absolute;left:-1%;width:102%;bottom:-.16em;height:.36em;pointer-events:none;overflow:visible}
+.uline{display:none!important;position:absolute;left:-1%;width:102%;bottom:-.16em;height:.36em;pointer-events:none;overflow:visible}
 .uline path{fill:none;stroke:var(--navy);stroke-linecap:round;stroke-width:2.6;stroke-dasharray:100;animation:draw .8s var(--ease) .25s both}
 .uline path+path{animation-delay:.45s}
 @keyframes draw{from{stroke-dashoffset:100}to{stroke-dashoffset:0}}
@@ -70,6 +70,9 @@ section.step{animation:in .4s var(--ease)}
 /* rotating quotes */
 .qrot{margin:0;flex:1 1 260px;max-width:46ch;text-align:right;min-height:64px;transition:opacity .6s var(--ease)}
 .qrot.out{opacity:0}
+.tier .parts{display:grid;grid-template-columns:1fr auto;gap:6px 16px;margin:14px 0 4px;padding:12px 0 2px;border-top:1px solid var(--hair);font-size:14px}
+.tier .parts dt{color:var(--smoke)}
+.tier .parts dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
 .qrot blockquote{margin:0;font-size:14px;line-height:1.45;color:#3E3B37}
 .qrot figcaption{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--smoke);margin-top:6px}
 .s1head{align-items:flex-start;flex-wrap:wrap}
@@ -283,7 +286,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
    <div class="wrap grain narrow" id="briefBox" hidden style="padding-top:0">
     <p class="label muted">A note for you</p>
     <div class="notice" id="briefText" style="white-space:pre-line;font-family:var(--sans);font-size:19px;line-height:1.5"></div>
-    <p class="label muted">Deena</p>
+    <p class="label muted" id="briefBy">Deena</p>
    </div>
 
    <div class="night grain">
@@ -478,7 +481,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
         <li>Mindset review and support along the way</li>
         <li>Your private portal and direct line to Maktoub</li>
         <li>Your identity never disclosed without your approval</li></ul></div>
-      <div><p class="notice" style="margin-top:0">We start by knowing you. The right introduction is easier to recognise when you know what you are looking for, and who you are becoming.</p></div>
+      <div><p class="notice" id="mmNotice" style="margin-top:0">We start by knowing you. The right introduction is easier to recognise when you know what you are looking for, and who you are becoming.</p></div>
      </div></div>
 
      <div class="rule"><h3>Boundaries, clearly</h3><ul class="ticks" id="mmBounds">
@@ -496,7 +499,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
    <div class="wrap narrow grain">
     <div class="section-head"><p class="label">02 / Agreement</p><p class="label muted">Read, then sign</p></div>
     <h2>Make it <span class="u">official.<svg class="uline" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M1 12.4C30 6 64 10 99 3.6"/><path pathLength="100" d="M10 18.4C40 13.2 70 15.6 90 11.6"/></svg></span></h2>
-    <p class="muted" style="margin-top:20px;max-width:48ch">Five short documents set out the programme, the terms and how your information is protected. Each one is recorded with your signature, exactly as you read it.</p>
+    <p class="muted" id="signIntro" style="margin-top:20px;max-width:48ch">Five short documents set out the programme, the terms and how your information is protected. Each one is recorded with your signature, exactly as you read it.</p>
     <div id="signForm">
       <div class="doc" id="doc_programme_agreement" tabindex="0" style="margin-top:28px"></div>
       <details><summary class="t_programme_terms"></summary><div class="doc" id="doc_programme_terms"></div></details>
@@ -504,10 +507,10 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
       <details><summary class="t_health_consent"></summary><div class="doc" id="doc_health_consent"></div></details>
       <details><summary class="t_digital_consent"></summary><div class="doc" id="doc_digital_consent"></div></details>
       <div style="margin-top:18px">
-        <label class="check"><input type="checkbox" id="cAgree"><span>I have read and agree to the Participation Agreement and the Payment, Pause and Refund Terms, including the <span class="price-label"></span> fee.</span></label>
-        <label class="check"><input type="checkbox" id="cMedical"><span>I have read the Medical and Professional Services Disclaimer, and I will see a doctor of my choice for a check-in before starting structured training.</span></label>
-        <label class="check"><input type="checkbox" id="cHealth"><span>I give my explicit consent for Maktoub to process my sensitive health information as described in the consent above.</span></label>
-        <label class="check" style="border-bottom:1px solid var(--hair)"><input type="checkbox" id="cDigital"><span>I agree to the Digital Accountability and Telegram terms.</span></label>
+        <label class="check"><input type="checkbox" id="cAgree"><span id="agreeText">I have read and agree to the Participation Agreement and the Payment, Pause and Refund Terms, including the <span class="price-label"></span> fee.</span></label>
+        <label class="check" id="lMedical"><input type="checkbox" id="cMedical"><span>I have read the Medical and Professional Services Disclaimer, and I will see a doctor of my choice for a check-in before starting structured training.</span></label>
+        <label class="check" id="lHealth"><input type="checkbox" id="cHealth"><span>I give my explicit consent for Maktoub to process my sensitive health information as described in the consent above.</span></label>
+        <label class="check" id="lDigital" style="border-bottom:1px solid var(--hair)"><input type="checkbox" id="cDigital"><span>I agree to the Digital Accountability and Telegram terms.</span></label>
         <div id="voiceOpt">
           <details><summary class="t_programme_voice"></summary><div class="doc" id="doc_programme_voice"></div></details>
           <label class="check opt"><input type="checkbox" id="cVoice"><span><b style="font-weight:500">Add voice analysis</b> (<span class="voice-plus"></span>, including a dedicated session reviewing your results, added to your transfer). I consent to my recording being processed as described in the Voice Analysis Consent. <i class="muted">Optional. You can add it later.</i></span></label>
@@ -723,17 +726,31 @@ const QUOTES = [
   ['Resistance training was associated with a significant reduction in depressive symptoms across 33 trials.', 'Science · Gordon et al., JAMA Psychiatry, 2018'],
   ['People with stronger social relationships had a 50% greater likelihood of survival over the study periods.', 'Science · Holt-Lunstad et al., 2010'],
 ];
-(function rotateQuotes() {
-  const box = $('qrot'); if (!box) return;
-  let i = Math.floor(Math.random() * QUOTES.length);
-  const put = () => { $('qText').textContent = QUOTES[i][0]; $('qBy').textContent = QUOTES[i][1]; };
+// Matchmaking clients: what a good relationship does for health and wellbeing, and courage.
+const MM_QUOTES = [
+  ['Good relationships keep us happier and healthier. Period.', 'Robert Waldinger, Harvard Study of Adult Development'],
+  ['It was not their cholesterol levels at 50 that predicted how they would grow old. It was how satisfied they were in their relationships.', 'Robert Waldinger, Harvard Study of Adult Development'],
+  ['People with stronger social relationships had a 50% greater likelihood of survival over the study periods.', 'Science · Holt-Lunstad et al., 2010'],
+  ['And of His signs is that He created for you from yourselves mates that you may find tranquillity in them; and He placed between you affection and mercy.', 'Quran 30:21'],
+  ['Vulnerability is the birthplace of love, belonging, joy, courage, empathy, and creativity.', 'Brené Brown'],
+  ['Life shrinks or expands in proportion to one’s courage.', 'Anaïs Nin'],
+  ['Courage is the most important of all the virtues, because without courage you can’t practice any other virtue consistently.', 'Maya Angelou'],
+  ['Love is an activity, not a passive affect; it is a “standing in,” not a “falling for.”', 'Erich Fromm, The Art of Loving'],
+];
+let quoteTimer = null, quoteSet = null;
+function rotateQuotes(list) {
+  const box = $('qrot'); if (!box || quoteSet === list) return;
+  quoteSet = list; clearInterval(quoteTimer);
+  let i = Math.floor(Math.random() * list.length);
+  const put = () => { $('qText').textContent = list[i][0]; $('qBy').textContent = list[i][1]; };
   put();
-  setInterval(() => {
+  quoteTimer = setInterval(() => {
     if (document.hidden) return;
     box.classList.add('out');
-    setTimeout(() => { i = (i + 1) % QUOTES.length; put(); box.classList.remove('out'); }, 600);
+    setTimeout(() => { i = (i + 1) % list.length; put(); box.classList.remove('out'); }, 600);
   }, 9000);
-})();
+}
+rotateQuotes(QUOTES);
 
 const INCLUDED = ['Initial readiness and lifestyle assessment', 'Sessions on your nutrition and movement habits', 'Work on mindset barriers and recurring patterns', 'Your personalised protocol, adjusted at each review', 'Curated articles, research, books, podcasts and videos, where useful', 'One short daily check-in on Telegram', 'Your private client portal', 'Weekly accountability through your check-ins', 'Agreed programme review sessions', 'Introductions to independent professionals, where needed', 'Final 90-day progress review'];
 $('included').replaceChildren(...INCLUDED.map((t, i) => { const li = el('li'); li.append(el('span', 'label', String(i + 1).padStart(2, '0')), el('span', null, t)); li.style.gridTemplateColumns = '44px 1fr'; return li; }));
@@ -771,6 +788,7 @@ function apply(v, goTo) {
   $('rail').querySelector('button[data-s="1"]').lastChild.textContent = mm || vr ? 'Proposal' : 'Protocol';
   const brief = (v.tiers || []).map(t => t.brief).find(Boolean);
   $('briefBox').hidden = !brief; $('briefText').textContent = brief || '';
+  $('briefBy').textContent = (v.tiers || []).map(t => t.brief_by).find(Boolean) || 'Deena';
   const woman = v.addressed_as === 'woman';
   $('voiceQuote').textContent = woman ? '“Tell me about the woman you are becoming, and what is standing in her way.”' : '“Tell me about the man you are becoming, and what is standing in his way.”';
   if (vr) {
@@ -793,6 +811,16 @@ function apply(v, goTo) {
     li.append(el('span', 'label', String(i + 1).padStart(2, '0')), b, el('span', 'dur', x[2] || '')); return li;
   }));
   if (cu.built && mm) $('mmBuilt').replaceChildren(...cu.built.map(x => el('li', null, x)));
+  if (cu.notice) $('mmNotice').textContent = cu.notice;
+  rotateQuotes(cu.quotes || (mm ? MM_QUOTES : QUOTES));
+  // Only the documents this programme actually uses are shown and confirmed.
+  const lean = !docs.health_consent;
+  document.querySelectorAll('#signForm > details').forEach(d => { const k = d.querySelector('.doc').id.replace('doc_', ''); d.hidden = !docs[k]; });
+  $('lMedical').hidden = !docs.medical_disclaimer; $('lHealth').hidden = !docs.health_consent; $('lDigital').hidden = !docs.digital_consent;
+  if (lean) {
+    $('signIntro').textContent = cu.sign_intro || 'Please read and review the agreement.';
+    if (docs.programme_agreement) $('agreeText').replaceChildren('I have read and agree to the ' + docs.programme_agreement.title + (docs.programme_terms ? ' and the ' + docs.programme_terms.title : '') + ', including the ', Object.assign(el('span', 'price-label'), { textContent: v.programme.price }), ' fee.');
+  }
   if (cu.bounds) $(mm ? 'mmBounds' : 'vrBounds').replaceChildren(...cu.bounds.map(x => el('li', null, x)));
 
   // 02 Agreement
@@ -849,6 +877,7 @@ function renderTiers(v) {
     const c = el('article', 'tier' + (v.tier === t.code ? ' sel' : ''));
     c.append(el('p', 'label muted', (t.label || t.months + ' months') + (t.dates ? ' · ' + t.dates + (v.tiers.length === 1 ? ' introductions' : ' dates guaranteed') : '')), el('h4', null, t.name), el('div', 'amt', t.price));
     if (!t.voice_included && v.programme.voice_fee) c.append(el('p', 'muted small', 'Voice analysis + ' + v.programme.voice_fee));
+    if (t.parts) { const pl = el('dl', 'parts'); t.parts.forEach(([k, m]) => { pl.append(el('dt', null, k), el('dd', null, (v.programme.currency || String(t.price).split(' ')[0]) + ' ' + (m / 100).toLocaleString('en-US'))); }); c.append(pl); }
     const ul = el('ul', 'ticks'); (t.points || TIER_POINTS[t.code] || [t.summary]).forEach(x => ul.append(el('li', null, x))); c.append(ul);
     const b = el('button', 'btn' + (v.tier === t.code ? '' : ' ghost'), v.signed ? (v.tier === t.code ? 'Your option' : t.name) : (v.tiers.length === 1 ? 'Continue to the agreement →' : 'Choose ' + t.name + ' →')); b.type = 'button'; b.disabled = !!v.signed;
     b.onclick = async () => { $('errTier').textContent = ''; b.disabled = true; try { apply(await call('choose_tier', { tier: t.code }), 2); } catch (e) { $(errBox).textContent = e.message; } finally { b.disabled = !!view.signed; } };
@@ -859,16 +888,18 @@ function renderTiers(v) {
 // ---------- 02 sign ----------
 $('sigDate').textContent = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: TZ });
 const REQ = ['cAgree', 'cMedical', 'cHealth', 'cDigital'];
+const needs = id => !$(id).closest('label').hidden;
 function signReady() {
   const n = $('sigName').value.trim(); $('sigPreview').textContent = n;
-  $('signBtn').disabled = !(REQ.every(id => $(id).checked) && n.replace(/[^\p{L}]/gu, '').length >= 3 && /\s/.test(n));
+  $('signBtn').disabled = !(REQ.every(id => !needs(id) || $(id).checked) && n.replace(/[^\p{L}]/gu, '').length >= 3 && /\s/.test(n));
 }
 REQ.forEach(id => $(id).addEventListener('change', signReady)); $('sigName').addEventListener('input', signReady);
 $('signBtn').addEventListener('click', async () => {
   $('err2').textContent = ''; const b = $('signBtn'); b.disabled = true; b.textContent = 'Recording your signature…';
   try {
     const documents = Object.fromEntries(view.documents.map(d => [d.kind, d.sha256]));
-    const accept = { programme_agreement: $('cAgree').checked, programme_terms: $('cAgree').checked, medical_disclaimer: $('cMedical').checked, health_consent: $('cHealth').checked, digital_consent: $('cDigital').checked };
+    const ok = id => !needs(id) || $(id).checked; // a document this programme does not use has nothing to confirm
+    const accept = { programme_agreement: ok('cAgree'), programme_terms: ok('cAgree'), medical_disclaimer: ok('cMedical'), health_consent: ok('cHealth'), digital_consent: ok('cDigital') };
     apply(await call('sign', { signature_name: $('sigName').value.trim(), accept, documents, voice_addon: !$('voiceOpt').hidden && $('cVoice').checked }), 3);
   } catch (e) { $('err2').textContent = e.message; if (e.status === 409) load(); }
   finally { b.textContent = 'Sign and continue →'; signReady(); }
@@ -922,7 +953,7 @@ function renderPortal(v) {
   const at = k => ORDER.indexOf(v.stage === 'paused' ? 'active' : v.stage) >= ORDER.indexOf(k);
   const steps = isMM(v) ? [
     ['Enrolled', !!v.payment.verified_at, v.payment.verified_at ? 'Agreement signed, payment verified.' : v.payment.reported_at ? 'Your transfer is being verified.' : 'Choose, sign and transfer.'],
-    ['Intake and voice', !!v.intake_submitted_at && (!!v.voice.recording || !['requested', 'payment_reported', 'paid', 'included'].includes(v.voice.status)), 'Mind, body and two minutes of your voice.'],
+    ['Intake and voice', !!v.intake_submitted_at && (!!v.voice.recording || !['requested', 'payment_reported', 'paid', 'included'].includes(v.voice.status)), (v.documents || []).some(d => d.kind === 'health_consent') ? 'Mind, body and two minutes of your voice.' : 'Your intake and two minutes of your voice.'],
     ['Your reading', !!v.voice.report_ready || at('bot_configuration'), 'Voice results and intake reviewed together.'],
     ['Your protocol', at('portal_ready'), 'The exact protocol we recommend, body and mind.'],
     ['The search begins', at('active'), v.progress && v.progress.start_date ? fmtDay(v.progress.start_date) + '.' : 'Introductions start on the date we agree.'],
@@ -1002,7 +1033,8 @@ function renderSystem(v) {
 // ---------- intake (rendered from the server's schema) ----------
 let intakeBuilt = false, saveTimer = null, dirty = false, schema = [];
 function buildIntake(v) {
-  schema = v.intake_schema; const form = $('intake'); form.replaceChildren();
+  const skip = ((v.tiers || []).find(t => t.intake_skip) || {}).intake_skip || [];
+  schema = v.intake_schema.filter(sec => !skip.includes(sec.id)); const form = $('intake'); form.replaceChildren();
   schema.forEach((sec, si) => {
     const det = el('details', 'intake-sec'); if (si === 0) det.open = true; det.dataset.sec = sec.id;
     const sum = el('summary'); sum.append(el('span', null, String(si + 1).padStart(2, '0') + '  ' + sec.title), el('span', 'cnt')); det.append(sum);
@@ -1095,7 +1127,7 @@ $('intakeBtn').addEventListener('click', async () => {
 
 // ---------- blood results (temporary review) ----------
 function renderMedical(v) {
-  const m = v.medical; if (!m) { $('medWrap').hidden = true; return; }
+  const m = v.medical; if (!m || !(v.documents || []).some(d => d.kind === 'health_consent')) { $('medWrap').hidden = true; return; }
   $$('.medDays').forEach(e => e.textContent = m.days);
   $('medForm').hidden = !m.can_upload; $('medBlocked').hidden = m.can_upload || !v.signed;
   $('medState').textContent = m.files.length ? m.files.length + ' awaiting review' : m.deleted.length ? 'Reviewed and deleted' : 'Requested';
