@@ -71,6 +71,7 @@ section.step{animation:in .4s var(--ease)}
 /* rotating quotes */
 .qrot{margin:0;flex:1 1 260px;max-width:46ch;text-align:right;min-height:64px;transition:opacity .6s var(--ease)}
 .qrot.out{opacity:0}
+.next{text-align:center;padding-top:0;padding-bottom:clamp(64px,10vw,120px)}.next .label{margin-bottom:16px}.next .btn{display:block;text-align:center;line-height:1.5;margin:0 auto;width:100%;max-width:420px;background:var(--navy);border-color:var(--navy);color:var(--white)}.next .btn:hover:not(:disabled){background:var(--deep);border-color:var(--deep)}.next .mins{opacity:.8;font-weight:400;white-space:nowrap}.next #nextNote{margin-top:12px}
 .qol{margin-top:18px}.qol text{font-size:17px}.qol text.b{fill:var(--navy);font-weight:500}
 .photo{margin:0;overflow:hidden;background:#1a1a1a}.photo img{width:100%;height:auto;display:block;filter:saturate(.92) contrast(1.03)}
 .hikma{text-align:center;padding-top:clamp(56px,9vw,120px);padding-bottom:clamp(64px,10vw,128px);border-top:1px solid var(--hair)}
@@ -560,6 +561,11 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
      </button>
     </div>
    </div>
+   <div class="wrap narrow next" id="propNext">
+    <p class="label muted">Your next step</p>
+    <button type="button" class="btn" id="nextBtn">Finalise your agreement <span class="mins">(2 mins) →</span></button>
+    <p class="muted small" id="nextNote"></p>
+   </div>
   </section>
 
   <!-- ============ 02 AGREEMENT ============ -->
@@ -945,7 +951,21 @@ function apply(v, goTo) {
   $('voicePayState').textContent = vs === 'paid' ? 'Voice add-on payment verified.' : vs === 'payment_reported' ? 'Voice add-on transfer noted. We are verifying it.' : '';
 
   renderPortal(v);
+  renderNext(v);
   show(goTo || current);
+}
+
+
+// The one clear next step at the end of the proposal.
+function renderNext(v) {
+  const box = $('propNext'), btn = $('nextBtn'), note = $('nextNote');
+  const needsTier = v.tiers && v.tiers.length > 1 && !v.tier, t = (v.tiers || []).find(x => x.code === v.tier);
+  box.hidden = false;
+  if (v.signed) { btn.firstChild.nodeValue = 'Continue '; btn.querySelector('.mins').textContent = '→'; note.textContent = 'Your agreement is signed.'; btn.onclick = () => show(maxStep(v) >= 3 && !v.payment.reported_at && !v.payment.verified_at ? 3 : 4); return; }
+  btn.firstChild.nodeValue = needsTier ? 'Choose your option ' : 'Finalise your agreement ';
+  btn.querySelector('.mins').textContent = needsTier ? '→' : '(2 mins) →';
+  note.textContent = needsTier ? 'Pick the option that suits you above, then sign in about two minutes.' : t && v.tiers.length > 1 ? 'Your option: ' + t.name + ', ' + t.price + '. You can change it above before signing.' : '';
+  btn.onclick = () => { if (needsTier) $('tierCards').scrollIntoView({ behavior: 'smooth', block: 'start' }); else { show(2); window.scrollTo(0, 0); } };
 }
 
 // ---------- matchmaking options ----------
