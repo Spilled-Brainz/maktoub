@@ -8,11 +8,11 @@
 <meta name="referrer" content="no-referrer">
 <title>Upgrade: Mental and Physical Bootcamp | Maktoub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Noto+Sans+Arabic:wght@300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Noto+Sans+Arabic:wght@300;400&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&text=%D9%85%D9%83%D8%AA%D9%88%D8%A8&display=swap" rel="stylesheet">
 <style>
 :root{--paper:#F4F4F2;--paper-2:#E9E9E6;--ink:#111111;--night:#171717;--navy:#1F3FD6;--deep:#0E1B4F;--grey:#C6C6C2;--hair:#D3D3CF;--smoke:#666664;--white:#FFFFFF;--hair-night:rgba(255,255,255,.22);--ok:#2f6b4f;--err:#9b2c2c;
-  --pad:clamp(20px,3.6vw,56px);--sans:"Instrument Sans","Helvetica Neue",Arial,sans-serif;--serif:"Newsreader","Iowan Old Style","Times New Roman",serif;--arabic:Arial,"Geeza Pro","Noto Sans Arabic",Tahoma,sans-serif;--wordmark:"Aref Ruqaa","Noto Sans Arabic","Geeza Pro",Arial,serif;--ease:cubic-bezier(.2,.7,.2,1)}
+  --pad:clamp(20px,3.6vw,56px);--sans:"Instrument Sans","Helvetica Neue",Arial,sans-serif;--serif:"Newsreader","Iowan Old Style","Times New Roman",serif;--arabic:"Amiri","Geeza Pro",Arial,serif;--wordmark:"Aref Ruqaa","Noto Sans Arabic","Geeza Pro",Arial,serif;--ease:cubic-bezier(.2,.7,.2,1)}
 *{box-sizing:border-box}html{background:var(--paper);-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
 img,svg{display:block;max-width:100%}a{color:inherit}button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
@@ -80,17 +80,20 @@ section.step{animation:in .4s var(--ease)}
 .mcard:hover{transform:translateY(-4px)}.mcard:focus-visible{outline:2px solid var(--navy);outline-offset:6px}
 .mcard-in{position:relative;display:block;width:100%;height:100%;transform-style:preserve-3d;transition:transform 1s cubic-bezier(.3,.7,.15,1)}
 .mcard.on .mcard-in{transform:rotateY(180deg)}
-.mface{position:absolute;inset:0;border-radius:10px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:26px 22px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 18px 40px -18px rgba(20,44,75,.35)}
-.mfront{background:radial-gradient(120% 90% at 30% 10%,var(--navy) 0%,var(--deep) 75%);color:#F4F4F2}
-.mfront:before{content:"";position:absolute;inset:9px;border:1px solid rgba(255,255,255,.22);border-radius:6px;pointer-events:none}
+.mface{position:absolute;inset:0;border-radius:10px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:26px 22px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 18px 40px -22px rgba(0,0,0,.28)}
+.mfront{background:#FFFFFF;color:var(--ink)}
+.mfront:before{content:"";position:absolute;inset:9px;border:1px solid var(--navy);border-radius:6px;pointer-events:none}
 .mf-top{font-size:11px;font-weight:500;letter-spacing:.32em;text-transform:uppercase;opacity:.8;position:absolute;top:30px}
 .mf-ar{font-family:var(--wordmark);font-weight:700;font-size:clamp(58px,17vw,76px);line-height:1;margin-top:-6px}
 .mf-rule{width:28px;height:1px;background:rgba(255,255,255,.5);margin:14px 0 0}
-.mf-tap{position:absolute;bottom:20px;font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;opacity:.6}
+.mf-tap{position:absolute;bottom:20px;font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--smoke)}
 .mback{background:#FFFFFF;color:var(--ink);transform:rotateY(180deg);text-align:center;gap:6px;padding:44px 26px 34px}
 .mb-k{position:absolute;top:18px;left:0;right:0;font-size:12px;font-weight:500;letter-spacing:.03em;color:#2A2A2A}.mb-k i{font-style:normal;margin:0 6px;opacity:.7}.mb-k span{font-family:var(--arabic);font-size:13px}
 .mb-q{font-family:var(--serif);font-style:italic;font-size:19px;line-height:1.35;letter-spacing:-.01em;max-width:30ch}
 .mb-q.long{font-size:15px}
+.mb-q.ar,.qrot blockquote.ar{font-family:var(--arabic);font-style:normal;font-size:24px;line-height:1.6;letter-spacing:0;max-width:none}
+.mb-by.ar,.qrot figcaption.ar{font-family:var(--arabic);font-size:15px;letter-spacing:0;text-transform:none}
+.qrot blockquote.ar{font-size:19px}
 .mb-by{font-family:var(--serif);font-size:13px;color:#2A2A2A;max-width:34ch}
 .mb-rule{position:absolute;bottom:16px;left:50%;width:30px;height:1.5px;margin-left:-15px;background:var(--ink)}
 @media(prefers-reduced-motion:reduce){.mcard-in{transition:none}.mcard:hover{transform:none}}
@@ -782,13 +785,17 @@ const MM_QUOTES = [
   ['Courage is the most important of all the virtues, because without courage you can’t practice any other virtue consistently.', 'Maya Angelou'],
   ['Love is an activity, not a passive affect; it is a “standing in,” not a “falling for.”', 'Erich Fromm, The Art of Loving'],
   ['Love one another, but make not a bond of love: let it rather be a moving sea between the shores of your souls.', 'Kahlil Gibran, The Prophet'],
+  ['الخوف لا يمنع الموت، ولكنه يمنع الحياة.', 'نجيب محفوظ'],
 ];
+// Arabic text is set right to left in the Naskh face.
+const isAr = t => /[\u0600-\u06FF]/.test(t);
+function putText(node, text, cls) { const ar = isAr(text); node.textContent = text; node.classList.toggle('ar', ar); node.dir = ar ? 'rtl' : ''; node.lang = ar ? 'ar' : ''; }
 let quoteTimer = null, quoteSet = null;
 function rotateQuotes(list) {
   const box = $('qrot'); if (!box || quoteSet === list) return;
   quoteSet = list; clearInterval(quoteTimer);
   let i = Math.floor(Math.random() * list.length);
-  const put = () => { $('qText').textContent = list[i][0]; $('qBy').textContent = list[i][1]; };
+  const put = () => { putText($('qText'), list[i][0]); putText($('qBy'), list[i][1]); };
   put();
   quoteTimer = setInterval(() => {
     if (document.hidden) return;
@@ -800,7 +807,7 @@ rotateQuotes(QUOTES);
 // The Maktoub card: one wisdom a day (Riyadh date), turned over by the client.
 function hikmaCard(list) {
   const day = Math.floor((Date.now() + 3 * 3600e3) / 86400e3), q = list[day % list.length];
-  $('hkText').textContent = q[0]; $('hkText').classList.toggle('long', q[0].length > 90); $('hkBy').textContent = '— ' + q[1];
+  putText($('hkText'), q[0]); $('hkText').classList.toggle('long', !isAr(q[0]) && q[0].length > 90); putText($('hkBy'), (isAr(q[1]) ? '' : '— ') + q[1]);
 }
 $('mcard').addEventListener('click', () => { const c = $('mcard'), on = !c.classList.contains('on'); c.classList.toggle('on', on); c.setAttribute('aria-pressed', on); c.setAttribute('aria-label', on ? 'Turn your Maktoub card back' : 'Turn over your Maktoub card'); });
 
