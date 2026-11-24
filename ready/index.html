@@ -6,7 +6,8 @@
 <meta name="theme-color" content="#F4F4F2">
 <meta name="robots" content="noindex,nofollow">
 <meta name="referrer" content="no-referrer">
-<title>Upgrade: Mental and Physical Bootcamp | Maktoub</title>
+<title>Maktoub</title>
+<script>try{var q=new URLSearchParams(location.search),k='mk_title_'+(q.get('invite')||'').slice(0,16),t=localStorage.getItem(k)||(q.get('t')==='mm'?'Private Matchmaking | Maktoub':'');if(t)document.title=t}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Noto+Sans+Arabic:wght@300;400&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&text=%D9%85%D9%83%D8%AA%D9%88%D8%A8&display=swap" rel="stylesheet">
@@ -103,6 +104,8 @@ section.step{animation:in .4s var(--ease)}
 
 .tier .parts{display:grid;grid-template-columns:1fr auto;gap:6px 16px;margin:14px 0 4px;padding:12px 0 2px;border-top:1px solid var(--hair);font-size:14px}
 .tier .parts dt{color:var(--smoke)}
+.tier .focus{margin:14px 0 0;font-size:15px;line-height:1.5;color:var(--ink)}
+.tier-terms{margin-top:28px;padding-top:20px;border-top:1px solid var(--hair)}.tier-terms h3{margin-bottom:10px}.tier-terms li{font-size:15px;line-height:1.5;color:#34322F}
 .tier .parts dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
 .qrot blockquote{margin:0;font-size:14px;line-height:1.45;color:#3E3B37}
 .qrot figcaption{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--smoke);margin-top:6px}
@@ -321,22 +324,6 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
     <p class="label muted" id="briefBy">Deena</p>
    </div>
 
-   <div class="wrap narrow" id="mmChart" hidden style="padding-top:0">
-    <p class="label muted">Why every introduction counts</p>
-    <svg class="ill qol" viewBox="0 0 600 330" role="img" aria-label="Quality of life over time. On your own it stays almost flat. With each healthy interaction, date one, date two, date three, it rises faster.">
-     <path class="k" d="M40 20 V280 H590"/>
-     <text x="48" y="30">Quality of life</text>
-     <text x="590" y="306" text-anchor="end">Time</text>
-     <path class="g" d="M40 262 C200 258 400 252 580 246"/>
-     <text x="580" y="236" text-anchor="end">On your own</text>
-     <path class="s draw" pathLength="100" d="M40 262 C110 260 170 256 230 244 S 300 222 330 208 S 400 168 430 146 S 520 76 580 40" style="stroke-width:2.6"/>
-     <circle class="d" cx="230" cy="244" r="6"/><circle class="d" cx="330" cy="208" r="6"/><circle class="d" cx="430" cy="146" r="6"/><circle class="f" cx="580" cy="40" r="5"/>
-     <text x="230" y="274" text-anchor="middle" class="b">Date 1</text>
-     <text x="330" y="240" text-anchor="middle" class="b">Date 2</text>
-     <text x="430" y="178" text-anchor="middle" class="b">Date 3</text>
-    </svg>
-    <p class="muted" style="margin-top:14px;max-width:44ch">Every healthy interaction lifts the curve, and each one lifts it faster than the last.</p>
-   </div>
 
    <div class="night grain">
     <div class="wrap">
@@ -513,7 +500,8 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
     <div class="wrap grain">
      <div class="section-head"><h3 style="margin:0" id="tierHead">Your private search</h3><span class="label muted" id="tierSub"></span></div>
      <div class="cols two" id="tierCards"></div>
-     <div class="err" id="errTier" role="alert"></div>
+     <div class="tier-terms" id="tierTerms" hidden><h3>Before you choose</h3><ul class="ticks" id="tierTermsList"></ul></div>
+      <div class="err" id="errTier" role="alert"></div>
 
      <div class="rule"><div class="section-head"><h3 style="margin:0">How it works</h3></div>
      <ol class="steps" id="mmSteps">
@@ -563,7 +551,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
    </div>
    <div class="wrap narrow next" id="propNext">
     <p class="label muted">Your next step</p>
-    <button type="button" class="btn" id="nextBtn">Finalise your agreement <span class="mins">(2 mins) →</span></button>
+    <button type="button" class="btn" id="nextBtn">Review your agreement <span class="mins">→</span></button>
     <p class="muted small" id="nextNote"></p>
    </div>
   </section>
@@ -678,10 +666,10 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
           <button class="btn" id="voiceAddBtn" disabled>Add voice analysis</button>
         </div>
         <div class="voicebox night grain" id="voiceRec" hidden>
-          <p class="label muted">At least two minutes · any language</p>
+          <p class="label muted" id="recLen">At least two minutes · any language</p>
           <p class="quote" id="voiceQuote">“Tell me about the man you are becoming, and what is standing in his way.”</p>
           <h3 style="color:var(--grey)">If it helps, you might talk about</h3>
-          <ol class="prompts">
+          <ol class="prompts" id="recPrompts">
             <li>Where you are right now, honestly.</li>
             <li>What this period has taken from you, and what it is making room for.</li>
             <li>A time in your life when you felt fully yourself.</li>
@@ -869,7 +857,7 @@ function apply(v, goTo) {
   $('voiceOpt').hidden = !docs.programme_voice || v.voice.status === 'included';
   const mm = isMM(v), vr = isVR(v);
   $('rdBody').hidden = mm || vr; $('mmBody').hidden = !mm; $('vrBody').hidden = !vr;
-  $('heroPhoto').hidden = !mm; $('heroIll').hidden = mm; $('mmChart').hidden = !mm;
+  $('heroPhoto').hidden = !mm; $('heroIll').hidden = mm;
   document.title = (mm ? 'Private Matchmaking' : vr ? 'Voice Reading' : 'Upgrade: Mental and Physical Bootcamp') + ' | Maktoub';
   $('propLabel').textContent = mm ? 'Private proposal / Matchmaking' : vr ? 'Your Voice Reading' : 'Your Upgrade protocol';
   $('rail').querySelector('button[data-s="1"]').lastChild.textContent = mm || vr ? 'Proposal' : 'Protocol';
@@ -894,12 +882,19 @@ function apply(v, goTo) {
   if (cu.hero) { $('heroLead').textContent = cu.hero[0]; $('heroSub').textContent = cu.hero[1]; }
   if (cu.title) $('heroWord').firstChild.nodeValue = cu.title;
   if (cu.page_label) { $('propLabel').textContent = cu.page_label; document.title = cu.page_label + ' | Maktoub'; }
+  try { localStorage.setItem('mk_title_' + (new URLSearchParams(location.search).get('invite') || '').slice(0, 16), document.title); } catch (e) {}
   if (cu.steps) $(mm ? 'mmSteps' : 'vrSteps').replaceChildren(...cu.steps.map((x, i) => {
     const li = el('li', x[3] ? 'key' : null), b = el('span'); b.append(el('b', null, x[0]), x[1]);
     li.append(el('span', 'label', String(i + 1).padStart(2, '0')), b, el('span', 'dur', x[2] || '')); return li;
   }));
   if (cu.built && mm) $('mmBuilt').replaceChildren(...cu.built.map(x => el('li', null, x)));
   if (cu.notice) $('mmNotice').textContent = cu.notice;
+  if (cu.voice_prompt) {
+    $('voiceQuote').textContent = '“' + cu.voice_prompt + '”'; $('recLen').textContent = 'About two minutes · any language'; $('recPrompts').hidden = true;
+    $('recPrompts').previousElementSibling.hidden = true;
+    Object.assign(REC, { hint: 'Tap to start, speak for about two minutes, then tap again to stop, listen back and submit.', live: 'About two minutes. Tap again to stop.', short: 'Almost there. Please keep going until the timer passes 2:00.' });
+    $('recHint').textContent = REC.hint;
+  }
   rotateQuotes(cu.quotes || (mm ? MM_QUOTES : QUOTES));
   hikmaCard(cu.quotes || (mm ? MM_QUOTES : QUOTES));
   // Only the documents this programme actually uses are shown and confirmed.
@@ -962,9 +957,9 @@ function renderNext(v) {
   const needsTier = v.tiers && v.tiers.length > 1 && !v.tier, t = (v.tiers || []).find(x => x.code === v.tier);
   box.hidden = false;
   if (v.signed) { btn.firstChild.nodeValue = 'Continue '; btn.querySelector('.mins').textContent = '→'; note.textContent = 'Your agreement is signed.'; btn.onclick = () => show(maxStep(v) >= 3 && !v.payment.reported_at && !v.payment.verified_at ? 3 : 4); return; }
-  btn.firstChild.nodeValue = needsTier ? 'Choose your option ' : 'Finalise your agreement ';
-  btn.querySelector('.mins').textContent = needsTier ? '→' : '(2 mins) →';
-  note.textContent = needsTier ? 'Pick the option that suits you above, then sign in about two minutes.' : t && v.tiers.length > 1 ? 'Your option: ' + t.name + ', ' + t.price + '. You can change it above before signing.' : '';
+  btn.firstChild.nodeValue = needsTier ? 'Choose your option ' : 'Review your agreement ';
+  btn.querySelector('.mins').textContent = '→';
+  note.textContent = needsTier ? 'Pick the option that suits you above, then review your agreement.' : t && v.tiers.length > 1 ? 'Your option: ' + t.name + ', ' + t.price + '. You can change it above before signing.' : '';
   btn.onclick = () => { if (needsTier) $('tierCards').scrollIntoView({ behavior: 'smooth', block: 'start' }); else { show(2); window.scrollTo(0, 0); } };
 }
 
@@ -974,13 +969,16 @@ const TIER_POINTS = {
   premium: ['Three months of an intensified search', 'Three dates guaranteed', 'Voice analysis included', 'Mindset review and support throughout', 'Your recommended protocol, body and mind'],
 };
 function renderTiers(v) {
+  const terms = (v.tiers || []).map(t => t.terms).find(Boolean);
+  if ($('tierTerms')) { $('tierTerms').hidden = !terms; if (terms) $('tierTermsList').replaceChildren(...terms.map(x => el('li', null, x))); }
   const vr = isVR(v), errBox = vr ? 'errTierVR' : 'errTier';
   if (!vr) { $('tierHead').textContent = v.tiers.length > 1 ? 'Two ways in' : 'Your private search'; $('tierSub').textContent = v.tiers.length > 1 ? 'Choose yours' : ''; }
   $(vr ? 'tierCardsVR' : 'tierCards').replaceChildren(...v.tiers.map(t => {
     const c = el('article', 'tier' + (v.tier === t.code ? ' sel' : ''));
-    c.append(el('p', 'label muted', (t.label || t.months + ' months') + (t.dates ? ' · ' + t.dates + (v.tiers.length === 1 ? ' introductions' : ' dates guaranteed') : '')), el('h4', null, t.name), el('div', 'amt', t.price));
+    c.append(el('p', 'label muted', (t.label || t.months + ' months') + (t.dates ? ' · ' + t.dates + ' ' + (t.unit || (v.tiers.length === 1 ? 'introductions' : 'dates guaranteed')) : '')), el('h4', null, t.name), el('div', 'amt', t.price));
     if (!t.voice_included && v.programme.voice_fee) c.append(el('p', 'muted small', 'Voice analysis + ' + v.programme.voice_fee));
     if (t.parts) { const pl = el('dl', 'parts'); t.parts.forEach(([k, m]) => { pl.append(el('dt', null, k), el('dd', null, (v.programme.currency || String(t.price).split(' ')[0]) + ' ' + (m / 100).toLocaleString('en-US'))); }); c.append(pl); }
+    if (t.focus) c.append(el('p', 'focus', t.focus));
     const ul = el('ul', 'ticks'); (t.points || TIER_POINTS[t.code] || [t.summary]).forEach(x => ul.append(el('li', null, x))); c.append(ul);
     const b = el('button', 'btn' + (v.tier === t.code ? '' : ' ghost'), v.signed ? (v.tier === t.code ? 'Your option' : t.name) : (v.tiers.length === 1 ? 'Continue to the agreement →' : 'Choose ' + t.name + ' →')); b.type = 'button'; b.disabled = !!v.signed;
     b.onclick = async () => { $('errTier').textContent = ''; b.disabled = true; try { apply(await call('choose_tier', { tier: t.code }), 2); } catch (e) { $(errBox).textContent = e.message; } finally { b.disabled = !!view.signed; } };
@@ -1056,7 +1054,7 @@ function renderPortal(v) {
   const at = k => ORDER.indexOf(v.stage === 'paused' ? 'active' : v.stage) >= ORDER.indexOf(k);
   const steps = isMM(v) ? [
     ['Enrolled', !!v.payment.verified_at, v.payment.verified_at ? 'Agreement signed, payment verified.' : v.payment.reported_at ? 'Your transfer is being verified.' : 'Choose, sign and transfer.'],
-    ['Intake and voice', !!v.intake_submitted_at && (!!v.voice.recording || !['requested', 'payment_reported', 'paid', 'included'].includes(v.voice.status)), (v.documents || []).some(d => d.kind === 'health_consent') ? 'Mind, body and two minutes of your voice.' : 'Your intake and two minutes of your voice.'],
+    ['Intake and voice', !!v.intake_submitted_at && (!!v.voice.recording || !['requested', 'payment_reported', 'paid', 'included'].includes(v.voice.status)), (v.documents || []).some(d => d.kind === 'health_consent') ? 'Mind, body and two minutes of your voice.' : 'Your intake and about two minutes of your voice.'],
     ['Your reading', !!v.voice.report_ready || at('bot_configuration'), 'Voice results and intake reviewed together.'],
     ['Your protocol', at('portal_ready'), 'The exact protocol we recommend, body and mind.'],
     ['The search begins', at('active'), v.progress && v.progress.start_date ? fmtDay(v.progress.start_date) + '.' : 'Introductions start on the date we agree.'],
@@ -1281,6 +1279,7 @@ $('voiceAddBtn').addEventListener('click', async () => {
 });
 
 const MAX_S = 600, MIN_S = 120;
+const REC = { hint: 'Tap to start. Speak for at least two minutes, then tap again to stop, listen back and submit.', live: 'At least two minutes. Tap again to stop.', short: 'A little short. Please speak for at least two minutes.' };
 const mmss = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
 const meter = $('meter'); for (let i = 0; i < 24; i++) meter.append(el('i'));
 let rec = null, stream = null, chunks = [], blob = null, secs = 0, tick = null, actx = null, raf = null, started = 0;
@@ -1300,16 +1299,16 @@ async function startRec() {
     blob = new Blob(chunks, { type: (rec.mimeType || mime || 'audio/webm').split(';')[0] });
     $('playback').src = URL.createObjectURL(blob); $('review').hidden = false; $('recBtn').hidden = true;
     const short = secs < MIN_S;
-    $('recStatus').textContent = short ? 'A little short. Please speak for at least two minutes.' : 'Listen back, then submit';
+    $('recStatus').textContent = short ? REC.short : 'Listen back, then submit';
     $('sendBtn').disabled = short; $('recHint').textContent = 'Happy with it? Submit. Otherwise, record again.';
   };
   rec.start(250); started = Date.now(); secs = 0; $('timer').textContent = '0:00';
   tick = setInterval(() => { secs = (Date.now() - started) / 1000; $('timer').textContent = mmss(secs); if (secs >= MAX_S) stopRec(); }, 250);
   $('recBtn').classList.add('on'); $('recBtn').setAttribute('aria-label', 'Stop recording');
-  $('recStatus').textContent = 'Recording · speak naturally'; $('recHint').textContent = 'At least two minutes. Tap again to stop.'; runMeter();
+  $('recStatus').textContent = 'Recording · speak naturally'; $('recHint').textContent = REC.live; runMeter();
 }
 function stopRec() { clearInterval(tick); secs = (Date.now() - started) / 1000; if (rec && rec.state !== 'inactive') rec.stop(); $('recBtn').classList.remove('on'); $('recBtn').setAttribute('aria-label', 'Start recording'); }
-function resetRec() { blob = null; secs = 0; $('timer').textContent = '0:00'; $('review').hidden = true; $('recBtn').hidden = false; $('recStatus').textContent = 'Ready when you are'; $('recHint').textContent = 'Tap to start. Speak for at least two minutes, then tap again to stop, listen back and submit.'; $('playback').removeAttribute('src'); }
+function resetRec() { blob = null; secs = 0; $('timer').textContent = '0:00'; $('review').hidden = true; $('recBtn').hidden = false; $('recStatus').textContent = 'Ready when you are'; $('recHint').textContent = REC.hint; $('playback').removeAttribute('src'); }
 $('recBtn').addEventListener('click', () => rec && rec.state === 'recording' ? stopRec() : startRec());
 $('redoBtn').addEventListener('click', resetRec);
 $('replaceBtn').addEventListener('click', () => { $('voiceDone').hidden = true; $('voiceRec').hidden = false; resetRec(); });
