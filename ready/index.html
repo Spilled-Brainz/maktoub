@@ -71,6 +71,7 @@ section.step{animation:in .4s var(--ease)}
 /* rotating quotes */
 .qrot{margin:0;flex:1 1 260px;max-width:46ch;text-align:right;min-height:64px;transition:opacity .6s var(--ease)}
 .qrot.out{opacity:0}
+.qol{margin-top:18px}.qol text{font-size:17px}.qol text.b{fill:var(--navy);font-weight:500}
 .photo{margin:0;overflow:hidden;background:#1a1a1a}.photo img{width:100%;height:auto;display:block;filter:saturate(.92) contrast(1.03)}
 .hikma{text-align:center;padding-top:clamp(56px,9vw,120px);padding-bottom:clamp(64px,10vw,128px);border-top:1px solid var(--hair)}
 .hikma .ar-in{font-family:var(--arabic);font-weight:400;letter-spacing:0;text-transform:none;font-size:1.15em}
@@ -317,6 +318,23 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
     <p class="label muted">A note for you</p>
     <div class="notice" id="briefText" style="white-space:pre-line;font-family:var(--sans);font-size:19px;line-height:1.5"></div>
     <p class="label muted" id="briefBy">Deena</p>
+   </div>
+
+   <div class="wrap narrow" id="mmChart" hidden style="padding-top:0">
+    <p class="label muted">Why every introduction counts</p>
+    <svg class="ill qol" viewBox="0 0 600 330" role="img" aria-label="Quality of life over time. On your own it stays almost flat. With each healthy interaction, date one, date two, date three, it rises faster.">
+     <path class="k" d="M40 20 V280 H590"/>
+     <text x="48" y="30">Quality of life</text>
+     <text x="590" y="306" text-anchor="end">Time</text>
+     <path class="g" d="M40 262 C200 258 400 252 580 246"/>
+     <text x="580" y="236" text-anchor="end">On your own</text>
+     <path class="s draw" pathLength="100" d="M40 262 C110 260 170 256 230 244 S 300 222 330 208 S 400 168 430 146 S 520 76 580 40" style="stroke-width:2.6"/>
+     <circle class="d" cx="230" cy="244" r="6"/><circle class="d" cx="330" cy="208" r="6"/><circle class="d" cx="430" cy="146" r="6"/><circle class="f" cx="580" cy="40" r="5"/>
+     <text x="230" y="274" text-anchor="middle" class="b">Date 1</text>
+     <text x="330" y="240" text-anchor="middle" class="b">Date 2</text>
+     <text x="430" y="178" text-anchor="middle" class="b">Date 3</text>
+    </svg>
+    <p class="muted" style="margin-top:14px;max-width:44ch">Every healthy interaction lifts the curve, and each one lifts it faster than the last.</p>
    </div>
 
    <div class="night grain">
@@ -845,7 +863,7 @@ function apply(v, goTo) {
   $('voiceOpt').hidden = !docs.programme_voice || v.voice.status === 'included';
   const mm = isMM(v), vr = isVR(v);
   $('rdBody').hidden = mm || vr; $('mmBody').hidden = !mm; $('vrBody').hidden = !vr;
-  $('heroPhoto').hidden = !mm; $('heroIll').hidden = mm;
+  $('heroPhoto').hidden = !mm; $('heroIll').hidden = mm; $('mmChart').hidden = !mm;
   document.title = (mm ? 'Private Matchmaking' : vr ? 'Voice Reading' : 'Upgrade: Mental and Physical Bootcamp') + ' | Maktoub';
   $('propLabel').textContent = mm ? 'Private proposal / Matchmaking' : vr ? 'Your Voice Reading' : 'Your Upgrade protocol';
   $('rail').querySelector('button[data-s="1"]').lastChild.textContent = mm || vr ? 'Proposal' : 'Protocol';
