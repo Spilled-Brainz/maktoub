@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#F4F1EA">
+<meta name="theme-color" content="#F4F4F2">
 <meta name="robots" content="noindex,nofollow">
 <meta name="referrer" content="no-referrer">
 <title>Upgrade: Mental and Physical Bootcamp | Maktoub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Noto+Sans+Arabic:wght@300;400&display=swap" rel="stylesheet">
 <style>
-:root{--paper:#F4F1EA;--paper-2:#EAE5DC;--ink:#111111;--night:#171717;--navy:#142C4B;--grey:#C9C1B7;--hair:#CFC8BD;--smoke:#6B665F;--white:#FFFFFF;--hair-night:rgba(255,255,255,.22);--ok:#2f6b4f;--err:#9b2c2c;
+:root{--paper:#F4F4F2;--paper-2:#E9E9E6;--ink:#111111;--night:#171717;--navy:#142C4B;--grey:#C6C6C2;--hair:#D3D3CF;--smoke:#666664;--white:#FFFFFF;--hair-night:rgba(255,255,255,.22);--ok:#2f6b4f;--err:#9b2c2c;
   --pad:clamp(20px,3.6vw,56px);--sans:"Instrument Sans","Helvetica Neue",Arial,sans-serif;--serif:"Newsreader","Iowan Old Style","Times New Roman",serif;--arabic:"Noto Sans Arabic","Geeza Pro",Tahoma,sans-serif;--ease:cubic-bezier(.2,.7,.2,1)}
 *{box-sizing:border-box}html{background:var(--paper);-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
@@ -43,7 +43,7 @@ p{margin:0 0 14px}.lead{font-size:clamp(20px,2.4vw,26px);line-height:1.28;letter
 .draw{stroke-dasharray:100;stroke-dashoffset:100;transition:stroke-dashoffset 1.6s var(--ease)}
 .inview .draw{stroke-dashoffset:0}
 /* header + rail */
-header{position:sticky;top:0;z-index:20;background:rgba(244,241,234,.97);border-bottom:1px solid var(--hair)}
+header{position:sticky;top:0;z-index:20;background:rgba(244,244,242,.97);border-bottom:1px solid var(--hair)}
 .bar{display:flex;align-items:center;justify-content:space-between;padding:14px var(--pad)}
 .brand{font-size:15px;font-weight:500;letter-spacing:.1em;text-decoration:none}
 .ref{font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--smoke)}
@@ -70,6 +70,29 @@ section.step{animation:in .4s var(--ease)}
 /* rotating quotes */
 .qrot{margin:0;flex:1 1 260px;max-width:46ch;text-align:right;min-height:64px;transition:opacity .6s var(--ease)}
 .qrot.out{opacity:0}
+.hikma{text-align:center;padding-top:clamp(56px,9vw,120px);padding-bottom:clamp(64px,10vw,128px);border-top:1px solid var(--hair)}
+.hikma .ar-in{font-family:var(--arabic);font-weight:400;letter-spacing:0;text-transform:none;font-size:1.15em}
+.hikma-q{font-family:var(--arabic);font-weight:300;font-size:clamp(24px,5vw,34px);line-height:1.6;margin:14px 0 36px;color:var(--ink)}
+.mcard-stage{perspective:1400px;display:flex;justify-content:center}
+.mcard{all:unset;cursor:pointer;display:block;width:min(272px,74vw);aspect-ratio:5/7;border-radius:14px;-webkit-tap-highlight-color:transparent;transition:transform .35s var(--ease)}
+.mcard:hover{transform:translateY(-4px)}.mcard:focus-visible{outline:2px solid var(--navy);outline-offset:6px}
+.mcard-in{position:relative;display:block;width:100%;height:100%;transform-style:preserve-3d;transition:transform 1s cubic-bezier(.3,.7,.15,1)}
+.mcard.on .mcard-in{transform:rotateY(180deg)}
+.mface{position:absolute;inset:0;border-radius:14px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:26px 22px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 18px 40px -18px rgba(20,44,75,.35)}
+.mfront{background:var(--navy);color:#F4F4F2}
+.mfront:before{content:"";position:absolute;inset:10px;border:1px solid rgba(255,255,255,.28);border-radius:8px;pointer-events:none}
+.mf-top{font-size:11px;font-weight:500;letter-spacing:.32em;text-transform:uppercase;opacity:.8;position:absolute;top:30px}
+.mf-ar{font-family:var(--arabic);font-weight:300;font-size:56px;line-height:1.3}
+.mf-rule{width:28px;height:1px;background:rgba(255,255,255,.5);margin:14px 0 0}
+.mf-tap{position:absolute;bottom:28px;font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;opacity:.6}
+.mback{background:#FFFFFF;color:var(--ink);transform:rotateY(180deg);text-align:center;gap:18px}
+.mback:before{content:"";position:absolute;inset:10px;border:1px solid var(--hair);border-radius:8px;pointer-events:none}
+.mb-k{font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--smoke)}
+.mb-q{font-family:var(--serif);font-size:19px;line-height:1.4;letter-spacing:-.01em}
+.mb-q.long{font-size:16px}
+.mb-by{font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--smoke);max-width:24ch}
+@media(prefers-reduced-motion:reduce){.mcard-in{transition:none}.mcard:hover{transform:none}}
+
 .tier .parts{display:grid;grid-template-columns:1fr auto;gap:6px 16px;margin:14px 0 4px;padding:12px 0 2px;border-top:1px solid var(--hair);font-size:14px}
 .tier .parts dt{color:var(--smoke)}
 .tier .parts dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
@@ -94,7 +117,7 @@ section.step{animation:in .4s var(--ease)}
 .ticks{list-style:none;margin:12px 0 0;padding:0;border-top:1px solid var(--hair)}
 .ticks li{padding:9px 0 9px 22px;border-bottom:1px solid var(--hair);font-size:15px;position:relative}
 .ticks li:before{content:"";position:absolute;left:2px;top:17px;width:9px;height:1.5px;background:var(--navy)}
-.night .ticks{border-color:var(--hair-night)}.night .ticks li{border-color:var(--hair-night);color:#E7E2DA}.night .ticks li:before{background:#9fb4d1}
+.night .ticks{border-color:var(--hair-night)}.night .ticks li{border-color:var(--hair-night);color:#E6E6E3}.night .ticks li:before{background:#9fb4d1}
 .steps{list-style:none;margin:0;padding:0;border-top:1px solid var(--ink)}
 .steps li{display:grid;grid-template-columns:44px 1fr auto;gap:12px;padding:16px 0;border-bottom:1px solid var(--hair);font-size:16px;color:#3E3B37}
 .steps li .label{padding-top:4px;color:var(--smoke)}
@@ -110,7 +133,7 @@ section.step{animation:in .4s var(--ease)}
 .addon{border:1px solid var(--ink);padding:22px;margin-top:22px;background:var(--white)}
 .addon .amt{font-size:28px}
 .chapters{list-style:none;margin:16px 0 0;padding:0;counter-reset:c;border-top:1px solid var(--hair-night)}
-.chapters li{counter-increment:c;display:grid;grid-template-columns:34px 1fr;gap:10px;padding:12px 0;border-bottom:1px solid var(--hair-night);font-size:15px;color:#E7E2DA}
+.chapters li{counter-increment:c;display:grid;grid-template-columns:34px 1fr;gap:10px;padding:12px 0;border-bottom:1px solid var(--hair-night);font-size:15px;color:#E6E6E3}
 .chapters li:before{content:counter(c,decimal-leading-zero);font-size:12px;letter-spacing:.08em;color:var(--grey);padding-top:3px}
 .chapters b{display:block;font-weight:500;color:var(--white);font-size:17px}
 .doc{background:var(--white);border:1px solid var(--ink);max-height:440px;overflow:auto;padding:22px;font-size:15px;line-height:1.65;-webkit-overflow-scrolling:touch}
@@ -194,7 +217,7 @@ input[type=range]{width:100%;accent-color:var(--navy);margin:12px 0 6px;height:2
 .voicebox{background:var(--night);color:var(--white);padding:clamp(22px,4vw,40px);margin-top:18px}
 .quote{font-family:var(--serif);font-size:clamp(26px,5vw,40px);line-height:1.15;letter-spacing:-.015em;margin:14px 0 24px;max-width:24ch}
 .prompts{list-style:none;margin:0 0 26px;padding:0;border-top:1px solid var(--hair-night);counter-reset:q}
-.prompts li{counter-increment:q;display:grid;grid-template-columns:34px 1fr;gap:10px;padding:11px 0;border-bottom:1px solid var(--hair-night);color:#E7E2DA;font-size:16px;line-height:1.45}
+.prompts li{counter-increment:q;display:grid;grid-template-columns:34px 1fr;gap:10px;padding:11px 0;border-bottom:1px solid var(--hair-night);color:#E6E6E3;font-size:16px;line-height:1.45}
 .prompts li::before{content:counter(q,decimal-leading-zero);font-size:12px;letter-spacing:.08em;color:var(--grey);padding-top:3px}
 .rec{border-top:1px solid var(--hair-night);border-bottom:1px solid var(--hair-night);padding:30px 0 26px;text-align:center}
 .timer{font-size:64px;font-weight:500;line-height:1;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
@@ -267,10 +290,10 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
   <section class="step" id="s1" hidden>
    <div class="wrap grain">
     <div class="section-head s1head"><p class="label" id="propLabel">Your Upgrade protocol</p><figure class="qrot" id="qrot" aria-live="polite"><blockquote id="qText"></blockquote><figcaption id="qBy"></figcaption></figure></div>
-    <h1><span class="fname"></span>,<br><span class="u">it’s time.<svg class="uline" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M1 12.4C30 6 64 10 99 3.6"/><path pathLength="100" d="M10 18.4C40 13.2 70 15.6 90 11.6"/></svg></span></h1>
+    <h1><span class="fname"></span>,<br><span class="u" id="heroWord">it’s time.<svg class="uline" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M1 12.4C30 6 64 10 99 3.6"/><path pathLength="100" d="M10 18.4C40 13.2 70 15.6 90 11.6"/></svg></span></h1>
     <div class="hero-grid">
       <div>
-        <p class="lead" id="heroLead">Ninety days. Mind and body. A structure built around you, and the discipline to keep it.</p>
+        <p class="lead" id="heroLead" style="white-space:pre-line">Ninety days. Mind and body. A structure built around you, and the discipline to keep it.</p>
         <p class="muted" style="margin-top:16px;max-width:44ch" id="heroSub">Upgrade: Mental and Physical Bootcamp is a personalised 90-day Maktoub programme. It is designed to collapse time: to establish, in three months, the mental and physical routines, discipline and systems that carry you through a period of transition.</p>
       </div>
       <svg class="ill" viewBox="0 0 600 300" role="img" aria-label="A flat path continues while a second path crosses day one and rises toward day ninety">
@@ -490,6 +513,27 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
       <li>Not therapy or medical care. Any medical interpretation is made by a qualified professional.</li>
       <li>Blood results, if requested, are uploaded privately in your portal and deleted within 14 days.</li>
      </ul></div>
+    </div>
+   </div>
+   <div class="wrap narrow hikma" id="hikma">
+    <p class="label muted">Your Maktoub <span lang="ar" class="ar-in">حكمة</span> of the day</p>
+    <p class="hikma-q" lang="ar" dir="rtl">ما هي حكمتك المكتوبة اليوم؟</p>
+    <div class="mcard-stage">
+     <button type="button" class="mcard" id="mcard" aria-pressed="false" aria-label="Turn over your Maktoub card">
+      <span class="mcard-in">
+       <span class="mface mfront" aria-hidden="true">
+        <span class="mf-top">Maktoub</span>
+        <span class="mf-ar" lang="ar">مكتوب</span>
+        <span class="mf-rule"></span>
+        <span class="mf-tap">Tap to turn</span>
+       </span>
+       <span class="mface mback">
+        <span class="mb-k">Your <span lang="ar" class="ar-in">حكمة</span> today</span>
+        <span class="mb-q" id="hkText"></span>
+        <span class="mb-by" id="hkBy"></span>
+       </span>
+      </span>
+     </button>
     </div>
    </div>
   </section>
@@ -751,6 +795,13 @@ function rotateQuotes(list) {
   }, 9000);
 }
 rotateQuotes(QUOTES);
+// The Maktoub card: one wisdom a day (Riyadh date), turned over by the client.
+function hikmaCard(list) {
+  const day = Math.floor((Date.now() + 3 * 3600e3) / 86400e3), q = list[day % list.length];
+  $('hkText').textContent = q[0]; $('hkText').classList.toggle('long', q[0].length > 120); $('hkBy').textContent = q[1];
+}
+$('mcard').addEventListener('click', () => { const c = $('mcard'), on = !c.classList.contains('on'); c.classList.toggle('on', on); c.setAttribute('aria-pressed', on); c.setAttribute('aria-label', on ? 'Turn your Maktoub card back' : 'Turn over your Maktoub card'); });
+
 
 const INCLUDED = ['Initial readiness and lifestyle assessment', 'Sessions on your nutrition and movement habits', 'Work on mindset barriers and recurring patterns', 'Your personalised protocol, adjusted at each review', 'Curated articles, research, books, podcasts and videos, where useful', 'One short daily check-in on Telegram', 'Your private client portal', 'Weekly accountability through your check-ins', 'Agreed programme review sessions', 'Introductions to independent professionals, where needed', 'Final 90-day progress review'];
 $('included').replaceChildren(...INCLUDED.map((t, i) => { const li = el('li'); li.append(el('span', 'label', String(i + 1).padStart(2, '0')), el('span', null, t)); li.style.gridTemplateColumns = '44px 1fr'; return li; }));
@@ -805,6 +856,7 @@ function apply(v, goTo) {
   }
   const cu = (v.tiers || []).find(t => t.steps || t.built || t.bounds || t.hero) || {};
   if (cu.hero) { $('heroLead').textContent = cu.hero[0]; $('heroSub').textContent = cu.hero[1]; }
+  if (cu.title) $('heroWord').firstChild.nodeValue = cu.title;
   if (cu.page_label) { $('propLabel').textContent = cu.page_label; document.title = cu.page_label + ' | Maktoub'; }
   if (cu.steps) $(mm ? 'mmSteps' : 'vrSteps').replaceChildren(...cu.steps.map((x, i) => {
     const li = el('li', x[3] ? 'key' : null), b = el('span'); b.append(el('b', null, x[0]), x[1]);
@@ -813,6 +865,7 @@ function apply(v, goTo) {
   if (cu.built && mm) $('mmBuilt').replaceChildren(...cu.built.map(x => el('li', null, x)));
   if (cu.notice) $('mmNotice').textContent = cu.notice;
   rotateQuotes(cu.quotes || (mm ? MM_QUOTES : QUOTES));
+  hikmaCard(cu.quotes || (mm ? MM_QUOTES : QUOTES));
   // Only the documents this programme actually uses are shown and confirmed.
   const lean = !docs.health_consent;
   document.querySelectorAll('#signForm > details').forEach(d => { const k = d.querySelector('.doc').id.replace('doc_', ''); d.hidden = !docs[k]; });
