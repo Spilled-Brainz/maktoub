@@ -67,7 +67,7 @@ section.step{animation:in .4s var(--ease)}
 .hero-grid{display:grid;grid-template-columns:1fr;gap:34px;border-top:1px solid var(--hair);margin-top:28px;padding-top:28px;align-items:end}
 .night{background:var(--night);color:var(--white)}.night .muted{color:var(--grey)}
 .principle{color:#7C95FF;font-size:clamp(38px,7vw,80px);font-weight:500;line-height:.98;letter-spacing:-.035em;margin:22px 0 30px;max-width:15ch}
-.principle .soft{color:#8a8a87}
+.principle .soft{color:#E4E7B8}
 .principle .uline path{stroke:#8FA6FF}
 /* rotating quotes */
 .qrot{margin:0;flex:1 1 260px;max-width:46ch;text-align:right;min-height:64px;transition:opacity .6s var(--ease)}
@@ -104,6 +104,10 @@ section.step{animation:in .4s var(--ease)}
 
 .tier .parts{display:grid;grid-template-columns:1fr auto;gap:6px 16px;margin:14px 0 4px;padding:12px 0 2px;border-top:1px solid var(--hair);font-size:14px}
 .tier .parts dt{color:var(--smoke)}
+.optswitch{margin-top:26px}.optswitch .label{margin-bottom:10px}.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opts button{all:unset;cursor:pointer;box-sizing:border-box;border:1px solid var(--hair);background:var(--white);padding:14px 14px 12px;display:flex;flex-direction:column;gap:4px;min-height:84px}
+.opts button b{font-weight:500;font-size:15px;line-height:1.25}.opts button span{font-size:13px;color:var(--smoke);line-height:1.35}
+.opts button.on{border:1.5px solid var(--navy);box-shadow:inset 0 0 0 1px var(--navy)}.opts button.on b{color:var(--navy)}.opts button:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
 .tier .focus{margin:14px 0 0;font-size:15px;line-height:1.5;color:var(--ink)}
 .tier-terms{margin-top:28px;padding-top:20px;border-top:1px solid var(--hair)}.tier-terms h3{margin-bottom:10px}.tier-terms li{font-size:15px;line-height:1.5;color:#34322F}
 .tier .parts dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
@@ -561,6 +565,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
    <div class="wrap narrow grain">
     <div class="section-head"><p class="label">02 / Agreement</p><p class="label muted">Read, then sign</p></div>
     <h2>Make it <span class="u">official.<svg class="uline" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M1 12.4C30 6 64 10 99 3.6"/><path pathLength="100" d="M10 18.4C40 13.2 70 15.6 90 11.6"/></svg></span></h2>
+    <div class="optswitch" id="optSwitch" hidden><p class="label muted">Your option</p><div class="opts" id="optList"></div></div>
     <p class="muted" id="signIntro" style="margin-top:20px;max-width:48ch">Five short documents set out the programme, the terms and how your information is protected. Each one is recorded with your signature, exactly as you read it.</p>
     <div id="signForm">
       <div class="doc" id="doc_programme_agreement" tabindex="0" style="margin-top:28px"></div>
@@ -720,12 +725,14 @@ let token = null, view = null, current = 1, combinedTransfer = false, totalLabel
 
 // The token leaves the address bar on load (no history, no referrer) and stays on this device.
 const q = (new URLSearchParams(location.search).get('invite') || '').trim().toLowerCase();
+const PREVIEW = new URLSearchParams(location.search).get('preview') === 'founder'; // founder sees later steps; nothing is saved
 try {
   if (q) { localStorage.setItem(KEY, q); sessionStorage.setItem(KEY, q); history.replaceState(null, '', location.pathname); }
   token = q || sessionStorage.getItem(KEY) || localStorage.getItem(KEY);
 } catch (_) { token = q || null; }
 
 async function call(action, extra) {
+  if (PREVIEW && action !== 'load') { const e = new Error('Preview only. Nothing is saved in preview.'); e.status = 0; throw e; }
   const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action, token, ...extra }) });
   const j = await r.json().catch(() => ({}));
   if (!r.ok) { const e = new Error(j.error || 'Something went wrong. Please try again.'); e.status = r.status; throw e; }
@@ -882,7 +889,7 @@ function apply(v, goTo) {
   if (cu.hero) { $('heroLead').textContent = cu.hero[0]; $('heroSub').textContent = cu.hero[1]; }
   if (cu.title) $('heroWord').firstChild.nodeValue = cu.title;
   if (cu.page_label) { $('propLabel').textContent = cu.page_label; document.title = cu.page_label + ' | Maktoub'; }
-  try { localStorage.setItem('mk_title_' + (new URLSearchParams(location.search).get('invite') || '').slice(0, 16), document.title); } catch (e) {}
+  try { if (token) localStorage.setItem('mk_title_' + token.slice(0, 16), document.title); } catch (e) {}
   if (cu.steps) $(mm ? 'mmSteps' : 'vrSteps').replaceChildren(...cu.steps.map((x, i) => {
     const li = el('li', x[3] ? 'key' : null), b = el('span'); b.append(el('b', null, x[0]), x[1]);
     li.append(el('span', 'label', String(i + 1).padStart(2, '0')), b, el('span', 'dur', x[2] || '')); return li;
@@ -908,6 +915,14 @@ function apply(v, goTo) {
   if (cu.bounds) $(mm ? 'mmBounds' : 'vrBounds').replaceChildren(...cu.bounds.map(x => el('li', null, x)));
 
   // 02 Agreement
+  const multi = (v.tiers || []).length > 1 && !v.signed;
+  $('optSwitch').hidden = !multi;
+  if (multi) $('optList').replaceChildren(...v.tiers.map(t => {
+    const b = el('button'); b.type = 'button'; b.className = v.tier === t.code ? 'on' : ''; b.setAttribute('aria-pressed', v.tier === t.code);
+    b.append(el('b', null, t.name), el('span', null, t.price.replace(' ', '\u00a0') + ' · ' + t.dates + '\u00a0introductions'));
+    b.onclick = async () => { if (v.tier === t.code) return; $('err2').textContent = ''; try { apply(await call('choose_tier', { tier: t.code }), 2); } catch (e) { $('err2').textContent = e.message; } };
+    return b;
+  }));
   $('signForm').hidden = !!v.signed; $('signedBox').hidden = !v.signed;
   if (v.signed) $('signedText').textContent = 'Signed by ' + v.signed.name + ' on ' + fmtDate(v.signed.at) + '. A copy of every document is in your portal.';
   if (v.voice.status === 'offered' && !v.signed) $('cVoice').checked = true;
@@ -1044,7 +1059,7 @@ function renderPortal(v) {
   } else if (pr && !pr.started) {
     c.append(el('h3', null, 'Day 1'), el('div', 'big', String(pr.days_to_start)), el('p', 'muted', (pr.days_to_start === 1 ? 'day' : 'days') + ' to go · ' + fmtDay(pr.start_date)));
   } else {
-    c.append(el('h3', null, 'Before Day 1'));
+    c.append(el('h3', null, isMM(v) && !(v.documents || []).some(d => d.kind === 'health_consent') ? 'Before we begin' : 'Before Day 1'));
     c.append(el('p', 'serif', v.payment.verified_at ? 'Preparation is under way. Up to ' + v.programme.prep_days + ' days to build your programme and tools.' : 'Preparation begins once your transfer is verified.'));
     c.lastChild.style.cssText = 'font-size:26px;line-height:1.2;margin:8px 0 14px';
     if (v.prep_due_at) c.append(el('p', 'muted small', 'Ready by ' + fmtDay(v.prep_due_at) + '. Your 90 days start on the date we agree together.'));
@@ -1052,11 +1067,12 @@ function renderPortal(v) {
   }
   // Five steps he can feel moving: enrolled, intake, protocol, tech, Day 1.
   const at = k => ORDER.indexOf(v.stage === 'paused' ? 'active' : v.stage) >= ORDER.indexOf(k);
+  const leanMM = isMM(v) && !(v.documents || []).some(d => d.kind === 'health_consent'); // matchmaking without the body programme
   const steps = isMM(v) ? [
     ['Enrolled', !!v.payment.verified_at, v.payment.verified_at ? 'Agreement signed, payment verified.' : v.payment.reported_at ? 'Your transfer is being verified.' : 'Choose, sign and transfer.'],
     ['Intake and voice', !!v.intake_submitted_at && (!!v.voice.recording || !['requested', 'payment_reported', 'paid', 'included'].includes(v.voice.status)), (v.documents || []).some(d => d.kind === 'health_consent') ? 'Mind, body and two minutes of your voice.' : 'Your intake and about two minutes of your voice.'],
-    ['Your reading', !!v.voice.report_ready || at('bot_configuration'), 'Voice results and intake reviewed together.'],
-    ['Your protocol', at('portal_ready'), 'The exact protocol we recommend, body and mind.'],
+    ['Your reading', !!v.voice.report_ready || at('bot_configuration'), leanMM ? 'Your voice analysis and intake, reviewed together in a 90-minute session.' : 'Voice results and intake reviewed together.'],
+    [leanMM ? 'Your deprogramming month' : 'Your protocol', at('portal_ready'), leanMM ? 'One objective for the month, and a follow-up session that prepares you for the search.' : 'The exact protocol we recommend, body and mind.'],
     ['The search begins', at('active'), v.progress && v.progress.start_date ? fmtDay(v.progress.start_date) + '.' : 'Introductions start on the date we agree.'],
   ] : [
     ['Enrolled', !!v.payment.verified_at, v.payment.verified_at ? 'Agreement signed, payment verified.' : v.payment.reported_at ? 'Your transfer is being verified.' : 'Sign and transfer.'],
@@ -1107,11 +1123,12 @@ function renderSystem(v) {
   const plus = (iso, d) => { const t = new Date(iso + 'T12:00:00+03:00'); t.setDate(t.getDate() + d); return t.toISOString().slice(0, 10); };
   const times = [i.morning_checkin || i.wake_time, i.evening_checkin || i.bed_time];
   const vs = v.voice.status, voiceOn = ['requested', 'payment_reported', 'paid', 'included'].includes(vs);
+  const leanMM = isMM(v) && !(v.documents || []).some(d => d.kind === 'health_consent');
   const rows = isMM(v) ? [
-    ['Voice analysis', v.voice.report_ready ? 'Report ready' : v.voice.recording ? 'Being analysed' : voiceOn ? 'Record in your portal' : 'Optional add-on', 'Two minutes of your voice, read across six chapters. Your report appears here.', !!v.voice.report_ready],
-    ['Mind and body intake', v.intake_submitted_at ? 'Received' : 'To complete', 'Mindset, movement, food, sleep and recovery. It decides the protocol we recommend.', !!v.intake_submitted_at],
-    ['Mindset review and support', at('active') ? 'Ongoing' : 'After your reading', 'Reviews at points we agree, and support through the search.', at('active')],
-    ['Your recommended protocol', at('portal_ready') ? 'Ready' : 'After your reading', 'The exact programme we recommend for your body and mind.', at('portal_ready')],
+    ['Voice analysis', v.voice.report_ready ? 'Report ready' : v.voice.recording ? 'Being analysed' : voiceOn ? 'Record in your portal' : 'Optional add-on', (leanMM ? 'About two minutes' : 'Two minutes') + ' of your voice, read across six chapters. Your report appears here.', !!v.voice.report_ready],
+    [leanMM ? 'Your intake' : 'Mind and body intake', v.intake_submitted_at ? 'Received' : 'To complete', leanMM ? 'You, your transition, your mindset and your week. It shapes your month and the search.' : 'Mindset, movement, food, sleep and recovery. It decides the protocol we recommend.', !!v.intake_submitted_at],
+    leanMM ? ['Your deprogramming month', at('portal_ready') ? 'Under way' : 'After your reading', 'One objective, agreed after your reading, closed with a follow-up session.', at('active')] : ['Mindset review and support', at('active') ? 'Ongoing' : 'After your reading', 'Reviews at points we agree, and support through the search.', at('active')],
+    ...(leanMM ? [] : [['Your recommended protocol', at('portal_ready') ? 'Ready' : 'After your reading', 'The exact programme we recommend for your body and mind.', at('portal_ready')]]),
     ['Introductions', at('active') ? 'Active' : 'From your start date', 'Every introduction is screened, identity-verified and only made with your approval.', at('active')],
     ['Notices', 'None yet', 'Updates from Maktoub appear here.', false],
   ] : [
@@ -1344,7 +1361,12 @@ $$('[data-go]').forEach(b => b.addEventListener('click', () => { const s = +b.da
 
 async function load() {
   if (!token) { gate('Please open your private link.', 'This page opens only from the private link Maktoub sent you. If you no longer have it, reply to our message and we will send it again.'); return; }
-  try { const v = await call('load'); apply(v, current === 1 && !view ? landing(v) : current); }
+  try {
+    const v = await call('load');
+    if (PREVIEW) { v.is_test = true; if (!v.signed) v.signed = { name: v.first_name + ' (preview)', at: new Date().toISOString() }; }
+    apply(v, current === 1 && !view ? landing(v) : current);
+    if (PREVIEW) $('testbar').textContent = 'Founder preview · nothing is saved';
+  }
   catch (e) { gate(e.status === 401 ? 'This link is no longer active.' : 'We could not open your protocol.', e.message); }
 }
 load();
