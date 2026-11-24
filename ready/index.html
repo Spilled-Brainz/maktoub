@@ -602,9 +602,9 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
   <section class="step" id="s3" hidden>
    <div class="wrap narrow grain">
     <div class="section-head"><p class="label">03 / Transfer</p><p class="label muted">Bank transfer</p></div>
-    <h2>Commit <span class="u">to it.<svg class="uline" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M1 12.4C30 6 64 10 99 3.6"/><path pathLength="100" d="M10 18.4C40 13.2 70 15.6 90 11.6"/></svg></span></h2>
+    <h2 id="payHead">Commit <span class="u">to it.<svg class="uline" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M1 12.4C30 6 64 10 99 3.6"/><path pathLength="100" d="M10 18.4C40 13.2 70 15.6 90 11.6"/></svg></span></h2>
     <p class="muted" style="margin-top:20px;max-width:46ch" id="payIntro"></p>
-    <div class="price"><div><p class="label muted" id="feeLabel">Programme fee</p><div class="amt" id="feeAmt"></div></div><div><p class="label muted">Payment</p><p style="margin:8px 0 0" id="feeNote">One bank transfer, verified by hand against our statement.</p></div></div>
+    <div class="price" id="feeBox"><div><p class="label muted" id="feeLabel">Programme fee</p><div class="amt" id="feeAmt"></div></div><div><p class="label muted">Payment</p><p style="margin:8px 0 0" id="feeNote">One bank transfer, verified by hand against our statement.</p></div></div>
     <div id="bankCard"><h3>Bank details</h3><dl class="bank" id="bank"></dl>
       <p class="small muted" style="margin:14px 0 0">Only transfer to this account. Maktoub will never send different bank details by message. If anything looks different, stop and contact us.</p></div>
     <div class="card" id="bankPending" hidden><p style="margin:0;font-family:var(--serif);font-size:20px">Our bank details are being confirmed. Please do not transfer yet. We will message you as soon as they are ready.</p></div>
@@ -941,9 +941,11 @@ function apply(v, goTo) {
   $('feeNote').textContent = combined ? v.programme.price + ' programme + ' + v.programme.voice_fee + ' voice analysis. One bank transfer, verified by hand.' : 'One bank transfer, verified by hand against our statement.';
   $('payIntro').textContent = (combined ? 'Transfer ' + total + ' (programme and voice analysis)' : 'Transfer the programme fee') + ' to the account below, then let us know here. Preparation begins once we have verified it.';
   $('payBtn').textContent = combined ? 'I have transferred ' + total : 'I have completed the transfer';
+  const plain = isMM(v) && !(v.documents || []).some(d => d.kind === 'health_consent'); // transfer details only, no amounts
+  if (plain) { $('payHead').textContent = 'Transfer details.'; $('feeBox').hidden = true; $('payIntro').textContent = 'Use the account below for your transfer, then let us know here.'; }
   $('bankCard').hidden = !bank; $('bankPending').hidden = !!bank;
   if (bank) {
-    const rows = [['Account name', bank.account_name], ['Bank', bank.bank_name], ['IBAN', bank.iban.replace(/(.{4})/g, '$1 ').trim(), bank.iban], ['SWIFT / BIC', bank.swift], ['Amount', total]].filter(r => r[1]);
+    const rows = [['Account name', bank.account_name], ['Bank', bank.bank_name], ['IBAN', bank.iban.replace(/(.{4})/g, '$1 ').trim(), bank.iban], ['SWIFT / BIC', bank.swift], ['Amount', plain ? null : total]].filter(r => r[1]);
     $('bank').replaceChildren(...rows.map(([k, val, raw]) => {
       const d = el('div'), dt = el('dt', null, k), dd = el('dd', k === 'IBAN' ? 'mono' : null, val), c = el('button', 'copy', 'Copy'); c.type = 'button';
       c.onclick = async () => { try { await navigator.clipboard.writeText(raw || val); c.textContent = 'Copied'; setTimeout(() => c.textContent = 'Copy', 1600); } catch (_) {} };
