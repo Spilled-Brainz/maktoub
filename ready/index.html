@@ -71,6 +71,7 @@ section.step{animation:in .4s var(--ease)}
 /* rotating quotes */
 .qrot{margin:0;flex:1 1 260px;max-width:46ch;text-align:right;min-height:64px;transition:opacity .6s var(--ease)}
 .qrot.out{opacity:0}
+.photo{margin:0;overflow:hidden;background:#1a1a1a}.photo img{width:100%;height:auto;display:block;filter:saturate(.92) contrast(1.03)}
 .hikma{text-align:center;padding-top:clamp(56px,9vw,120px);padding-bottom:clamp(64px,10vw,128px);border-top:1px solid var(--hair)}
 .hikma .ar-in{font-family:var(--arabic);font-weight:400;letter-spacing:0;text-transform:none;font-size:1.15em}
 .hikma-q{font-family:var(--arabic);font-weight:400;font-size:clamp(28px,6vw,38px);line-height:1.5;margin:0 0 6px;color:var(--ink)}
@@ -315,6 +316,10 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
     <p class="label muted">A note for you</p>
     <div class="notice" id="briefText" style="white-space:pre-line;font-family:var(--sans);font-size:19px;line-height:1.5"></div>
     <p class="label muted" id="briefBy">Deena</p>
+   </div>
+
+   <div class="wrap narrow" id="mmPhoto" hidden style="padding-top:0">
+    <figure class="photo"><img src="img/two-cups.jpg" width="653" height="377" loading="lazy" alt="Two coffees side by side, مكتوب written across them in cocoa"></figure>
    </div>
 
    <div class="night grain">
@@ -843,6 +848,7 @@ function apply(v, goTo) {
   $('voiceOpt').hidden = !docs.programme_voice || v.voice.status === 'included';
   const mm = isMM(v), vr = isVR(v);
   $('rdBody').hidden = mm || vr; $('mmBody').hidden = !mm; $('vrBody').hidden = !vr;
+  $('mmPhoto').hidden = !mm;
   document.title = (mm ? 'Private Matchmaking' : vr ? 'Voice Reading' : 'Upgrade: Mental and Physical Bootcamp') + ' | Maktoub';
   $('propLabel').textContent = mm ? 'Private proposal / Matchmaking' : vr ? 'Your Voice Reading' : 'Your Upgrade protocol';
   $('rail').querySelector('button[data-s="1"]').lastChild.textContent = mm || vr ? 'Proposal' : 'Protocol';
