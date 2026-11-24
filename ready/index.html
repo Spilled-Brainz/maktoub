@@ -89,10 +89,10 @@ section.step{animation:in .4s var(--ease)}
 .mf-rule{width:28px;height:1px;background:rgba(255,255,255,.5);margin:14px 0 0}
 .mf-tap{position:absolute;bottom:20px;font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--smoke)}
 .mback{background:#FFFFFF;color:var(--ink);transform:rotateY(180deg);text-align:center;gap:6px;padding:44px 26px 34px}
-.mb-k{position:absolute;top:18px;left:0;right:0;font-size:12px;font-weight:500;letter-spacing:.03em;color:#2A2A2A}.mb-k i{font-style:normal;margin:0 6px;opacity:.7}.mb-k span{font-family:var(--arabic);font-size:13px}
-.mb-q{font-family:var(--serif);font-style:italic;font-size:19px;line-height:1.35;letter-spacing:-.01em;max-width:30ch}
+.mb-k{position:absolute;top:14px;left:0;right:0;font-family:var(--wordmark);font-weight:700;font-size:24px;line-height:1;color:var(--ink)}
+.mb-q{font-family:var(--serif);font-style:italic;font-size:19px;line-height:1.35;letter-spacing:-.01em;max-width:30ch;text-wrap:balance}
 .mb-q.long{font-size:15px}
-.mb-q.ar,.qrot blockquote.ar{font-family:var(--arabic);font-style:normal;font-size:24px;line-height:1.6;letter-spacing:0;max-width:none}
+.mb-q.ar,.qrot blockquote.ar{font-family:var(--arabic);font-style:normal;font-size:24px;line-height:1.6;letter-spacing:0;max-width:none;text-wrap:balance}
 .mb-by.ar,.qrot figcaption.ar{font-family:var(--arabic);font-size:15px;letter-spacing:0;text-transform:none}
 .qrot blockquote.ar{font-size:19px}
 .mb-by{font-family:var(--serif);font-size:13px;color:#2A2A2A;max-width:34ch}
@@ -536,7 +536,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
         <span class="mf-tap">Tap to turn</span>
        </span>
        <span class="mface mback">
-        <span class="mb-k">maktoub.app <i>|</i> <span lang="ar">مكتوب</span></span>
+        <span class="mb-k" lang="ar">مكتوب</span>
         <span class="mb-q" id="hkText"></span>
         <span class="mb-by" id="hkBy"></span>
         <span class="mb-rule"></span>
@@ -782,7 +782,6 @@ const QUOTES = [
 // Matchmaking clients: what a good relationship does for health and wellbeing, and courage.
 const MM_QUOTES = [
   ['Good relationships keep us happier and healthier. Period.', 'Robert Waldinger, Harvard Study of Adult Development'],
-  ['It was not their cholesterol levels at 50 that predicted how they would grow old. It was how satisfied they were in their relationships.', 'Robert Waldinger, Harvard Study of Adult Development'],
   ['People with stronger social relationships had a 50% greater likelihood of survival over the study periods.', 'Science · Holt-Lunstad et al., 2010'],
   ['And of His signs is that He created for you from yourselves mates that you may find tranquillity in them; and He placed between you affection and mercy.', 'Quran 30:21'],
   ['Vulnerability is the birthplace of love, belonging, joy, courage, empathy, and creativity.', 'Brené Brown'],
@@ -811,8 +810,9 @@ function rotateQuotes(list) {
 rotateQuotes(QUOTES);
 // The Maktoub card: one wisdom a day (Riyadh date), turned over by the client.
 function hikmaCard(list) {
-  const day = Math.floor((Date.now() + 3 * 3600e3) / 86400e3), q = list[day % list.length];
-  putText($('hkText'), q[0]); $('hkText').classList.toggle('long', !isAr(q[0]) && q[0].length > 90); putText($('hkBy'), (isAr(q[1]) ? '' : '— ') + q[1]);
+  const deck = list.filter(x => !x[1].startsWith('Science')), day = Math.floor((Date.now() + 3 * 3600e3) / 86400e3), q = deck[day % deck.length];
+  const by = q[1].split(',')[0];
+  putText($('hkText'), q[0]); $('hkText').classList.toggle('long', !isAr(q[0]) && q[0].length > 90); putText($('hkBy'), (isAr(by) ? '' : '— ') + by);
 }
 $('mcard').addEventListener('click', () => { const c = $('mcard'), on = !c.classList.contains('on'); c.classList.toggle('on', on); c.setAttribute('aria-pressed', on); c.setAttribute('aria-label', on ? 'Turn your Maktoub card back' : 'Turn over your Maktoub card'); });
 
