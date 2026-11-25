@@ -72,7 +72,8 @@ section.step{animation:in .4s var(--ease)}
 /* rotating quotes */
 .qrot{margin:0;flex:1 1 260px;max-width:46ch;text-align:right;min-height:64px;transition:opacity .6s var(--ease)}
 .qrot.out{opacity:0}
-.next{text-align:center;padding-top:0;padding-bottom:clamp(64px,10vw,120px)}.next .label{margin-bottom:16px}.next .btn{display:block;text-align:center;line-height:1.5;margin:0 auto;width:100%;max-width:420px;background:var(--navy);border-color:var(--navy);color:var(--white)}.next .btn:hover:not(:disabled){background:var(--deep);border-color:var(--deep)}.next .mins{opacity:.8;font-weight:400;white-space:nowrap}.next #nextNote{margin-top:12px}
+.next{text-align:center;padding-top:0;padding-bottom:clamp(64px,10vw,120px)}.next .label{margin-bottom:16px}.next .btn{display:block;text-align:center;line-height:1.5;margin:0 auto;width:100%;max-width:420px;background:var(--navy);border-color:var(--navy);color:var(--white)}.next .btn:hover:not(:disabled){background:var(--deep);border-color:var(--deep)}.nextopts{display:grid;gap:12px;max-width:420px;margin:0 auto}.nextopts .btn{margin:0}.nextopts .btn small{display:block;font-size:11px;font-weight:400;letter-spacing:.08em;opacity:.8;margin-top:2px}.nextopts .btn.alt{background:var(--ink);border-color:var(--ink)}
+.next .mins{opacity:.8;font-weight:400;white-space:nowrap}.next #nextNote{margin-top:12px}
 .qol{margin-top:18px}.qol text{font-size:17px}.qol text.b{fill:var(--navy);font-weight:500}
 .photo{margin:0;overflow:hidden;background:#1a1a1a}.photo img{width:100%;height:auto;display:block;filter:saturate(.92) contrast(1.03)}
 .hikma{text-align:center;padding-top:clamp(56px,9vw,120px);padding-bottom:clamp(64px,10vw,128px);border-top:1px solid var(--hair)}
@@ -556,6 +557,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
    <div class="wrap narrow next" id="propNext">
     <p class="label muted">Your next step</p>
     <button type="button" class="btn" id="nextBtn">Review your agreement <span class="mins">→</span></button>
+    <div class="nextopts" id="nextOpts" hidden></div>
     <p class="muted small" id="nextNote"></p>
    </div>
   </section>
@@ -864,7 +866,7 @@ function apply(v, goTo) {
   $('voiceOpt').hidden = !docs.programme_voice || v.voice.status === 'included';
   const mm = isMM(v), vr = isVR(v);
   $('rdBody').hidden = mm || vr; $('mmBody').hidden = !mm; $('vrBody').hidden = !vr;
-  $('heroPhoto').hidden = !mm; $('heroIll').hidden = mm;
+  $('heroPhoto').hidden = !mm; $('heroIll').removeAttribute('hidden');
   document.title = (mm ? 'Private Matchmaking' : vr ? 'Voice Reading' : 'Upgrade: Mental and Physical Bootcamp') + ' | Maktoub';
   $('propLabel').textContent = mm ? 'Private proposal / Matchmaking' : vr ? 'Your Voice Reading' : 'Your Upgrade protocol';
   $('rail').querySelector('button[data-s="1"]').lastChild.textContent = mm || vr ? 'Proposal' : 'Protocol';
@@ -896,6 +898,7 @@ function apply(v, goTo) {
   }));
   if (cu.built && mm) $('mmBuilt').replaceChildren(...cu.built.map(x => el('li', null, x)));
   if (cu.notice) $('mmNotice').textContent = cu.notice;
+  if (cu.ill) { $('ill1').textContent = cu.ill[0]; $('ill2').textContent = cu.ill[1]; }
   if (cu.voice_prompt) {
     $('voiceQuote').textContent = '“' + cu.voice_prompt + '”'; $('recLen').textContent = 'About two minutes · any language'; $('recPrompts').hidden = true;
     $('recPrompts').previousElementSibling.hidden = true;
@@ -903,14 +906,15 @@ function apply(v, goTo) {
     $('recHint').textContent = REC.hint;
   }
   rotateQuotes(cu.quotes || (mm ? MM_QUOTES : QUOTES));
-  hikmaCard(cu.quotes || (mm ? MM_QUOTES : QUOTES));
+  hikmaCard(cu.card_quote ? [cu.card_quote] : cu.quotes || (mm ? MM_QUOTES : QUOTES));
   // Only the documents this programme actually uses are shown and confirmed.
   const lean = !docs.health_consent;
   document.querySelectorAll('#signForm > details').forEach(d => { const k = d.querySelector('.doc').id.replace('doc_', ''); d.hidden = !docs[k]; });
   $('lMedical').hidden = !docs.medical_disclaimer; $('lHealth').hidden = !docs.health_consent; $('lDigital').hidden = !docs.digital_consent;
   if (lean) {
     $('signIntro').textContent = cu.sign_intro || 'Please read and review the agreement.';
-    if (docs.programme_agreement) $('agreeText').replaceChildren('I have read and agree to the ' + docs.programme_agreement.title + (docs.programme_terms ? ' and the ' + docs.programme_terms.title : '') + ', including the ', Object.assign(el('span', 'price-label'), { textContent: v.programme.price }), ' fee.');
+    const ct = (v.tiers || []).length > 1 ? v.tiers.find(x => x.code === v.tier) : null;
+    if (docs.programme_agreement) $('agreeText').replaceChildren('I have read and agree to the ' + docs.programme_agreement.title + (docs.programme_terms ? ' and the ' + docs.programme_terms.title : '') + (ct ? ' for ' + (ct.cta || ct.name) : '') + ', including the ', Object.assign(el('span', 'price-label'), { textContent: v.programme.price }), ' fee.');
   }
   if (cu.bounds) $(mm ? 'mmBounds' : 'vrBounds').replaceChildren(...cu.bounds.map(x => el('li', null, x)));
 
@@ -973,6 +977,21 @@ function renderNext(v) {
   const box = $('propNext'), btn = $('nextBtn'), note = $('nextNote');
   const needsTier = v.tiers && v.tiers.length > 1 && !v.tier, t = (v.tiers || []).find(x => x.code === v.tier);
   box.hidden = false;
+  const ctas = !v.signed && (v.tiers || []).length > 1 && v.tiers.every(x => x.cta);
+  $('nextOpts').hidden = !ctas; btn.hidden = ctas;
+  if (ctas) {
+    note.textContent = '';
+    $('nextOpts').replaceChildren(...v.tiers.map((x, k) => {
+      const b = el('button', 'btn' + (k ? ' alt' : '')); b.type = 'button';
+      b.append(x.cta + ' →', el('small', null, x.price));
+      b.onclick = async () => {
+        try { if (view.tier !== x.code) apply(await call('choose_tier', { tier: x.code }), 2); else show(2); window.scrollTo(0, 0); }
+        catch (e) { note.textContent = e.message; }
+      };
+      return b;
+    }));
+    return;
+  }
   if (v.signed) { btn.firstChild.nodeValue = 'Continue '; btn.querySelector('.mins').textContent = '→'; note.textContent = 'Your agreement is signed.'; btn.onclick = () => show(maxStep(v) >= 3 && !v.payment.reported_at && !v.payment.verified_at ? 3 : 4); return; }
   btn.firstChild.nodeValue = needsTier ? 'Choose your option ' : 'Review your agreement ';
   btn.querySelector('.mins').textContent = '→';
