@@ -105,6 +105,7 @@ section.step{animation:in .4s var(--ease)}
 
 .tier .parts{display:grid;grid-template-columns:1fr auto;gap:6px 16px;margin:14px 0 4px;padding:12px 0 2px;border-top:1px solid var(--hair);font-size:14px}
 .tier .parts dt{color:var(--smoke)}
+.projfig{margin:18px 0 0;padding-top:14px;border-top:1px solid var(--hair)}.proj{width:100%;height:auto;display:block;overflow:visible}.proj text{font-family:var(--sans);font-size:13px;letter-spacing:.07em;text-transform:uppercase;fill:var(--smoke)}.proj text.p{font-size:11.5px;fill:#8a8a87}.proj text.b{fill:var(--navy);font-weight:500;font-size:12px}.proj text.m{font-size:12px}
 .optswitch{margin-top:26px}.optswitch .label{margin-bottom:10px}.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .opts button{all:unset;cursor:pointer;box-sizing:border-box;border:1px solid var(--hair);background:var(--white);padding:14px 14px 12px;display:flex;flex-direction:column;gap:4px;min-height:84px}
 .opts button b{font-weight:500;font-size:15px;line-height:1.25}.opts button span{font-size:13px;color:var(--smoke);line-height:1.35}
@@ -318,7 +319,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
         <path class="k draw" pathLength="100" d="M300 36 V266" style="stroke-dasharray:2 5;stroke-dashoffset:0;opacity:.55"/>
         <path class="s draw" pathLength="100" d="M20 214 C140 208 230 212 300 202 S 460 118 580 52" style="stroke-width:2.2"/>
         <circle class="d" cx="300" cy="202" r="6"/><circle class="f" cx="580" cy="52" r="4"/>
-        <text x="20" y="244">Today</text><text x="306" y="286" id="ill1">Day 1</text><text x="580" y="34" text-anchor="end" id="ill2">Day 90</text><text x="580" y="240" text-anchor="end">The old pattern</text>
+        <text x="20" y="244">Today</text><text x="306" y="286" id="ill1">Day 1</text><text x="580" y="34" text-anchor="end" id="ill2">Day 90</text><text x="580" y="240" text-anchor="end" id="ill3">The old pattern</text>
       </svg>
     </div>
    </div>
@@ -898,7 +899,7 @@ function apply(v, goTo) {
   }));
   if (cu.built && mm) $('mmBuilt').replaceChildren(...cu.built.map(x => el('li', null, x)));
   if (cu.notice) $('mmNotice').textContent = cu.notice;
-  if (cu.ill) { $('ill1').textContent = cu.ill[0]; $('ill2').textContent = cu.ill[1]; }
+  if (cu.ill) { $('ill1').textContent = cu.ill[0]; $('ill2').textContent = cu.ill[1]; if (cu.ill[2]) $('ill3').textContent = cu.ill[2]; }
   if (cu.voice_prompt) {
     $('voiceQuote').textContent = '“' + cu.voice_prompt + '”'; $('recLen').textContent = 'About two minutes · any language'; $('recPrompts').hidden = true;
     $('recPrompts').previousElementSibling.hidden = true;
@@ -999,6 +1000,34 @@ function renderNext(v) {
   btn.onclick = () => { if (needsTier) $('tierCards').scrollIntoView({ behavior: 'smooth', block: 'start' }); else { show(2); window.scrollTo(0, 0); } };
 }
 
+
+// Projection under an option: voice results, a reset month, then the search, month by month.
+function projection(pr) {
+  const NS = 'http://www.w3.org/2000/svg', W = 420, H = 262, X0 = 10, X1 = 410, BASE = 202, TOP = 60;
+  const n = pr.months.length, col = (X1 - X0) / n, xv = X0 + col, xr = X0 + col * 2;
+  const ease = t => 0.3 * t + 0.7 * t * t;
+  const y = x => x <= xv ? BASE - 6 * ((x - X0) / (xv - X0)) : x <= xr ? BASE - 6 - 16 * ((x - xv) / (xr - xv)) : BASE - 22 - (BASE - 22 - TOP) * ease((x - xr) / (X1 - xr));
+  const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('class', 'proj');
+  svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', `Projection: voice results in ${pr.months[0]}, a reset in ${pr.months[1]}, then ${pr.dots} introductions from ${pr.months[2]} to ${pr.months[n - 1]}.`);
+  const add = (tag, attrs, text) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (text != null) e.textContent = text; svg.append(e); return e; };
+  add('rect', { x: xv, y: 26, width: col, height: BASE + 6 - 26, fill: '#E9E9E6' });
+  add('rect', { x: xr, y: 26, width: X1 - xr, height: BASE + 6 - 26, fill: 'rgba(31,63,214,.06)' });
+  add('text', { x: xv + col / 2, y: 44, 'text-anchor': 'middle', class: 'p' }, 'Reset');
+  add('text', { x: (xr + X1) / 2, y: 44, 'text-anchor': 'middle', class: 'p' }, pr.search);
+  add('path', { d: `M${X0} ${BASE} C150 ${BASE - 1} 300 ${BASE - 2} ${X1} ${BASE - 3}`, fill: 'none', stroke: '#C6C6C2', 'stroke-width': 1.3, 'stroke-dasharray': '3 5' });
+  add('text', { x: X1 - 2, y: BASE + 20 - 2, 'text-anchor': 'end', class: 'p' }, 'Current life tempo');
+  let d = ''; for (let i = 0; i <= 80; i++) { const x = X0 + (X1 - X0) * i / 80; d += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y(x).toFixed(1); }
+  add('path', { d, fill: 'none', stroke: '#1F3FD6', 'stroke-width': 2.4, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' });
+  add('circle', { cx: xv, cy: y(xv), r: 5.5, fill: '#F4F4F2', stroke: '#1F3FD6', 'stroke-width': 2 });
+  add('text', { x: Math.max(xv, 52), y: y(xv) - 14, 'text-anchor': 'middle', class: 'b' }, 'Voice results');
+  for (let k = 0; k < pr.dots; k++) { const x = xr + (X1 - xr) * (k + 0.5) / pr.dots; add('circle', { cx: x, cy: y(x), r: 4, fill: '#1F3FD6' }); }
+  add('circle', { cx: X1, cy: TOP, r: 5, fill: '#1F3FD6' });
+  add('text', { x: X1, y: 15, 'text-anchor': 'end', class: 'b' }, 'New chapter');
+  add('path', { d: `M${X0} ${BASE + 26} H${X1}`, stroke: '#111', 'stroke-width': 1 });
+  pr.months.forEach((m, i) => add('text', { x: X0 + col * (i + 0.5), y: BASE + 46, 'text-anchor': 'middle', class: 'm' }, m));
+  const fig = el('figure', 'projfig'); fig.append(svg); return fig;
+}
+
 // ---------- matchmaking options ----------
 const TIER_POINTS = {
   standard: ['Three to four months of active matchmaking', 'Voice analysis included, with a session reviewing your results', 'Two introductions to screened, identity-verified matches, only with your approval', 'Mind and body intake, with mindset review and support'],
@@ -1015,6 +1044,7 @@ function renderTiers(v) {
     if (!t.voice_included && v.programme.voice_fee) c.append(el('p', 'muted small', 'Voice analysis + ' + v.programme.voice_fee));
     if (t.parts) { const pl = el('dl', 'parts'); t.parts.forEach(([k, m]) => { pl.append(el('dt', null, k), el('dd', null, (v.programme.currency || String(t.price).split(' ')[0]) + ' ' + (m / 100).toLocaleString('en-US'))); }); c.append(pl); }
     if (t.focus) c.append(el('p', 'focus', t.focus));
+    if (t.projection) c.append(projection(t.projection));
     const ul = el('ul', 'ticks'); (t.points || TIER_POINTS[t.code] || [t.summary]).forEach(x => ul.append(el('li', null, x))); c.append(ul);
     const b = el('button', 'btn' + (v.tier === t.code ? '' : ' ghost'), v.signed ? (v.tier === t.code ? 'Your option' : t.name) : (v.tiers.length === 1 ? 'Continue to the agreement →' : 'Choose ' + t.name + ' →')); b.type = 'button'; b.disabled = !!v.signed;
     b.onclick = async () => { $('errTier').textContent = ''; b.disabled = true; try { apply(await call('choose_tier', { tier: t.code }), 2); } catch (e) { $(errBox).textContent = e.message; } finally { b.disabled = !!view.signed; } };
