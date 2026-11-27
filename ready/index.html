@@ -612,7 +612,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
     <h2 id="payHead">Commit <span class="u">to it.<svg class="uline" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M1 12.4C30 6 64 10 99 3.6"/><path pathLength="100" d="M10 18.4C40 13.2 70 15.6 90 11.6"/></svg></span></h2>
     <p class="muted" style="margin-top:20px;max-width:46ch" id="payIntro"></p>
     <div class="price" id="feeBox"><div><p class="label muted" id="feeLabel">Programme fee</p><div class="amt" id="feeAmt"></div></div><div><p class="label muted">Payment</p><p style="margin:8px 0 0" id="feeNote">One bank transfer, verified by hand against our statement.</p></div></div>
-    <div class="optswitch" id="planBox" hidden><p class="label muted">How would you like to pay?</p><div class="opts" id="planOpts"></div><p class="muted small" id="planNote" style="margin:12px 0 0"></p></div>
+    <div class="optswitch" id="planBox" hidden><p class="label muted">How would you like to pay?</p><div class="opts" id="planOpts"></div><p class="muted small" id="planNote" style="margin:12px 0 0"></p></div><div id="planGap" style="height:28px" aria-hidden="true"></div>
     <div id="bankCard"><h3>Bank details</h3><dl class="bank" id="bank"></dl>
       <p class="small muted" style="margin:14px 0 0">Only transfer to this account. Maktoub will never send different bank details by message. If anything looks different, stop and contact us.</p></div>
     <div class="card" id="bankPending" hidden><p style="margin:0;font-family:var(--serif);font-size:20px">Our bank details are being confirmed. Please do not transfer yet. We will message you as soon as they are ready.</p></div>
@@ -968,7 +968,7 @@ function apply(v, goTo) {
   }
   // Two-transfer option: chosen here, fixed when the first transfer is reported.
   const opt = p.options;
-  $('planBox').hidden = !opt || !bank;
+  $('planBox').hidden = !opt || !bank; $('planGap').hidden = $('planBox').hidden;
   if (opt) {
     const choices = [['full', 'In full', opt.full + ' in one transfer'], ['split', 'Two transfers', opt.first + ' now, ' + opt.balance + ' ' + opt.due_label]];
     const draw = () => {
