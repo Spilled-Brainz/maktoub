@@ -104,3 +104,8 @@ Share the website event section for interest registration. Event leads appear in
 - `maktoub_intake_bookings.session_kind` is `intake` or `report_review`; `maktoub_booking_settings.review_minutes` (90) sets the length. Reviews never change the person's intake stage. One active review per person. Migration `2026-11-20-report-review-booking.sql`.
 - n8n "Maktoub — New signup Telegram alerts": Compose and Compose confirmation word reviews as a report review (copies in `supabase/n8n/`). Published 20 Nov 2026.
 - Once approved, the client's Session notes show the confirmed time and a Join button with the Meet link.
+
+## How we work together (added 28 November 2026)
+
+- Matchmaking proposals (`/ready/`, How it works) and portals show a "How we work together" section when the tier carries a `rhythm` object: `intro`, `human` (You and Deena), `tech` (Lumi and your portal), `timeline` as `[from 'YYYY-MM', to 'YYYY-MM', title, text, key?]`, and `close`. The selected tier's `rhythm` is used first, then any tier's. In the signed portal, the phase covering the current month (Riyadh time) is highlighted as Now. No function or schema change: it is plain data in `maktoub_programmes.tiers`.
+- First set on `mm-mohammed`, extended tier: December deprogramming, January to April active matchmaking, membership completes in May.

@@ -126,6 +126,8 @@ section.step{animation:in .4s var(--ease)}
 .alt-price{font-size:19px;color:#3E3B37;margin:12px 0 0}.alt-price b{font-weight:500;color:var(--ink)}
 .sys li{grid-template-columns:44px 1fr auto}.sys .chip{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--hair);padding:4px 8px;white-space:nowrap;align-self:start;margin-top:4px;color:var(--smoke)}
 .sys .chip.live{border-color:var(--navy);color:var(--navy)}
+.rhythm .who{margin-top:22px}.rhythm .who h4{margin:0 0 4px;font-size:13px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--smoke)}
+.rhythm .when{margin-top:34px}.rhythm .steps li.now{background:var(--paper-2);box-shadow:-12px 0 0 var(--paper-2),12px 0 0 var(--paper-2)}.rhythm .steps li.now .dur{color:var(--navy)}
 .cols{display:grid;grid-template-columns:1fr;gap:28px}
 .phase{border-top:1px solid var(--ink);padding-top:18px}
 .phase .ill{max-width:220px;margin:6px 0 18px}
@@ -518,6 +520,8 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
       <li><span class="label">05</span><span><b>Review</b>What you learned, what changed, what comes next.</span><span class="dur">End of term</span></li>
      </ol></div>
 
+     <div class="rule rhythm" id="mmRhythm" hidden></div>
+
      <div class="rule"><div class="cols two">
       <div><h3>Built in</h3><ul class="ticks" id="mmBuilt">
         <li>Mind and body intake, to recommend your exact protocol</li>
@@ -639,6 +643,8 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
     <div class="dash">
       <div class="tile dark" id="clock"></div>
       <div class="tile"><h3>Your path</h3><ol class="track" id="track"></ol></div>
+
+      <div class="wide rhythm" id="rhythmWrap" hidden></div>
 
       <div class="wide" id="intakeWrap">
         <div class="section-head rule" style="margin-top:40px"><h3 style="margin:0">Your intake</h3><span class="label muted" id="intakePct"></span></div>
@@ -898,6 +904,7 @@ function apply(v, goTo) {
     li.append(el('span', 'label', String(i + 1).padStart(2, '0')), b, el('span', 'dur', x[2] || '')); return li;
   }));
   if (cu.built && mm) $('mmBuilt').replaceChildren(...cu.built.map(x => el('li', null, x)));
+  if (mm) renderRhythm(v, $('mmRhythm'));
   if (cu.notice) $('mmNotice').textContent = cu.notice;
   if (cu.ill) { $('ill1').textContent = cu.ill[0]; $('ill2').textContent = cu.ill[1]; if (cu.ill[2]) $('ill3').textContent = cu.ill[2]; }
   if (cu.voice_prompt) {
@@ -1148,6 +1155,7 @@ function renderPortal(v) {
   else if (v.stage === 'completed') next = 'Ninety days, done. Keep running the system.';
   else next = 'Your programme is being prepared. We will confirm your start date with you.';
   $('nextStep').textContent = next;
+  renderRhythm(v, $('rhythmWrap'));
   renderSystem(v);
   renderIntake(v);
   renderMedical(v);
@@ -1165,6 +1173,41 @@ function renderPortal(v) {
     pbtn.onclick = () => { a.classList.add('printing'); window.print(); a.classList.remove('printing'); };
     a.append(head, meta, pbtn); return a;
   }));
+}
+
+// ---------- how we work together: the human rhythm, the tech, the months ----------
+// Content lives on the tier as `rhythm` (selected tier first, then the custom tier):
+// { intro, human: [..], tech: [..], timeline: [[from 'YYYY-MM', to 'YYYY-MM', title, text, key?]], close }
+function rhythmOf(v) {
+  const ts = v.tiers || [], sel = ts.find(t => t.code === v.tier);
+  return (sel && sel.rhythm) || (ts.find(t => t.rhythm) || {}).rhythm || null;
+}
+function renderRhythm(v, box) {
+  const r = rhythmOf(v); box.hidden = !r; if (!r) return;
+  const head = el('div', 'section-head'); head.append(el('h3', null, 'How we work together')); head.firstChild.style.margin = '0';
+  const kids = [head];
+  if (r.intro) { const p = el('p', 'muted', r.intro); p.style.maxWidth = '56ch'; kids.push(p); }
+  const cols = el('div', 'cols two');
+  [['You and Deena', r.human], ['Lumi and your portal', r.tech]].forEach(([t, xs]) => {
+    if (!xs || !xs.length) return;
+    const d = el('div', 'who'); d.append(el('h4', null, t)); const ul = el('ul', 'ticks'); xs.forEach(x => ul.append(el('li', null, x))); d.append(ul); cols.append(d);
+  });
+  kids.push(cols);
+  if (r.timeline && r.timeline.length) {
+    const w = el('div', 'when'); w.append(el('h4', null, 'Your months')); w.firstChild.style.cssText = 'margin:0 0 10px;font-size:13px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--smoke)';
+    const ym = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Riyadh' }).slice(0, 7);
+    const mon = s => new Date(s + '-15T12:00:00Z').toLocaleDateString('en-GB', { month: 'short', timeZone: 'UTC' });
+    const ol = el('ol', 'steps');
+    r.timeline.forEach(([from, to, title, text, key], i) => {
+      const now = !!v.signed && ym >= from && ym <= (to || from);
+      const li = el('li', [key ? 'key' : '', now ? 'now' : ''].join(' ').trim() || null), b = el('span'); b.append(el('b', null, title), text || '');
+      li.append(el('span', 'label', String(i + 1).padStart(2, '0')), b, el('span', 'dur', (now ? 'Now · ' : '') + (to && to !== from ? mon(from) + ' – ' + mon(to) : mon(from))));
+      ol.append(li);
+    });
+    w.append(ol); kids.push(w);
+  }
+  if (r.close) { const p = el('p', 'notice', r.close); p.style.marginBottom = '0'; kids.push(p); }
+  box.replaceChildren(...kids);
 }
 
 // ---------- your system: automations, check-ins, reviews, notices ----------
