@@ -117,5 +117,6 @@ Share the website event section for interest registration. Event leads appear in
 - Portal shows "Your second transfer" with bank details and an "I have transferred" button. Founder alert on report, with a Verify button on Telegram (callback `b:`/`bb:`); the console shows "Verify 2nd transfer", or "2nd transfer due" once the due date passes; `/readiness` flags it too.
 - Agreement: `{{FEE}}` spells out both options and that introductions begin once the second transfer is received. mm-mohammed now uses `MM-AGREEMENT-MA-2026-11-v9` (v8 with clause 9 updated for two transfers).
 - Not enforced by the system: the console does not block activation before the balance is paid. Introductions waiting for the second transfer is a founder rule.
-- First set on mm-mohammed, extended tier: SAR 5,000 after signing, SAR 5,000 due 1 January 2027.
+- First set on mm-mohammed, extended tier: SAR 5,000 after signing, SAR 5,000 due 1 January 2027. Paying in full is pre-selected and shown as the recommended card; two transfers is a quieter secondary choice.
+- 28 Nov 2026: mm-mohammed now offers only the extended option (SAR 10,000); the standard tier's custom proposal content was merged into it, his enrolment moved to extended, and the agreement is `MM-AGREEMENT-MA-2026-11-v10` (v9 with the standard option removed).
 - `maktoub-programme` v8 deployed 28 Nov 2026 (also ships the assessments code that was waiting for a redeploy).

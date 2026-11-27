@@ -126,6 +126,12 @@ section.step{animation:in .4s var(--ease)}
 .alt-price{font-size:19px;color:#3E3B37;margin:12px 0 0}.alt-price b{font-weight:500;color:var(--ink)}
 .sys li{grid-template-columns:44px 1fr auto}.sys .chip{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--hair);padding:4px 8px;white-space:nowrap;align-self:start;margin-top:4px;color:var(--smoke)}
 .sys .chip.live{border-color:var(--navy);color:var(--navy)}
+.plan{display:grid;gap:10px}.plan button{all:unset;cursor:pointer;box-sizing:border-box;display:block;border:1px solid var(--hair);background:var(--white);padding:16px 16px 14px}
+.plan button:focus-visible{outline:2px solid var(--navy);outline-offset:2px}.plan .tag{display:inline-block;font-size:10.5px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--navy);margin-bottom:8px}
+.plan .full .row{display:flex;justify-content:space-between;align-items:baseline;gap:12px}.plan .full b{font-weight:500;font-size:19px}.plan .full .amt2{font-size:22px;letter-spacing:-.01em}
+.plan .full p{margin:8px 0 0;font-size:14px;line-height:1.45;color:#3E3B37}.plan button.on{border:1.5px solid var(--navy);box-shadow:inset 0 0 0 1px var(--navy)}
+.plan .split{padding:11px 16px;border-color:transparent;background:transparent;font-size:13.5px;line-height:1.45;color:var(--smoke)}.plan .split b{font-weight:500;color:var(--ink)}
+.plan .split.on{background:var(--white)}
 .rhythm .who{margin-top:22px}.rhythm .who h4{margin:0 0 4px;font-size:13px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--smoke)}
 .rhythm .when{margin-top:34px}.rhythm .steps li.now{background:var(--paper-2);box-shadow:-12px 0 0 var(--paper-2),12px 0 0 var(--paper-2)}.rhythm .steps li.now .dur{color:var(--navy)}
 .cols{display:grid;grid-template-columns:1fr;gap:28px}
@@ -612,7 +618,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
     <h2 id="payHead">Commit <span class="u">to it.<svg class="uline" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M1 12.4C30 6 64 10 99 3.6"/><path pathLength="100" d="M10 18.4C40 13.2 70 15.6 90 11.6"/></svg></span></h2>
     <p class="muted" style="margin-top:20px;max-width:46ch" id="payIntro"></p>
     <div class="price" id="feeBox"><div><p class="label muted" id="feeLabel">Programme fee</p><div class="amt" id="feeAmt"></div></div><div><p class="label muted">Payment</p><p style="margin:8px 0 0" id="feeNote">One bank transfer, verified by hand against our statement.</p></div></div>
-    <div class="optswitch" id="planBox" hidden><p class="label muted">How would you like to pay?</p><div class="opts" id="planOpts"></div><p class="muted small" id="planNote" style="margin:12px 0 0"></p></div><div id="planGap" style="height:28px" aria-hidden="true"></div>
+    <div class="optswitch" id="planBox" hidden><p class="label muted">Your payment</p><div class="plan" id="planOpts"></div><p class="muted small" id="planNote" style="margin:12px 0 0"></p></div><div id="planGap" style="height:28px" aria-hidden="true"></div>
     <div id="bankCard"><h3>Bank details</h3><dl class="bank" id="bank"></dl>
       <p class="small muted" style="margin:14px 0 0">Only transfer to this account. Maktoub will never send different bank details by message. If anything looks different, stop and contact us.</p></div>
     <div class="card" id="bankPending" hidden><p style="margin:0;font-family:var(--serif);font-size:20px">Our bank details are being confirmed. Please do not transfer yet. We will message you as soon as they are ready.</p></div>
@@ -970,17 +976,22 @@ function apply(v, goTo) {
   const opt = p.options;
   $('planBox').hidden = !opt || !bank; $('planGap').hidden = $('planBox').hidden;
   if (opt) {
-    const choices = [['full', 'In full', opt.full + ' in one transfer'], ['split', 'Two transfers', opt.first + ' now, ' + opt.balance + ' ' + opt.due_label]];
+    // Paying in full is the default and the easy path; two transfers stays available, quietly.
+    if (!payPlan) payPlan = 'full';
     const draw = () => {
-      $('planOpts').replaceChildren(...choices.map(([k, t, d]) => {
-        const b = el('button'); b.type = 'button'; b.className = payPlan === k ? 'on' : ''; b.setAttribute('aria-pressed', payPlan === k);
-        b.append(el('b', null, t), el('span', null, d)); b.onclick = () => { payPlan = k; draw(); }; return b;
-      }));
+      const full = el('button', 'full' + (payPlan === 'full' ? ' on' : '')); full.type = 'button'; full.setAttribute('aria-pressed', payPlan === 'full');
+      const row = el('div', 'row'); row.append(el('b', null, 'In full'), el('span', 'amt2', opt.full));
+      full.append(el('span', 'tag', 'Recommended'), row, el('p', null, 'One transfer, and it is done. Your membership is settled from day one, and nothing stands between you and your first introduction.'));
+      full.onclick = () => { payPlan = 'full'; draw(); };
+      const split = el('button', 'split' + (payPlan === 'split' ? ' on' : '')); split.type = 'button'; split.setAttribute('aria-pressed', payPlan === 'split');
+      split.append(el('b', null, 'Or two transfers: '), opt.first + ' now and ' + opt.balance + ' ' + opt.due_label + '. Introductions begin once the second is received.');
+      split.onclick = () => { payPlan = 'split'; draw(); };
+      $('planOpts').replaceChildren(full, split);
       const amtRow = [...$('bank').children].find(d => d.firstChild.textContent === 'Amount');
       const now = payPlan === 'split' ? opt.first : payPlan === 'full' ? opt.full : null;
       if (amtRow) amtRow.hidden = !now; if (amtRow && now) amtRow.children[1].textContent = now;
       else if (!amtRow && now && $('bank').lastChild) { const d = el('div'), c = el('button', 'copy', 'Copy'); c.type = 'button'; c.onclick = () => navigator.clipboard.writeText(d.children[1].textContent).catch(() => {}); d.append(el('dt', null, 'Amount'), el('dd', null, now), c); $('bank').append(d); }
-      $('planNote').textContent = payPlan === 'split' ? 'Your second transfer appears in your portal when it is due. Introductions begin once it is received.' : '';
+      $('planNote').textContent = payPlan === 'split' ? 'Your second transfer will be waiting in your portal, with the same bank details.' : '';
       $('payBtn').textContent = now ? 'I have transferred ' + now : 'I have completed the transfer';
       totalLabel = now || totalLabel; combinedTransfer = combinedTransfer && !now;
     };
