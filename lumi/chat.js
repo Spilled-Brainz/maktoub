@@ -22,9 +22,10 @@ window.MaktoubChat = function (opts) {
   const S = { threads: [], current: null, busy: false };
 
   const scroll = () => { log.scrollTop = log.scrollHeight; };
-  const add = (role, text) => {
-    const m = el('div', 'c-msg ' + role), b = el('div', 'c-bubble');
+  const add = (role, text, who) => {
+    const m = el('div', 'c-msg ' + role + (who ? ' by-' + who : '')), b = el('div', 'c-bubble');
     if (role === 'assistant') render(b, text); else { b.textContent = text; b.dir = 'auto'; }
+    if (who && opts.speaker) m.append(el('span', 'c-who', opts.speaker(who)));
     m.append(b); col.append(m); return b;
   };
 
@@ -48,6 +49,7 @@ window.MaktoubChat = function (opts) {
     const [chip, title] = opts.label(t);
     const h = $('title'); h.textContent = ''; h.append(el('span', 'c-chip', chip), document.createTextNode(title));
     $('meta').textContent = t.context_read_at ? 'Context read ' + when(t.context_read_at) : '';
+    $('del').hidden = !!(opts.canDelete && !opts.canDelete(t));
   }
 
   function showEmpty() {
@@ -67,10 +69,14 @@ window.MaktoubChat = function (opts) {
   async function open(id) {
     const j = await opts.call('get', { thread_id: id });
     S.current = { ...(S.threads.find(t => t.id === id) || {}), ...j.thread };
+    opts.onOpen && opts.onOpen(S.current);
     paintThreads(); paintHead();
     col.textContent = '';
-    if (!j.messages.length) showEmpty(); else j.messages.forEach(m => add(m.role, m.text));
-    form.hidden = false; input.focus({ preventScroll: true }); scroll();
+    if (!j.messages.length) showEmpty(); else j.messages.forEach(m => add(m.role, m.text, m.speaker));
+    const ro = !!(opts.readOnly && opts.readOnly(S.current));
+    form.hidden = ro; $('ro').hidden = !ro;
+    if (!ro) input.focus({ preventScroll: true });
+    scroll();
   }
 
   async function start(extra) {
@@ -127,11 +133,13 @@ window.MaktoubChat = function (opts) {
     if (!S.current || !confirm('Delete this conversation permanently? This cannot be undone.')) return;
     await opts.call('delete', { thread_id: S.current.id });
     S.threads = S.threads.filter(t => t.id !== S.current.id); S.current = null;
-    paintThreads(); paintHead(); form.hidden = true; col.textContent = ''; opts.idle && opts.idle(col);
+    paintThreads(); paintHead(); form.hidden = true; $('ro').hidden = true; col.textContent = ''; opts.idle && opts.idle(col);
   };
   $('menu').onclick = () => $('side').classList.toggle('open');
 
-  return { refresh, open, start, state: S, idle: () => { form.hidden = true; col.textContent = ''; opts.idle && opts.idle(col); } };
+  // Clears the conversation area so a page can show something else there (the founder's check-ins).
+  const clear = () => { S.current = null; paintThreads(); paintHead(); form.hidden = true; $('ro').hidden = true; col.textContent = ''; return col; };
+  return { refresh, open, start, clear, state: S, idle: () => { clear(); opts.idle && opts.idle(col); } };
 };
 window.MaktoubChat.el = el;
 })();

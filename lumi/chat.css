@@ -50,6 +50,11 @@ button{cursor:pointer}
 .c-msg.assistant .c-bubble p{margin:0 0 .85em}
 .c-msg.assistant .c-bubble p:last-child{margin-bottom:0}
 .c-bubble[dir=rtl],.c-bubble:lang(ar){font-family:var(--arabic);font-size:17px;line-height:1.9}
+.c-who{display:block;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
+.c-msg.user .c-who{text-align:right;margin-right:2px}
+.c-msg.user{flex-direction:column;align-items:flex-end}
+.c-msg.user.by-founder .c-bubble{background:var(--paper-2)}
+.c-ro{max-width:720px;margin:0 auto;text-align:center;font-size:13px;color:var(--muted)}
 .c-msg.note .c-bubble{font-size:13px;color:var(--muted);font-family:var(--sans);text-align:center;border-top:1px solid var(--line);padding-top:10px}
 .c-msg.err .c-bubble{color:var(--err);font-family:var(--sans);font-size:14px}
 .c-wait{display:inline-block;width:42px;height:10px;background:radial-gradient(circle,var(--navy) 2.5px,transparent 3px) 0 50%/14px 10px repeat-x;opacity:.5;animation:c-breathe 1.6s ease-in-out infinite}
@@ -91,3 +96,44 @@ button{cursor:pointer}
   .c-compose{padding:12px 16px 14px}
   .c-msg.assistant .c-bubble{font-size:17.5px}
 }
+@media (max-width:560px){
+  .c-top .c-links a{display:none}
+}
+
+/* Telegram and sharing panel (client) */
+.c-tg{border-top:1px solid var(--line);padding:14px;display:grid;gap:10px;font-size:13.5px;line-height:1.5}
+.c-tg h3{margin:0;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.c-tg p{margin:0;color:var(--muted)}
+.c-tg .c-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.c-tg input[type=time]{border:1px solid var(--line);background:var(--white);padding:5px 8px;font-size:14px}
+.c-tg label{display:flex;gap:8px;align-items:flex-start;cursor:pointer}
+.c-tg input[type=checkbox]{margin-top:3px;accent-color:var(--navy)}
+.c-link{background:none;border:0;padding:0;color:var(--muted);text-decoration:underline;font-size:12.5px;justify-self:start}
+
+/* Founder check-ins overview */
+.c-ov{max-width:900px;margin:0 auto}
+.c-ov h2{font-family:var(--serif);font-weight:400;font-size:clamp(28px,3.6vw,38px);margin:0 0 6px}
+.c-ov > p{color:var(--muted);margin:0 0 22px}
+.c-client{background:var(--white);border:1px solid var(--line);padding:18px 18px 14px;margin:0 0 18px}
+.c-client header{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin:0 0 10px}
+.c-client header b{font-size:17px;font-weight:500}
+.c-tags{display:flex;gap:6px;flex-wrap:wrap}
+.c-tag{font-size:10px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line);padding:2px 6px;color:var(--muted)}
+.c-tag.on{border-color:var(--navy);color:var(--navy)}
+.c-tag.warn{border-color:#8a5a00;color:#8a5a00}
+.c-scroll{overflow-x:auto;margin:0 -4px}
+.c-table{border-collapse:collapse;width:100%;font-size:13px;min-width:560px}
+.c-table th{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left;padding:6px 4px;border-bottom:1px solid var(--ink)}
+.c-table td{padding:7px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+.c-table td.n{text-align:center;font-variant-numeric:tabular-nums}
+.c-client h4{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:16px 0 6px;font-weight:600}
+.c-client blockquote{margin:0 0 8px;padding-left:12px;border-left:2px solid var(--line);font-family:var(--serif);font-size:16.5px}
+.c-client .c-note{margin:0 0 6px;font-size:14px}
+.c-client .c-note.urgent{color:var(--err)}
+.c-client .c-week{font-family:var(--serif);font-size:16.5px;line-height:1.55;margin:0 0 10px}
+.c-client .c-week small{display:block;font-family:var(--sans);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.c-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;align-items:center}
+.c-actions .c-btn{padding:8px 12px}
+.c-help{font-size:12.5px;color:var(--muted);margin:10px 0 0}
+.c-conv{border-top:1px solid var(--line);margin-top:14px;padding-top:14px}
+.c-conv h5{margin:0 0 10px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}

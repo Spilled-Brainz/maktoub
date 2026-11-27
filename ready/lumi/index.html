@@ -32,7 +32,21 @@
   <aside class="c-side" id="side">
     <div class="c-new"><button class="c-btn" id="newThread" type="button">New conversation</button></div>
     <div class="c-threads" id="threads"></div>
-    <div class="c-side-foot">Only you can read these conversations. Delete any of them at any time.</div>
+    <div class="c-tg" id="tg" hidden>
+      <h3>Telegram</h3>
+      <div id="tgOff" hidden>
+        <p>Talk to Lumi in Telegram too, with a gentle check-in each evening.</p>
+        <button class="c-btn ghost" id="tgConnect" type="button" style="margin-top:10px;width:100%">Connect Telegram</button>
+      </div>
+      <div id="tgOn" hidden>
+        <p id="tgWho"></p>
+        <div class="c-row" style="margin-top:8px"><span>Evening check-in</span><input type="time" id="tgTime" step="900" aria-label="Evening check-in time"></div>
+        <label style="margin-top:8px"><input type="checkbox" id="tgNudges"> <span>Daily check-ins and the occasional note</span></label>
+        <button class="c-link" id="tgUnlink" type="button" style="margin-top:8px">Disconnect Telegram</button>
+      </div>
+      <label><input type="checkbox" id="share"> <span>Let the Maktoub team read my Lumi conversations. They always see your check-ins.</span></label>
+    </div>
+    <div class="c-side-foot">Your conversations are yours. Delete any of them at any time.</div>
   </aside>
   <main class="c-main">
     <div class="c-head" id="head" hidden>
@@ -41,6 +55,7 @@
     </div>
     <div class="c-log" id="log"><div class="c-col" id="col"></div></div>
     <div class="c-compose">
+      <p class="c-ro" id="ro" hidden>This conversation continues in Telegram.</p>
       <form id="form" hidden><textarea id="input" rows="1" placeholder="What’s on your mind?" aria-label="Message" maxlength="8000"></textarea><button class="c-btn" id="sendBtn">Send</button></form>
       <p class="c-hint">Lumi is an AI, not a doctor or therapist. In an emergency call 911.</p>
     </div>
@@ -73,16 +88,42 @@ async function call(action, extra) {
 const stop = (title, msg) => { $('stopTitle').textContent = title; $('stopMsg').textContent = msg; $('stop').hidden = false; $('gate').hidden = true; $('app').hidden = true; };
 
 let first = '';
+const ROOM = { telegram: 'Telegram', group: 'Group', self: 'Private' };
 const chat = MaktoubChat({
   call, post,
-  label: t => ['Private', t.title],
+  label: t => [ROOM[t.room] || 'Private', t.title],
+  readOnly: t => t.room === 'telegram' || t.room === 'group',
+  canDelete: t => t.room !== 'group',
+  speaker: who => who === 'founder' ? 'Maktoub' : (first || 'You'),
   empty: () => ({ title: first ? `Hello, ${first}.` : 'Hello.', body: ['Ask about your report, talk through your week, or say what you have not said out loud yet.', 'It knows your programme and your published report, nothing more.'] }),
   idle: col => { const e = el('div', 'c-empty'); e.append(el('h2', null, first ? `Hello, ${first}.` : 'Hello.'), el('p', null, 'Start a conversation whenever you are ready.')); col.append(e); },
 });
 $('newThread').onclick = () => chat.start({}).catch(e => alert(e.message));
 
+// ---------- Telegram and sharing ----------
+function paintTelegram(s) {
+  if (!s) return;
+  $('tg').hidden = false;
+  $('tgOff').hidden = !s.available || s.linked; $('tgOn').hidden = !s.linked;
+  $('tgWho').textContent = 'Connected' + (s.username ? ' as @' + s.username : '') + (s.group ? ', plus your group with the team.' : '.');
+  $('tgTime').value = s.nudge_time || '21:00'; $('tgNudges').checked = !!s.nudges_on; $('share').checked = !!s.share;
+}
+const prefs = async extra => { try { paintTelegram((await call('prefs', extra)).telegram); } catch (e) { alert(e.message); } };
+$('share').onchange = e => prefs({ share: e.target.checked });
+$('tgNudges').onchange = e => prefs({ nudges_on: e.target.checked });
+$('tgTime').onchange = e => { if (/^\d\d:\d\d$/.test(e.target.value)) prefs({ nudge_time: e.target.value }); };
+$('tgUnlink').onclick = async () => { if (!confirm('Disconnect Telegram? You can reconnect any time.')) return; try { paintTelegram((await call('tg_unlink')).telegram); } catch (e) { alert(e.message); } };
+$('tgConnect').onclick = async () => {
+  const win = window.open('', '_blank');
+  try { const { url } = await call('tg_link'); if (win) win.location.href = url; else location.href = url; }
+  catch (e) { if (win) win.close(); alert(e.message); }
+};
+// Coming back from Telegram: refresh the panel so it shows the connection.
+document.addEventListener('visibilitychange', async () => { if (!document.hidden && !$('app').hidden) { try { paintTelegram((await call('load')).telegram); } catch (_) {} } });
+
 async function enter() {
   const j = await chat.refresh();
+  paintTelegram(j.telegram);
   $('gate').hidden = true; $('app').hidden = false;
   if (j.threads.length) await chat.open(j.threads[0].id); else await chat.start({});
 }

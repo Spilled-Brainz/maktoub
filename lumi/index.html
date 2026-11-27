@@ -30,10 +30,12 @@
   <aside class="c-side" id="side">
     <div class="c-new">
       <button class="c-btn" id="newPrivate" type="button">New private conversation</button>
+      <button class="c-btn ghost" id="showCheckins" type="button">Client check-ins</button>
       <select id="client" aria-label="Choose a client"><option value="">Think about a client…</option></select>
       <button class="c-btn ghost" id="newClient" type="button" disabled>Open with their record</button>
     </div>
     <div class="c-threads" id="threads"></div>
+    <div class="c-side-foot" id="botBox" hidden></div>
     <div class="c-side-foot">Private rooms carry no client data. A client room reads that client’s record once, without name, email, phone or birth date, and notes the read in their audit trail.</div>
   </aside>
   <main class="c-main">
@@ -43,6 +45,7 @@
     </div>
     <div class="c-log" id="log"><div class="c-col" id="col"></div></div>
     <div class="c-compose">
+      <p class="c-ro" id="ro" hidden>Read only.</p>
       <form id="form" hidden><textarea id="input" rows="1" placeholder="Think out loud…" aria-label="Message" maxlength="8000"></textarea><button class="c-btn" id="sendBtn">Send</button></form>
       <p class="c-hint" id="hint"></p>
     </div>
@@ -78,9 +81,11 @@ async function call(action, extra) {
 function signOut() { sessionStorage.removeItem('maktoub_session'); session = null; $('app').hidden = true; $('links').hidden = true; $('auth').hidden = false; }
 
 const nameOf = id => (clients.find(c => c.id === id) || {}).name || 'Client';
+let bot = null;
 const chat = MaktoubChat({
   call, post,
   label: t => t.room === 'client' ? ['Client', t.title] : ['Private', t.title],
+  onOpen: () => { if (location.hash) history.replaceState(null, '', location.pathname); },
   empty: t => t.room === 'client'
     ? { title: 'Their record is here.', body: ['Intake in their own words, the voice report as it stands, assessment scores and your private note. Identifiers removed.', 'Ask what you see, what you sense, how to hold the next session.'] }
     : { title: 'Just you.', body: 'No client record is attached to this room. Think out loud.' },
@@ -99,6 +104,83 @@ $('newClient').onclick = () => {
 };
 $('signOut').onclick = signOut;
 
+// ---------- client check-ins (and conversations they chose to share) ----------
+const fmtDay = d => new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
+const dash = v => v === null || v === undefined || v === '' ? '·' : String(v);
+const tag = (txt, cls) => el('span', 'c-tag' + (cls ? ' ' + cls : ''), txt);
+async function showCheckins() {
+  history.replaceState(null, '', '#checkins');
+  const col = chat.clear(); $('side').classList.remove('open');
+  const box = el('div', 'c-ov'); col.append(box);
+  box.append(el('h2', null, 'Check-ins'), el('p', null, 'What clients have told Lumi, as Lumi recorded it. Conversations appear only for clients who chose to share them; the group is always here.'));
+  let j; try { j = await call('checkins'); } catch (e) { box.append(el('p', null, e.message)); return; }
+  if (!j.clients.length) { box.append(el('p', null, 'No client has connected Lumi yet. Each client connects from the Lumi page in their portal.')); return; }
+  for (const c of j.clients) {
+    const card = el('section', 'c-client'), head = el('header'), tags = el('div', 'c-tags');
+    head.append(el('b', null, `${c.name} · ${c.reference}${c.test ? ' · TEST' : ''}`), tags);
+    tags.append(tag(c.stage.replace(/_/g, ' ')), tag(c.telegram ? 'Telegram' : 'no Telegram', c.telegram ? 'on' : ''), tag(c.group ? 'group' : 'no group', c.group ? 'on' : ''), tag(c.share ? 'sharing on' : 'private', c.share ? 'on' : ''));
+    if (c.telegram && c.nudges_on === false) tags.append(tag('paused', 'warn'));
+    card.append(head);
+    if (c.checkins.length) {
+      const wrap = el('div', 'c-scroll'), t = el('table', 'c-table'), hr = el('tr');
+      ['Day', 'Sleep', 'Trained', 'Food', 'Energy', 'Mood', 'Stress', 'Protocol', 'On their mind'].forEach(h => hr.append(el('th', null, h)));
+      const th = el('thead'); th.append(hr); t.append(th);
+      const tb = el('tbody'); t.append(tb);
+      for (const k of c.checkins) {
+        const tr = el('tr');
+        tr.append(el('td', null, fmtDay(k.day)), el('td', 'n', k.sleep_hours != null ? k.sleep_hours + 'h' + (k.sleep_quality ? ' · ' + k.sleep_quality : '') : '·'),
+          el('td', 'n', k.trained === true ? '✓' : k.trained === false ? '✗' : '·'), el('td', 'n', dash(k.nutrition && k.nutrition.replace('_', ' '))),
+          el('td', 'n', dash(k.energy)), el('td', 'n', dash(k.mood)), el('td', 'n', dash(k.stress)), el('td', 'n', dash(k.protocol_done)),
+          el('td', null, [k.on_mind, k.protocol_note, k.movement, k.nutrition_note].filter(Boolean).join(' · ') || '·'));
+        tb.append(tr);
+      }
+      wrap.append(t); card.append(wrap);
+    } else card.append(el('p', 'c-help', 'No check-ins in the last two weeks.'));
+    if (c.notes.length) { card.append(el('h4', null, 'Passed on and flagged')); c.notes.forEach(n => card.append(el('p', 'c-note' + (n.urgent ? ' urgent' : ''), (n.urgent ? 'Flagged: ' : '') + n.note + ' · ' + new Date(n.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })))); }
+    if (c.wins.length) { card.append(el('h4', null, 'Wins, in their words')); c.wins.forEach(w => card.append(el('blockquote', null, w.quote))); }
+    if (c.weekly.length) { card.append(el('h4', null, 'Weekly summaries they approved')); c.weekly.forEach(w => { const p = el('div', 'c-week'); p.append(el('small', null, fmtDay(w.week_start) + ' – ' + fmtDay(w.week_end)), document.createTextNode(w.summary)); card.append(p); }); }
+    const acts = el('div', 'c-actions');
+    const think = el('button', 'c-btn ghost', 'Think about them with Lumi'); think.type = 'button';
+    think.onclick = () => { if (confirm(`Open a conversation with ${c.name}’s record? The read is noted in their audit trail.`)) chat.start({ room: 'client', enrolment_id: c.id }).catch(e => alert(e.message)); };
+    acts.append(think);
+    if (c.share || c.group) {
+      const read = el('button', 'c-btn ghost', c.share ? 'Read their conversations' : 'Read the group'); read.type = 'button';
+      read.onclick = () => readConversations(c, card, read);
+      acts.append(read);
+    }
+    card.append(acts);
+    if (!c.group && c.telegram && bot && bot.username) card.append(el('p', 'c-help', `To open a group: create a Telegram group with ${c.name}, add @${bot.username}, then send /link ${c.reference} in the group.`));
+    box.append(card);
+  }
+}
+async function readConversations(c, card, btn) {
+  btn.disabled = true;
+  try {
+    const j = await call('client_conversations', { enrolment_id: c.id });
+    const wrap = el('div', 'c-conv');
+    if (!j.threads.length) wrap.append(el('p', 'c-help', 'Nothing here yet.'));
+    for (const t of j.threads) {
+      wrap.append(el('h5', null, t.title));
+      for (const m of t.messages) {
+        const who = m.role === 'assistant' ? 'Lumi' : m.speaker === 'founder' ? 'You' : c.name.split(' ')[0];
+        const p = el('p', 'c-note'); p.append(el('b', null, who + ': '), document.createTextNode(m.text)); wrap.append(p);
+      }
+    }
+    card.append(wrap); btn.remove();
+  } catch (e) { alert(e.message); btn.disabled = false; }
+}
+$('showCheckins').onclick = () => showCheckins();
+
+function paintBot(b) {
+  bot = b; const box = $('botBox'); box.textContent = ''; box.hidden = false;
+  if (!b || !b.configured) { box.append(document.createTextNode('Telegram: add the bot token as the edge-function secret MAKTOUB_LUMI_BOT_TOKEN to let clients talk to Lumi there.')); return; }
+  if (b.connected) { box.append(document.createTextNode(`Telegram: @${b.username} is connected.${b.founder_bot ? '' : ' Your founder bot is missing, so the 22:00 digest cannot be sent.'}`)); return; }
+  box.append(document.createTextNode(`Telegram: @${b.username || 'the Lumi bot'} is not connected yet. `));
+  const btn = el('button', 'c-link', 'Connect it now'); btn.type = 'button';
+  btn.onclick = async () => { btn.disabled = true; try { await call('connect_bot'); paintBot({ ...b, connected: true }); } catch (e) { alert(e.message); btn.disabled = false; } };
+  box.append(btn);
+}
+
 async function start() {
   const j = await chat.refresh();
   clients = j.clients || [];
@@ -106,7 +188,9 @@ async function start() {
   for (const c of clients) sel.append(new Option(`${c.name} · ${c.reference}${c.test ? ' · TEST' : ''}`, c.id));
   $('hint').textContent = j.connected ? 'Replies come from Claude through Maktoub’s own server. Nothing is shared elsewhere.' : 'Lumi is not connected yet: add the Anthropic API key to the edge function secrets.';
   $('auth').hidden = true; $('app').hidden = false; $('links').hidden = false;
-  if (j.threads.length) await chat.open(j.threads[0].id); else chat.idle();
+  paintBot(j.bot);
+  if (location.hash === '#checkins') await showCheckins();
+  else if (j.threads.length) await chat.open(j.threads[0].id); else chat.idle();
 }
 
 $('signin').onsubmit = async e => {
