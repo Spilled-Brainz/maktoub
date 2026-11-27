@@ -141,6 +141,10 @@ function needs(r) {
   if (r.revoked_at || ['completed', 'cancelled'].includes(r.stage)) return n;
   if (r.payment_reported_at && !r.payment_verified_at) n.push(['Verify transfer', 'var(--warn)']);
   if (r.voice_addon_status === 'payment_reported') n.push(['Verify voice payment', 'var(--warn)']);
+  if (r.payment_plan === 'split' && r.payment_verified_at && !r.balance_verified_at) {
+    if (r.balance_reported_at) n.push(['Verify 2nd transfer', 'var(--warn)']);
+    else if (r.balance_due_on && r.balance_due_on <= today) n.push(['2nd transfer due', 'var(--err)']);
+  }
   if (r.signed_at && !r.payment_reported_at && Date.now() - Date.parse(r.signed_at) > 3 * 864e5) n.push(['Signed, no transfer 3d+', 'var(--warn)']);
   if (!r.signed_at && r.first_opened_at && Date.now() - Date.parse(r.first_opened_at) > 3 * 864e5) n.push(['Opened, not signed', 'var(--muted)']);
   if (!r.first_opened_at && Date.now() - Date.parse(r.created_at) > 2 * 864e5) n.push(['Link not opened', 'var(--muted)']);
@@ -160,7 +164,7 @@ function render() {
   $('approveDocs').hidden = c.documents_approved; $('docsTitle').textContent = data.programme.name + ' documents (drafts)';
   $('docs').replaceChildren(...data.documents.map(d => { const det = el('details'); det.append(el('summary', d.title + ' · ' + d.version), el('pre', d.body)); return det; }));
   const live = real.filter(r => !r.is_test && !['completed', 'cancelled'].includes(r.stage));
-  const S = [['Pending payments', live.filter(r => (r.payment_reported_at && !r.payment_verified_at) || r.voice_addon_status === 'payment_reported').length, true],
+  const S = [['Pending payments', live.filter(r => (r.payment_reported_at && !r.payment_verified_at) || r.voice_addon_status === 'payment_reported' || (r.balance_reported_at && !r.balance_verified_at)).length, true],
     ['In preparation', live.filter(r => r.payment_verified_at && !['active', 'paused'].includes(r.stage)).length],
     ['Prep overdue', live.filter(r => r.prep_due_at && !r.start_date && r.prep_due_at.slice(0, 10) < data.today).length, true],
     ['Active', live.filter(r => r.stage === 'active').length], ['Completed', real.filter(r => r.stage === 'completed' && !r.is_test).length]];
@@ -195,6 +199,7 @@ function drawDetail() {
   const kv = el('dl', null, 'kv');
   [['Mobile', r.invited_phone], ['Email', r.intake?.email], ['Opened', when(r.first_opened_at)], ['Last seen', when(r.last_seen_at)], ['Signed', r.signed_at ? when(r.signed_at) + ' · ' + r.signature_name : '—'],
    ['Transfer reported', r.payment_reported_at ? when(r.payment_reported_at) + (r.payment_client_note ? ' · ' + r.payment_client_note : '') : '—'], ['Payment verified', r.payment_verified_at ? when(r.payment_verified_at) + ' · ' + (r.invoice_number || '') : '—'],
+   ...(r.payment_plan ? [['Payment plan', r.payment_plan === 'split' ? 'Two transfers · 2nd ' + (r.currency || 'SAR') + ' ' + (r.balance_minor / 100).toLocaleString('en-US') + ' due ' + day(r.balance_due_on) + ' · ' + (r.balance_verified_at ? 'received ' + when(r.balance_verified_at) + ' · ' + (r.balance_invoice_number || '') : r.balance_reported_at ? 'reported ' + when(r.balance_reported_at) + (r.balance_client_note ? ' · ' + r.balance_client_note : '') : 'not yet sent') : 'In full']] : []),
    ['Voice add-on', r.voice_addon_status + (r.voice_addon_invoice_number ? ' · ' + r.voice_addon_invoice_number : '')], ['Recording', r.voice_submitted_at ? Math.round(r.voice_duration_seconds / 60 * 10) / 10 + ' min · ' + when(r.voice_submitted_at) + (r.voice_storage_path ? '' : ' · deleted') : '—'],
    ['Intake', r.intake_submitted_at ? 'Submitted ' + when(r.intake_submitted_at) : r.intake_saved_at ? 'Draft saved ' + when(r.intake_saved_at) : '—'], ['Preparation due', day(r.prep_due_at)], ['Planning meeting', r.planning_meeting_completed_at ? 'Done ' + when(r.planning_meeting_completed_at) : when(r.planning_meeting_at)],
    ['Medical', r.medical_status.replaceAll('_', ' ') + (r.medical_constraints ? ' · ' + r.medical_constraints : '')], ['Programme', r.start_date ? day(r.start_date) + ' → ' + day(r.end_date) + (r.pause_days_total ? ' (incl. ' + r.pause_days_total + ' paused days)' : '') : '—'], ['Time zone', r.timezone]]
@@ -206,7 +211,7 @@ function drawDetail() {
   if (!r.payment_verified_at && r.signed_at) {
     const ref = inp('text', '', 'Bank reference (optional)'), on = inp('date'), bt = inp('text', r.invoice_billed_to || '', 'Billed to (name on transfer)');
     const cur = r.currency || 'SAR', fmt = m => cur + ' ' + (m / 100).toLocaleString('en-US');
-    const total = fmt(r.price_minor + (voiceOpen ? (r.voice_addon_minor || 110000) : 0));
+    const total = fmt(r.price_minor - (r.payment_plan === 'split' ? r.balance_minor : 0) + (voiceOpen ? (r.voice_addon_minor || 110000) : 0));
     const title = voiceOpen ? 'Verify transfer: ' + total + ' (programme + voice analysis)' : 'Verify programme payment';
     acts.append(act(title, 'Only after the funds appear in the bank statement. Issues the invoice' + (voiceOpen ? 's' : '') + ' and opens the ' + data.programme.prep_days + '-day preparation window.', ref, on, bt,
       btn('Verify ' + total, async () => {
@@ -218,6 +223,11 @@ function drawDetail() {
         } catch (e) { say('dMsg', e.message, true); }
       })));
   } else if (voiceOpen) acts.append(act('Verify voice add-on payment', data.programme.voice_fee + ', separate transfer.', btn('Verify voice payment', () => confirm('Confirm the voice add-on transfer has arrived?') && upd('verify_voice_payment', {}, 'Voice payment verified.'))));
+  if (r.payment_plan === 'split' && r.payment_verified_at && !r.balance_verified_at) {
+    const ref2 = inp('text', '', 'Bank reference (optional)'), on2 = inp('date'), amt2 = (r.currency || 'SAR') + ' ' + (r.balance_minor / 100).toLocaleString('en-US');
+    acts.append(act('Verify second transfer: ' + amt2, 'Only after the funds appear in the bank statement. Issues the second invoice. Introductions can begin once this is verified.', ref2, on2,
+      btn('Verify ' + amt2, () => confirm('Confirm the second transfer, ' + amt2 + ', has arrived in the bank account?') && upd('verify_balance', { bank_reference: ref2.value, received_on: on2.value }, 'Second transfer verified.'))));
+  }
   if (['none', 'declined'].includes(r.voice_addon_status)) acts.append(act('Offer voice analysis', 'Shows the add-on as offered in his portal.', btn('Offer', () => upd('offer_voice'))));
   if (r.payment_verified_at && !['completed', 'cancelled'].includes(r.stage)) {
     const mt = inp('datetime-local'); if (r.planning_meeting_at) mt.value = new Date(new Date(r.planning_meeting_at).getTime() + 3 * 3600e3).toISOString().slice(0, 16);

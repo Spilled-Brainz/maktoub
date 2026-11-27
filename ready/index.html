@@ -612,6 +612,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
     <h2 id="payHead">Commit <span class="u">to it.<svg class="uline" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M1 12.4C30 6 64 10 99 3.6"/><path pathLength="100" d="M10 18.4C40 13.2 70 15.6 90 11.6"/></svg></span></h2>
     <p class="muted" style="margin-top:20px;max-width:46ch" id="payIntro"></p>
     <div class="price" id="feeBox"><div><p class="label muted" id="feeLabel">Programme fee</p><div class="amt" id="feeAmt"></div></div><div><p class="label muted">Payment</p><p style="margin:8px 0 0" id="feeNote">One bank transfer, verified by hand against our statement.</p></div></div>
+    <div class="optswitch" id="planBox" hidden><p class="label muted">How would you like to pay?</p><div class="opts" id="planOpts"></div><p class="muted small" id="planNote" style="margin:12px 0 0"></p></div>
     <div id="bankCard"><h3>Bank details</h3><dl class="bank" id="bank"></dl>
       <p class="small muted" style="margin:14px 0 0">Only transfer to this account. Maktoub will never send different bank details by message. If anything looks different, stop and contact us.</p></div>
     <div class="card" id="bankPending" hidden><p style="margin:0;font-family:var(--serif);font-size:20px">Our bank details are being confirmed. Please do not transfer yet. We will message you as soon as they are ready.</p></div>
@@ -644,6 +645,7 @@ footer{padding:28px var(--pad) 44px;border-top:1px solid var(--hair);font-size:1
       <div class="tile dark" id="clock"></div>
       <div class="tile"><h3>Your path</h3><ol class="track" id="track"></ol></div>
 
+      <div class="wide" id="balanceWrap" hidden></div>
       <div class="wide rhythm" id="rhythmWrap" hidden></div>
 
       <div class="wide" id="intakeWrap">
@@ -730,7 +732,7 @@ const API = 'https://pmjvpnqmklxxpswwvbmv.supabase.co/functions/v1/maktoub-progr
 const $ = id => document.getElementById(id);
 const $$ = s => [...document.querySelectorAll(s)];
 const KEY = 'maktoub_ready';
-let token = null, view = null, current = 1, combinedTransfer = false, totalLabel = '';
+let token = null, view = null, current = 1, combinedTransfer = false, totalLabel = '', payPlan = null;
 
 // The token leaves the address bar on load (no history, no referrer) and stays on this device.
 const q = (new URLSearchParams(location.search).get('invite') || '').trim().toLowerCase();
@@ -964,9 +966,30 @@ function apply(v, goTo) {
       d.append(dt, dd, c); return d;
     }));
   }
+  // Two-transfer option: chosen here, fixed when the first transfer is reported.
+  const opt = p.options;
+  $('planBox').hidden = !opt || !bank;
+  if (opt) {
+    const choices = [['full', 'In full', opt.full + ' in one transfer'], ['split', 'Two transfers', opt.first + ' now, ' + opt.balance + ' ' + opt.due_label]];
+    const draw = () => {
+      $('planOpts').replaceChildren(...choices.map(([k, t, d]) => {
+        const b = el('button'); b.type = 'button'; b.className = payPlan === k ? 'on' : ''; b.setAttribute('aria-pressed', payPlan === k);
+        b.append(el('b', null, t), el('span', null, d)); b.onclick = () => { payPlan = k; draw(); }; return b;
+      }));
+      const amtRow = [...$('bank').children].find(d => d.firstChild.textContent === 'Amount');
+      const now = payPlan === 'split' ? opt.first : payPlan === 'full' ? opt.full : null;
+      if (amtRow) amtRow.hidden = !now; if (amtRow && now) amtRow.children[1].textContent = now;
+      else if (!amtRow && now && $('bank').lastChild) { const d = el('div'), c = el('button', 'copy', 'Copy'); c.type = 'button'; c.onclick = () => navigator.clipboard.writeText(d.children[1].textContent).catch(() => {}); d.append(el('dt', null, 'Amount'), el('dd', null, now), c); $('bank').append(d); }
+      $('planNote').textContent = payPlan === 'split' ? 'Your second transfer appears in your portal when it is due. Introductions begin once it is received.' : '';
+      $('payBtn').textContent = now ? 'I have transferred ' + now : 'I have completed the transfer';
+      totalLabel = now || totalLabel; combinedTransfer = combinedTransfer && !now;
+    };
+    draw();
+  }
   $('payForm').hidden = !!p.reported_at || !!p.verified_at || !bank;
   $('payState').hidden = !(p.reported_at || p.verified_at);
-  if (p.verified_at) { $('payTitle').textContent = 'Payment verified. Thank you.'; $('payText').textContent = 'Verified ' + fmtDate(p.verified_at) + '. Your invoice' + (reportedTogether ? 's are' : ' is') + ' in your portal. Preparation has begun.'; }
+  if (p.verified_at && p.balance) { $('payTitle').textContent = 'First transfer verified. Thank you.'; $('payText').textContent = 'Verified ' + fmtDate(p.verified_at) + '. Your invoice is in your portal, along with your second transfer of ' + p.balance.amount + (p.balance.due_label ? ', due ' + p.balance.due_label : '') + '.'; }
+  else if (p.verified_at) { $('payTitle').textContent = 'Payment verified. Thank you.'; $('payText').textContent = 'Verified ' + fmtDate(p.verified_at) + '. Your invoice' + (reportedTogether ? 's are' : ' is') + ' in your portal. Preparation has begun.'; }
   else if (p.reported_at) { $('payTitle').textContent = 'Transfer noted. We are verifying it.'; $('payText').textContent = 'You told us on ' + fmtDate(p.reported_at) + '. We confirm once it appears in our account, usually within one working day. Meanwhile, start your intake.'; }
   const vs = v.voice.status;
   $('voicePay').hidden = combined || !['requested', 'payment_reported', 'paid'].includes(vs) || !bank;
@@ -1084,9 +1107,10 @@ $('payBtn').addEventListener('click', async () => {
   $('err3').textContent = ''; const b = $('payBtn'); b.disabled = true; b.textContent = 'Sending…';
   try {
     const both = combinedTransfer, info = { transfer_date: $('transferDate').value, sender_name: $('senderName').value.trim() };
-    apply(await call('report_payment', { kind: both ? 'both' : 'programme', ...info }), 3);
+    if (view.payment.options && !payPlan) throw new Error('Choose how you would like to pay: in full or in two transfers.');
+    apply(await call('report_payment', { kind: both ? 'both' : 'programme', ...info, ...(payPlan ? { plan: payPlan } : {}) }), 3);
   }
-  catch (e) { $('err3').textContent = e.message; } finally { b.disabled = false; b.textContent = combinedTransfer ? 'I have transferred ' + totalLabel : 'I have completed the transfer'; }
+  catch (e) { $('err3').textContent = e.message; } finally { b.disabled = false; b.textContent = combinedTransfer || payPlan ? 'I have transferred ' + totalLabel : 'I have completed the transfer'; }
 });
 $('voicePayBtn').addEventListener('click', async () => {
   $('err3v').textContent = ''; const b = $('voicePayBtn'); b.disabled = true;
@@ -1150,11 +1174,13 @@ function renderPortal(v) {
   else if (!v.intake_submitted_at) next = 'Next: your intake. It is the foundation of your programme.';
   else if (v.voice.status === 'requested' && !v.voice.recording) next = 'Next: record your voice answer.';
   else if (!v.payment.verified_at) next = 'We are verifying your transfer. Nothing else is needed from you right now.';
+  else if (v.payment.balance && !v.payment.balance.verified_at && !v.payment.balance.reported_at && v.payment.balance.due_on && v.payment.balance.due_on <= new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Riyadh' })) next = 'Next: your second transfer, ' + v.payment.balance.amount + '.';
   else if (v.planning_meeting_at && !v.planning_meeting_completed_at) next = 'Next: your planning meeting, ' + fmtDate(v.planning_meeting_at) + '.';
   else if (v.stage === 'active') next = 'Show up today. That is the whole job.';
   else if (v.stage === 'completed') next = 'Ninety days, done. Keep running the system.';
   else next = 'Your programme is being prepared. We will confirm your start date with you.';
   $('nextStep').textContent = next;
+  renderBalance(v);
   renderRhythm(v, $('rhythmWrap'));
   renderSystem(v);
   renderIntake(v);
@@ -1173,6 +1199,31 @@ function renderPortal(v) {
     pbtn.onclick = () => { a.classList.add('printing'); window.print(); a.classList.remove('printing'); };
     a.append(head, meta, pbtn); return a;
   }));
+}
+
+// ---------- second transfer (two-transfer plan) ----------
+function renderBalance(v) {
+  const box = $('balanceWrap'), b = v.payment.balance;
+  box.hidden = !b || !v.payment.verified_at; if (box.hidden) return;
+  const head = el('div', 'section-head rule'); head.style.marginTop = '40px';
+  head.append(el('h3', null, 'Your second transfer'), el('span', 'label muted', b.verified_at ? 'Received' : b.reported_at ? 'Being verified' : 'Due ' + fmtDay(b.due_on)));
+  head.firstChild.style.margin = '0';
+  const kids = [head];
+  if (b.verified_at) {
+    const c = el('div', 'card'), m = el('div', 'done-mark'), t = el('div'); t.append(el('b', null, b.amount + ' received'), el('p', 'muted small', 'Verified ' + fmtDate(b.verified_at) + '. Your fee is paid in full, and your invoice is below.'));
+    m.append(el('span', 'tick', '✓'), t); c.append(m); kids.push(c);
+  } else {
+    const p = el('p', 'muted', b.amount + (b.due_label ? ', ' + b.due_label : '') + '. Introductions begin once it is received. Use the same account as your first transfer.'); p.style.maxWidth = '56ch'; kids.push(p);
+    const bank = v.payment.bank;
+    if (bank) { const dl = el('dl', 'bank'); [['Account name', bank.account_name], ['Bank', bank.bank_name], ['IBAN', bank.iban.replace(/(.{4})/g, '$1 ').trim()], ['SWIFT / BIC', bank.swift], ['Amount', b.amount]].filter(r => r[1]).forEach(([k, val]) => { const d = el('div'); d.append(el('dt', null, k), el('dd', k === 'IBAN' ? 'mono' : null, val)); dl.append(d); }); kids.push(dl); }
+    if (b.reported_at) kids.push(el('p', 'small muted', 'You told us on ' + fmtDate(b.reported_at) + '. We confirm once it appears in our account.'));
+    else {
+      const err = el('div', 'err'), btn = el('button', 'btn', 'I have transferred ' + b.amount); btn.type = 'button';
+      btn.onclick = async () => { err.textContent = ''; btn.disabled = true; try { apply(await call('report_payment', { kind: 'balance' }), 4); } catch (e) { err.textContent = e.message; btn.disabled = false; } };
+      kids.push(err, btn);
+    }
+  }
+  box.replaceChildren(...kids);
 }
 
 // ---------- how we work together: the human rhythm, the tech, the months ----------

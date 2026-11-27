@@ -103,27 +103,35 @@ async function telegram(method: string, payload: Record<string, unknown>) {
 // Blood-result files are never sent through Telegram.
 const tierOf = (p: Record<string, any>, code: unknown) => (p.tiers || []).find((t: Record<string, any>) => t.code === code) || null
 const VOICE_OWED = ['requested', 'payment_reported', 'paid']
+// Two-transfer option: the tier's `instalments`, chosen by the client when reporting the first transfer.
+const instalmentsOf = (p: Record<string, any> | null, tier: unknown) => (p ? tierOf(p, tier)?.instalments : null) || null
+const firstMinor = (en: Record<string, any>) => en.payment_plan === 'split' ? en.price_minor - (en.balance_minor || 0) : en.price_minor
+const balanceOpen = (en: Record<string, any>) => en.payment_plan === 'split' && !en.balance_verified_at
 function alertBody(en: Record<string, any>, p: Record<string, any> | null) {
   const cur = en.currency || 'SAR'
   const t = p ? tierOf(p, en.tier) : null
   const voiceFee = VOICE_OWED.includes(en.voice_addon_status) ? (en.voice_addon_minor || p?.voice_addon_minor || 0) : 0
-  const total = en.price_minor + voiceFee
+  const onBalance = !!en.payment_verified_at && balanceOpen(en)
+  const total = onBalance ? en.balance_minor : firstMinor(en) + voiceFee
   const offer = `${t ? t.name + ' · ' + t.months + ' months' : p?.name || 'Programme'} · ${money(en.price_minor, cur)}` +
     (voiceFee ? ` + voice ${money(voiceFee, cur)} = <b>${money(total, cur)}</b>` : en.voice_addon_status === 'included' ? ' · voice included' : '')
   const hasVoice = VOICE_OWED.includes(en.voice_addon_status) || en.voice_addon_status === 'included'
   const steps: [string, boolean][] = [['Signed', !!en.signed_at], ['Transfer', !!en.payment_reported_at], ['Verified', !!en.payment_verified_at], ['Intake', !!en.intake_submitted_at]]
+  if (en.payment_plan === 'split') steps.splice(3, 0, ['2nd transfer', !!en.balance_verified_at])
   if (hasVoice) steps.push(['Voice', !!en.voice_submitted_at])
-  const next = en.payment_reported_at && !en.payment_verified_at ? `Check your bank for ${money(total, cur)}, then tap Verify.`
+  const plan = en.payment_plan === 'split' ? `Two transfers: ${money(firstMinor(en), cur)} now, ${money(en.balance_minor, cur)} due ${en.balance_due_on || 'later'}` : en.payment_plan === 'full' ? 'Paid in full' : ''
+  const next = onBalance && en.balance_reported_at ? `Check your bank for the second transfer, ${money(total, cur)}, then tap Verify.`
+    : en.payment_reported_at && !en.payment_verified_at ? `Check your bank for ${money(total, cur)}, then tap Verify.`
     : !en.signed_at ? 'He reviews and signs.'
     : !en.payment_reported_at ? `He transfers ${money(total, cur)}.`
     : !en.intake_submitted_at ? 'He completes the intake.'
     : hasVoice && !en.voice_submitted_at ? 'He records his voice answer.'
     : en.payment_verified_at && !en.planning_meeting_at ? 'Book the planning meeting.'
     : 'Nothing needed from you right now.'
-  const lines = [offer, steps.map(([l, d]) => (d ? '✅ ' : '⬜ ') + l).join('  ')]
+  const lines = [offer, ...(plan ? [plan] : []), steps.map(([l, d]) => (d ? '✅ ' : '⬜ ') + l).join('  ')]
   if (en.intake?.email) lines.push('✉️ ' + esc(en.intake.email))
   lines.push('<i>Next: ' + esc(next) + '</i>')
-  return { text: lines.join('\n'), total, canVerify: !!en.payment_reported_at && !en.payment_verified_at && !!en.signed_at }
+  return { text: lines.join('\n'), total, balance: onBalance, canVerify: onBalance ? !!en.balance_reported_at : !!en.payment_reported_at && !en.payment_verified_at && !!en.signed_at }
 }
 // Founder alerts on the founder's own Telegram, with enough detail not to need the console.
 // Test records are sent too, tagged TEST. Intake answers follow on submission (health consent v3).
@@ -134,7 +142,7 @@ async function alertFounder(en: Record<string, any>, title: string, extra = '') 
   const name = en.intake?.full_name || en.signature_name || en.invited_name
   const body = alertBody(en, p)
   const text = `${en.is_test ? '🧪 TEST · ' : ''}<b>${esc(title)}</b>\n${esc(name)} · ${esc(en.reference_code)} · 📱 ${esc(en.invited_phone)}\n${extra ? esc(extra) + '\n' : ''}\n${body.text}`
-  const keyboard = [...(body.canVerify ? [[{ text: `✅ Verify ${money(body.total, en.currency || 'SAR')} received`, callback_data: `v:${en.id}` }]] : []), [{ text: 'Open record', url: `${SITE}/ready/admin/#${en.id}` }]]
+  const keyboard = [...(body.canVerify ? [[{ text: `✅ Verify ${money(body.total, en.currency || 'SAR')} received`, callback_data: `${body.balance ? 'b' : 'v'}:${en.id}` }]] : []), [{ text: 'Open record', url: `${SITE}/ready/admin/#${en.id}` }]]
   try {
     await telegram('sendMessage', { chat_id: FOUNDER_CHAT, text, parse_mode: 'HTML', disable_web_page_preview: true, reply_markup: { inline_keyboard: keyboard } })
     logEvent(en.id, 'system', 'founder_alerted', { title })
@@ -178,7 +186,11 @@ async function documents(p: Record<string, any>, s: Record<string, any>, price: 
   const { data, error } = await db.from('maktoub_legal_documents').select('version,kind,title,body').in('version', versions)
   if (error || !data || data.length !== versions.length) throw new Error('legal documents unavailable')
   const fill = (b: string) => b.replaceAll('{{PROVIDER}}', s.provider_legal_name || 'Maktoub')
-    .replaceAll('{{FEE}}', money(price.minor, price.currency))
+    .replaceAll('{{FEE}}', (() => {
+      const ins = instalmentsOf(p, tierCode), full = money(price.minor, price.currency)
+      if (!ins) return full
+      return `${full}, paid in full by bank transfer, or in two transfers: ${money(price.minor - ins.balance_minor, price.currency)} after signing, and ${money(ins.balance_minor, price.currency)} ${ins.due_label}. With two transfers, introductions begin once the second transfer is received`
+    })())
     .replaceAll('{{VOICE_FEE}}', p.voice_addon_minor ? money(p.voice_addon_minor, p.currency) : 'the agreed fee')
     .replaceAll('{{SESSIONS}}', NUMBER_WORDS[p.live_sessions] || String(p.live_sessions))
     .replaceAll('{{TIER}}', (() => { const t = tierOf(p, tierCode); return t ? `${t.name}: ${t.summary}` : 'To be selected before signing.' })()).trim()
@@ -411,7 +423,10 @@ async function clientView(en: Record<string, any>, p: Record<string, any>, s: Re
   const seller = s.provider_legal_name || 'Maktoub'
   const billedTo = en.invoice_billed_to || en.intake?.full_name || en.signature_name || en.invited_name
   const invoices = []
-  if (en.invoice_number && en.payment_verified_at) invoices.push({ number: en.invoice_number, issued_at: en.invoice_issued_at, paid_on: en.payment_received_on, seller, seller_registration: s.provider_registration, billed_to: billedTo, description: `Maktoub | ${p.name} (${p.duration_days} days)`, label: money(en.price_minor, en.currency), method: 'Bank transfer' })
+  const split = en.payment_plan === 'split'
+  if (en.invoice_number && en.payment_verified_at) invoices.push({ number: en.invoice_number, issued_at: en.invoice_issued_at, paid_on: en.payment_received_on, seller, seller_registration: s.provider_registration, billed_to: billedTo, description: `Maktoub | ${p.name} (${en.duration_days || p.duration_days} days)${split ? ', transfer 1 of 2' : ''}`, label: money(firstMinor(en), en.currency), method: 'Bank transfer' })
+  if (en.balance_invoice_number && en.balance_verified_at) invoices.push({ number: en.balance_invoice_number, issued_at: en.balance_verified_at, paid_on: en.balance_received_on, seller, seller_registration: s.provider_registration, billed_to: billedTo, description: `Maktoub | ${p.name} (${en.duration_days || p.duration_days} days), transfer 2 of 2`, label: money(en.balance_minor, en.currency), method: 'Bank transfer' })
+  const ins = instalmentsOf(p, en.tier)
   if (en.voice_addon_invoice_number && en.voice_addon_verified_at) invoices.push({ number: en.voice_addon_invoice_number, issued_at: en.voice_addon_verified_at, paid_on: riyadhDay(new Date(en.voice_addon_verified_at)), seller, seller_registration: s.provider_registration, billed_to: billedTo, description: 'Voice analysis report (add-on)', label: money(en.voice_addon_minor || p.voice_addon_minor, en.currency), method: 'Bank transfer' })
   const [{ data: medFiles }, { data: healthOk }] = await Promise.all([
     db.from('maktoub_medical_files').select('id,label,uploaded_at,expires_at,reviewed_at,deleted_at,deleted_by').eq('enrolment_id', en.id).order('uploaded_at', { ascending: false }),
@@ -429,7 +444,10 @@ async function clientView(en: Record<string, any>, p: Record<string, any>, s: Re
     documents: docs,
     stage: en.stage, stage_label: STAGE_LABELS[en.stage],
     signed: en.signed_at ? { at: en.signed_at, name: en.signature_name } : null,
-    payment: { reported_at: en.payment_reported_at, verified_at: en.payment_verified_at, bank },
+    payment: { reported_at: en.payment_reported_at, verified_at: en.payment_verified_at, bank,
+      plan: en.payment_plan, full: money(en.price_minor, en.currency), first: money(firstMinor(en), en.currency),
+      options: ins && !en.payment_reported_at ? { full: money(en.price_minor, en.currency), first: money(en.price_minor - ins.balance_minor, en.currency), balance: money(ins.balance_minor, en.currency), due_label: ins.due_label } : null,
+      balance: split ? { amount: money(en.balance_minor, en.currency), due_on: en.balance_due_on, due_label: ins?.due_label || null, reported_at: en.balance_reported_at, verified_at: en.balance_verified_at } : null },
     voice: {
       status: en.voice_addon_status, fee: p.voice_addon_minor ? money(p.voice_addon_minor, p.currency) : null,
       reported_at: en.voice_addon_reported_at, verified_at: en.voice_addon_verified_at,
@@ -548,9 +566,23 @@ async function clientAction(req: Request, origin: string, ip: string) {
     if (!en.signed_at) throw new HttpError(409, 'Please sign the agreement first.')
     if (!bankReady(s)) throw new HttpError(409, 'Bank details are being confirmed. Please wait for our message before transferring.')
     const note = [str(body.transfer_date, 20) && 'Date: ' + str(body.transfer_date, 20), str(body.sender_name, 150) && 'Sender: ' + str(body.sender_name, 150)].filter(Boolean).join(' · ') || null
+    if (body.kind === 'balance') {
+      if (en.payment_plan !== 'split' || !en.payment_verified_at || en.balance_verified_at || en.balance_reported_at) return view(en)
+      const fresh = await update({ balance_reported_at: now, balance_client_note: note })
+      logEvent(en.id, 'client', 'balance_reported', { note })
+      await alertFounder(fresh, `Second transfer reported 💳 ${money(en.balance_minor, en.currency)}`, [note, 'Check your bank, then verify.'].filter(Boolean).join('\n'))
+      return view(fresh)
+    }
+    // The plan is fixed with the first transfer report when the tier offers two transfers.
+    const ins = instalmentsOf(p, en.tier)
+    let planChanges: Record<string, unknown> = {}
+    if (ins && !en.payment_reported_at && body.kind !== 'voice') {
+      if (body.plan !== 'full' && body.plan !== 'split') throw new HttpError(400, 'Choose to pay in full or in two transfers.')
+      planChanges = body.plan === 'split' ? { payment_plan: 'split', balance_minor: ins.balance_minor, balance_due_on: ins.due_on } : { payment_plan: 'full' }
+    }
     if (body.kind === 'both' && en.voice_addon_status === 'requested' && !en.payment_reported_at) {
-      const total = money(en.price_minor + (en.voice_addon_minor || p.voice_addon_minor || 0), en.currency)
-      const fresh = await update({ payment_reported_at: now, payment_client_note: note, stage: en.stage === 'signed' ? 'payment_reported' : en.stage, voice_addon_status: 'payment_reported', voice_addon_reported_at: now })
+      const total = money(en.price_minor - ((planChanges.balance_minor as number) || 0) + (en.voice_addon_minor || p.voice_addon_minor || 0), en.currency)
+      const fresh = await update({ ...planChanges, payment_reported_at: now, payment_client_note: note, stage: en.stage === 'signed' ? 'payment_reported' : en.stage, voice_addon_status: 'payment_reported', voice_addon_reported_at: now })
       logEvent(en.id, 'client', 'payment_reported', { note, combined: true })
       await alertFounder(fresh, `Transfer reported 💳 ${total} (programme + voice analysis)`, [note, 'Check your bank, then verify in the console.'].filter(Boolean).join('\n'))
       return view(fresh)
@@ -563,9 +595,9 @@ async function clientAction(req: Request, origin: string, ip: string) {
       return view(fresh)
     }
     if (en.payment_reported_at) return view(en)
-    const fresh = await update({ payment_reported_at: now, payment_client_note: note, stage: en.stage === 'signed' ? 'payment_reported' : en.stage })
-    logEvent(en.id, 'client', 'payment_reported', { note })
-    await alertFounder(fresh, 'Programme transfer reported 💳 check your bank', note || '')
+    const fresh = await update({ ...planChanges, payment_reported_at: now, payment_client_note: note, stage: en.stage === 'signed' ? 'payment_reported' : en.stage })
+    logEvent(en.id, 'client', 'payment_reported', { note, plan: fresh.payment_plan })
+    await alertFounder(fresh, fresh.payment_plan === 'split' ? `First transfer reported 💳 ${money(firstMinor(fresh), fresh.currency)} of ${money(fresh.price_minor, fresh.currency)}` : 'Programme transfer reported 💳 check your bank', note || '')
     return view(fresh)
   }
 
@@ -708,7 +740,7 @@ async function createInvite(opts: { name: string; phone: string; country?: strin
 }
 
 // ---------- founder console ----------
-const LIST_COLS = 'id,programme_code,tier,price_minor,voice_addon_minor,reference_code,invited_name,invited_phone,is_test,revoked_at,invite_expires_at,created_at,first_opened_at,last_seen_at,stage,signed_at,payment_reported_at,payment_verified_at,voice_addon_status,voice_submitted_at,intake_submitted_at,prep_due_at,planning_meeting_at,planning_meeting_completed_at,medical_status,start_date,end_date,pause_days_total,intake->>full_name'
+const LIST_COLS = 'id,programme_code,tier,price_minor,voice_addon_minor,reference_code,invited_name,invited_phone,is_test,revoked_at,invite_expires_at,created_at,first_opened_at,last_seen_at,stage,signed_at,payment_reported_at,payment_verified_at,payment_plan,balance_minor,balance_due_on,balance_reported_at,balance_verified_at,voice_addon_status,voice_submitted_at,intake_submitted_at,prep_due_at,planning_meeting_at,planning_meeting_completed_at,medical_status,start_date,end_date,pause_days_total,intake->>full_name'
 
 async function founderAction(req: Request, origin: string, jwt: string) {
   const { data: identity, error: authErr } = await db.auth.getUser(jwt)
@@ -789,6 +821,14 @@ async function founderAction(req: Request, origin: string, jwt: string) {
         changes = { payment_verified_at: now, payment_verified_by: uid, payment_bank_reference: str(body.bank_reference, 120), invoice_billed_to: str(body.billed_to, 150) || en.invoice_billed_to,
           ...(received && /^\d{4}-\d{2}-\d{2}$/.test(received) ? { payment_received_on: received } : {}),
           stage: ['invited', 'signed', 'payment_reported'].includes(en.stage) ? 'meeting_pending' : en.stage }
+        break
+      }
+      case 'verify_balance': {
+        if (en.payment_plan !== 'split' || !en.payment_verified_at) throw new HttpError(409, 'No second transfer is due on this record.')
+        if (en.balance_verified_at) throw new HttpError(409, 'Already verified.')
+        const received = str(body.received_on, 10)
+        changes = { balance_verified_at: now, balance_verified_by: uid, balance_bank_reference: str(body.bank_reference, 120),
+          ...(received && /^\d{4}-\d{2}-\d{2}$/.test(received) ? { balance_received_on: received } : {}) }
         break
       }
       case 'verify_voice_payment':
@@ -946,13 +986,30 @@ async function telegramAction(req: Request) {
   const cq = update?.callback_query
   if (cq) {
     if (String(cq.from?.id) !== FOUNDER_CHAT) return new Response('ok')
-    const m = /^(v|vv):([0-9a-f-]{36})$/.exec(String(cq.data || ''))
+    const m = /^(v|vv|b|bb):([0-9a-f-]{36})$/.exec(String(cq.data || ''))
     let note = 'Unknown action.'
     if (m) {
       const { data: en } = await db.from('maktoub_enrolments').select('*').eq('id', m[2]).maybeSingle()
       const p = en ? await programme(en.programme_code).catch(() => null) : null
       const total = en ? alertBody(en, p).total : 0
       if (!en) note = 'Record not found.'
+      else if (m[1] === 'b' || m[1] === 'bb') {
+        if (en.payment_plan !== 'split' || !en.payment_verified_at || !en.balance_reported_at) note = 'No second transfer reported yet.'
+        else if (en.balance_verified_at) note = 'Already verified.'
+        else if (m[1] === 'b') {
+          await telegram('sendMessage', { chat_id: FOUNDER_CHAT, parse_mode: 'HTML', text: `Confirm the second transfer, <b>${money(en.balance_minor, en.currency)}</b>, from ${esc(en.intake?.full_name || en.signature_name || en.invited_name)} has arrived in your bank?`,
+            reply_markup: { inline_keyboard: [[{ text: '✅ Yes, verify', callback_data: `bb:${en.id}` }]] } }).catch(() => {})
+          note = 'Confirm below.'
+        } else {
+          const { data: fresh, error } = await db.from('maktoub_enrolments').update({ balance_verified_at: new Date().toISOString() }).eq('id', en.id).select('*').single()
+          if (error || !fresh) note = 'Could not verify. Please use the console.'
+          else {
+            logEvent(en.id, 'telegram', 'verify_balance', {})
+            note = 'Verified.'
+            await alertFounder(fresh, 'Second transfer verified ✅', `Invoice ${fresh.balance_invoice_number} issued. Fee paid in full; introductions can begin.`)
+          }
+        }
+      }
       else if (en.payment_verified_at) note = 'Already verified.'
       else if (!en.signed_at || !en.payment_reported_at) note = 'No transfer reported yet.'
       else if (m[1] === 'v') {
@@ -1003,11 +1060,12 @@ async function telegramAction(req: Request) {
       return new Response('ok')
     }
     if (cmd === '/readiness' || cmd === '/clients') {
-      const { data } = await db.from('maktoub_enrolments').select('id,programme_code,reference_code,invited_name,stage,payment_reported_at,payment_verified_at,voice_addon_status,prep_due_at,start_date,is_test').is('revoked_at', null).not('stage', 'in', '(completed,cancelled)').order('created_at', { ascending: false }).limit(20)
+      const { data } = await db.from('maktoub_enrolments').select('id,programme_code,reference_code,invited_name,stage,payment_reported_at,payment_verified_at,payment_plan,balance_minor,balance_due_on,balance_reported_at,balance_verified_at,voice_addon_status,prep_due_at,start_date,is_test').is('revoked_at', null).not('stage', 'in', '(completed,cancelled)').order('created_at', { ascending: false }).limit(20)
       const rows = (data || []).filter(r => !r.is_test)
       if (!rows.length) { await reply('No open Readiness enrolments.'); return new Response('ok') }
       const lines = rows.map(r => {
-        const flag = (r.payment_reported_at && !r.payment_verified_at) || r.voice_addon_status === 'payment_reported' ? ' · 💳 verify' : ''
+        const flag = ((r.payment_reported_at && !r.payment_verified_at) || r.voice_addon_status === 'payment_reported' ? ' · 💳 verify' : '')
+          + (r.payment_plan === 'split' && r.payment_verified_at && !r.balance_verified_at ? (r.balance_reported_at ? ' · 💳 verify 2nd transfer' : ` · 2nd transfer due ${r.balance_due_on || ''}`) : '')
         const due = r.prep_due_at && !r.start_date ? ` · prep due ${new Date(r.prep_due_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'Asia/Riyadh' })}` : ''
         return `• <b>${esc(r.invited_name)}</b> ${esc(r.reference_code)} · ${r.programme_code === 'matchmaking' ? 'Matchmaking' : 'Readiness'} · ${esc(STAGE_LABELS[r.stage])}${flag}${due}`
       })

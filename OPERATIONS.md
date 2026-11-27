@@ -109,3 +109,13 @@ Share the website event section for interest registration. Event leads appear in
 
 - Matchmaking proposals (`/ready/`, How it works) and portals show a "How we work together" section when the tier carries a `rhythm` object: `intro`, `human` (You and Deena), `tech` (Lumi and your portal), `timeline` as `[from 'YYYY-MM', to 'YYYY-MM', title, text, key?]`, and `close`. The selected tier's `rhythm` is used first, then any tier's. In the signed portal, the phase covering the current month (Riyadh time) is highlighted as Now. No function or schema change: it is plain data in `maktoub_programmes.tiers`.
 - First set on `mm-mohammed`, extended tier: December deprogramming, January to April active matchmaking, membership completes in May.
+
+## Two-transfer payment option (added 28 November 2026)
+
+- A tier may carry `instalments`: `{ first_minor, balance_minor, due_on, due_label }`. The client then chooses "In full" or "Two transfers" on the Transfer step; the choice is fixed when he reports the first transfer (`payment_plan` full or split).
+- Split: `price_minor` stays the full fee. Invoice 1 covers the first transfer ("transfer 1 of 2"); the balance has its own invoice once verified (`balance_invoice_number`, same MKT sequence). Columns `balance_*` on `maktoub_enrolments`; migration `2026-11-28-instalments.sql`.
+- Portal shows "Your second transfer" with bank details and an "I have transferred" button. Founder alert on report, with a Verify button on Telegram (callback `b:`/`bb:`); the console shows "Verify 2nd transfer", or "2nd transfer due" once the due date passes; `/readiness` flags it too.
+- Agreement: `{{FEE}}` spells out both options and that introductions begin once the second transfer is received. mm-mohammed now uses `MM-AGREEMENT-MA-2026-11-v9` (v8 with clause 9 updated for two transfers).
+- Not enforced by the system: the console does not block activation before the balance is paid. Introductions waiting for the second transfer is a founder rule.
+- First set on mm-mohammed, extended tier: SAR 5,000 after signing, SAR 5,000 due 1 January 2027.
+- `maktoub-programme` v8 deployed 28 Nov 2026 (also ships the assessments code that was waiting for a redeploy).
